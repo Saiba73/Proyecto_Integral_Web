@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+import os
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 
