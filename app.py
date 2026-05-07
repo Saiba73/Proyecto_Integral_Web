@@ -7,49 +7,68 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_de_desarrollo_insegura') 
 bcrypt = Bcrypt(app)
 
+def login_required(f):
+    """Decorador para restringir el acceso si no hay sesión activa."""
+    from functools import wraps
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            # Si no hay sesión, redirige al login
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Se accede sin login
 @app.route("/")
 def home():
     return render_template("index.html")
 
-@app.route('/login')
-def about():
+@app.route('/login', metods=['GET', 'POST'])
+def login():
     return render_template('login.html')
 
-@app.route('/cambiarContrasena')
-def about():
-    return render_template('cambiarContrasena.html')
-
-    @app.route('/registrar')
-def about():
+@app.route('/registrar', metods=['GET', 'POST'])
+def registrar():
     return render_template('registrar.html')
 
-@app.route('/ropa')
-def about():
+@app.route('/ropa', metods=['GET'])
+def ropa():
     return render_template('ropa.html')
 
-@app.route('/tazas')
-def about():
+@app.route('/tazas', metods=['GET'])
+def tazas():
     return render_template('tazas.html')
 
-@app.route('/impresiones')
-def about():
+@app.route('/impresiones', metods=['GET'])
+def impresiones():
     return render_template('impresiones.html')
 
-@app.route('/perfil')
-def about():
+@app.route('/carrito', metods=['GET', 'POST'])
+def carrito():
+    return render_template('carrito.html')
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Requiere login
+@app.route('/cambiarContrasena', metods=['GET', 'PUT'])
+def cambiar_contrasena():
+    return render_template('cambiarContrasena.html')
+
+
+@app.route('/perfil', metods=['GET', 'POST', 'PUT', 'DELETE'])
+def perfil():
     return render_template('perfil.html')
 
-@app.route('/perfilAdmin')
-def about():
+@app.route('/perfilAdmin', metods=['GET', 'POST', 'PUT', 'DELETE'])
+def perfil_admin():
     return render_template('perfilAdmin.html')
 
-@app.route('/carrito')
-def about():
-    return render_template('carrito.html')
-
-@app.route('/cehckout')
-def about():
+@app.route('/checkout', metods=['GET', 'POST']) # Corregido el typo
+def checkout():
     return render_template('checkout.html')
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     app.run(debug=True)
