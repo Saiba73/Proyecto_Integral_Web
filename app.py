@@ -31,6 +31,29 @@ def login():
 
 @app.route('/registrar', metods=['GET', 'POST'])
 def registrar():
+
+    if request.method == 'POST':
+        fname = request.form['nombre']
+        lastname = request.form.['correo']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['cpassword']
+
+    if password != confirm_password:
+            return render_template('signup.html', error="Error: Las contraseñas no coinciden.")
+
+    password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    user_id = agregar_usuario(correo, email, password_hash)
+
+    if user_id:
+            return redirect(url_for('login'))
+        else:
+            return render_template('signup.html', error="Error al registrar usuario. El email ya existe.")
+            
+    return render_template('signup.html')
+
+
     return render_template('registrar.html')
 
 @app.route('/ropa', metods=['GET'])
