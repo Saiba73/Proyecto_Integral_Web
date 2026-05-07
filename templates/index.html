@@ -1,7 +1,123 @@
+<link rel="stylesheet" href="../static/css/style.css">
+
 {% extends "base.html" %}
 
-{% block title %}PaleoStore - Home{% endblock %}
+{% block title %}Paleo Prints - Home{% endblock %}
 
 {% block content %}
-<h1>Index</h1>
+<div class="page-wrapper">
+ 
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-deco hero-deco-1"></div>
+    <div class="hero-deco hero-deco-2"></div>
+    <div class="hero-content">
+ 
+      <div class="hero-badge reveal d1">
+        Paleontología para América
+      </div>
+ 
+      <h1 class="hero-title reveal d2">
+        La <span class="accent">ciencia</span><br>hecha diseño
+      </h1>
+      <div class="hero-divider reveal d3"></div>
+      <p class="hero-subtitle reveal d3">
+        Ropa, tazas e impresiones inspirados en millones<br>de años de historia
+      </p>
+      <a href="#categorias" class="btn-hero reveal d4">Explorar colección</a>
+    </div>
+  </section>
+ 
+  <!-- Categorias -->
+  <section class="section-categories" id="categorias">
+    <div class="container text-center">
+      <p class="section-eyebrow">Explora nuestras</p>
+      <h2 class="section-title"><span class="green">Catego</span>rías</h2>
+ 
+      <div class="row justify-content-center g-4">
+ 
+        <div class="col-12 col-md-4">
+          <div class="cat-card reveal d1">
+            <div class="cat-img-wrap cat-ropa">
+              <div class="cat-icon-wrap">
+                <img src="" alt="">
+              </div>
+            </div>
+            <p class="cat-name">Ropa</p>
+            <a href="#" class="btn-explore">Explorar</a>
+          </div>
+        </div>
+ 
+        <div class="col-12 col-md-4">
+          <div class="cat-card reveal d2">
+            <div class="cat-img-wrap cat-tazas">
+              <div class="cat-icon-wrap">
+                <img src="" alt="">
+              </div>
+            </div>
+            <p class="cat-name">Tazas</p>
+            <a href="#" class="btn-explore">Explorar</a>
+          </div>
+        </div>
+ 
+        <div class="col-12 col-md-4">
+          <div class="cat-card reveal d3">
+            <div class="cat-img-wrap cat-prints">
+              <div class="cat-icon-wrap">
+                <img src="" alt="">
+              </div>
+            </div>
+            <p class="cat-name">Impresiones</p>
+            <a href="#" class="btn-explore">Explorar</a>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </section>
+ 
+  <!-- Por que elegirnos? -->
+  <section class="section-why">
+    <div class="container text-center position-relative">
+      <p class="section-eyebrow reveal d1">Nuestra promesa</p>
+      <h2 class="section-title reveal d2">¿Por qué <span class="gold">elegirnos?</span></h2>
+ 
+      <div class="row justify-content-center g-4 mt-1">
+ 
+        <div class="col-12 col-md-4">
+          <div class="why-card reveal d1">
+            <div class="why-icon">
+              <img src="" alt="">
+            </div>
+            <h3 class="why-card-title">Hecho por fans,<br>para fans</h3>
+            <p class="why-card-text">Transformamos nuestra fascinación por la paleontología en piezas que puedas usar, coleccionar y compartir.</p>
+          </div>
+        </div>
+ 
+        <div class="col-12 col-md-4">
+          <div class="why-card reveal d2">
+            <div class="why-icon">
+              <img src="" alt="">
+            </div>
+            <h3 class="why-card-title">Diseños originales<br>por artistas</h3>
+            <p class="why-card-text">Nuestros productos son creados totalmente por artistas, sin uso de IA generativa.</p>
+          </div>
+        </div>
+ 
+        <div class="col-12 col-md-4">
+          <div class="why-card reveal d3">
+            <div class="why-icon">
+              <img src="../static/imagenes/dinosaurio.png" height="65px" width="65px">
+            </div>
+            <h3 class="why-card-title">Científicamente<br>precisos</h3>
+            <p class="why-card-text">Diseños basados en paleontología actual para quienes valoran el rigor científico y el detalle.</p>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </section>
+ 
+</div>
+
 {% endblock %}

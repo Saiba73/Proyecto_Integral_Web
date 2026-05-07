@@ -1,43 +1,56 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('home') }}">
-            <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}"
-                 alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<link rel="stylesheet" href="../static/css/style.css">
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'ropa' %}active{% endif %}" 
-                       href="#">Ropa</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'tazas' %}active{% endif %}" 
-                       href="#">Tazas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'impresiones' %}active{% endif %}" 
-                       href="#">Impresiones</a>
-                </li>
-            </ul>
+<nav class="navbar navbar-expand-lg pp-navbar">
+  <div class="container-fluid">
+ 
+    <a class="navbar-brand" href="{{ url_for('home') }}">
+      <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints Logo">
+      <span class="pp-brand-text">Paleo <span>Prints</span></span>
+    </a>
 
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <img src="{{ url_for('static', filename='imagenes/carrito.svg') }}" alt="Shopping Cart" width="25" height="25">
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="User Login" width="25" height="25">
-                    </a>
-                </li>
-            </ul>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#ppNavbar"
+            aria-controls="ppNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+ 
+    <div class="collapse navbar-collapse" id="ppNavbar">
+ 
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'inicio' %}active{% endif %}"
+             href="../templates/index.html">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'ropa' %}active{% endif %}"
+             href="#">Ropa</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'tazas' %}active{% endif %}"
+             href="#">Tazas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'impresiones' %}active{% endif %}"
+             href="#">Impresiones</a>
+        </li>
+      </ul>
+ 
+      <div class="pp-nav-divider d-none d-lg-block"></div>
+      <div class="d-flex align-items-center gap-2 pp-icons-group">
+ 
+        <div class="pp-cart-wrap">
+          <a class="pp-icon-btn" href="#" aria-label="Carrito de compras">
+            <img src="{{ url_for('static', filename='imagenes/carrito.svg') }}" alt="Carrito">
+          </a>
+          {# Opcional: mostrar badge si hay items en el carrito #}
+          {# <span class="pp-cart-badge">3</span> #}
         </div>
+ 
+        <a class="pp-icon-btn" href="#" aria-label="Mi cuenta">
+          <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Usuario">
+        </a>
+ 
+      </div>
     </div>
+  </div>
 </nav>
