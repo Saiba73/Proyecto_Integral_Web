@@ -1,11 +1,13 @@
 import os
 import mysql.connector
+from dotenv import load_dotenv
 
 db_config = {
     'user': os.environ.get('DB_USER'),
     'password': os.environ.get('DB_PASSWORD'),
-    'host': os.environ.get('DB_HOST'),
-    'database': os.environ.get('DB')
+    'host': '127.0.0.1', # Te recomiendo usar la IP para evitar el error anterior
+    'database': os.environ.get('DB'),
+    'port': 3306
 }
 
 def agregar_usuario(nombre, email, password_hash): 
@@ -76,3 +78,23 @@ def guardar_direccion_db(usuario_id, data, direccion_id=None):
         return True
     except mysql.connector.Error:
         return False
+    
+def agregar_usuario(nombre, email, password_hash): 
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        # Nota: Usamos 'contrasena' y 'correo' como en tu SQL
+        query = "INSERT INTO Usuario (nombre, correo, contrasena, tipo_usuario) VALUES (%s, %s, %s, 'cliente')"
+        cursor.execute(query, (nombre, email, password_hash))
+        
+        # Opcional: Crear el carrito automáticamente para el nuevo usuario
+        user_id = cursor.lastrowid
+        cursor.execute("INSERT INTO Carrito (usuario_id) VALUES (%s)", (user_id,))
+        
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return user_id
+    except mysql.connector.Error as err:
+        print("Error al registrar:", err)
+        return None

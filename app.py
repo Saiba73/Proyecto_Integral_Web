@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from Server.server import agregar_usuario, obtener_usuario_por_email, obtener_perfil_completo, guardar_direccion_db
+from Server.server import agregar_usuario, obtener_usuario_por_email, obtener_perfil_completo, guardar_direccion_db, agregar_usuario
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_de_desarrollo_insegura') 
@@ -55,23 +55,30 @@ def login():
 @app.route('/registrar', methods=['GET', 'POST'])
 def registrar():
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        email = request.form['correo']
-        password = request.form['password']
-        confirm_password = request.form['cpassword']
+        nombre = request.form.get('nombre')
+        email = request.form.get('correo')
+        password = request.form.get('password')
+        confirm_password = request.form.get('cpassword')
 
+        # 1. Validar contraseñas iguales
         if password != confirm_password:
-            return render_template('signup.html', error="Error: Las contraseñas no coinciden.")
+            return render_template('registrar.html', error="Las contraseñas no coinciden.")
 
+        # 2. Verificar si el usuario ya existe
+        if obtener_usuario_por_email(email):
+            return render_template('registrar.html', error="Este correo ya está registrado.")
+
+        # 3. Encriptar contraseña
         password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
+        # 4. Guardar en DB
         user_id = agregar_usuario(nombre, email, password_hash)
 
         if user_id:
-                return redirect(url_for('login'))
+            return redirect(url_for('login'))
         else:
-            return render_template('registrar.html', error="Error al registrar usuario. El email ya existe.")
-    
+            return render_template('registrar.html', error="Error interno al crear la cuenta.")
+
     return render_template('registrar.html')
 
 @app.route('/ropa', methods=['GET'])
