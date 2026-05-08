@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre }} - Paleo Prints{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --jungle:    #1B4332; --jungle-md: #2D6A4F;
+    --gold:      #C9A84C; --gold-lt:   #F0C040;
+    --navy:      #1A3560; --navy-md:   #243F72;
+    --earth:     #7A3B1E;
+    --cream:     #F5EDD6; --offwhite:  #FAF6EC;
+    --text-dark: #1C1A14; --text-muted:#7A6A55;
+  }
+
+  body { font-family:'Nunito',sans-serif; background:var(--offwhite); color:var(--text-dark); }
+
+  .page-wrapper {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: -1.5rem;
+    width: 100vw; overflow-x: hidden;
+  }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb-bar {
+    background: #fff; border-bottom: 1px solid rgba(26,53,96,0.08);
+    padding: 0.65rem 0;
+  }
+  .breadcrumb-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
+  }
+  .breadcrumb-inner a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb-inner a:hover { color: var(--navy); }
+  .breadcrumb-inner .sep { opacity: 0.4; }
+  .breadcrumb-inner .current { color: var(--text-dark); }
+
+  /* ── Layout principal ── */
+  .detail-layout {
+    max-width: 1200px; margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: start;
+  }
+
+  /* GALERÍA IZQUIERDA */
+  .gallery-col { position: sticky; top: 80px; }
+
+  .main-img-wrap {
+    background: #F0EFEA; border-radius: 22px;
+    aspect-ratio: 1/1; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(26,53,96,0.07);
+    cursor: zoom-in; position: relative;
+  }
+  .main-img-wrap img {
+    width: 100%; height: 100%; object-fit: contain;
+    padding: 1.5rem;
+    transition: transform 0.4s ease;
+  }
+  .main-img-wrap:hover img { transform: scale(1.06); }
+
+  /* Zoom overlay */
+  .zoom-hint {
+    position: absolute; bottom: 12px; right: 12px;
+    background: rgba(0,0,0,0.45); color: #fff;
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 0.25rem 0.6rem;
+    border-radius: 100px; opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .main-img-wrap:hover .zoom-hint { opacity: 1; }
+
+  /* Thumbnails */
+  .thumbs {
+    display: flex; gap: 0.6rem; flex-wrap: wrap;
+  }
+  .thumb {
+    width: 68px; height: 68px;
+    border-radius: 12px; overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer; background: #F0EFEA;
+    transition: border-color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+  }
+  .thumb img { width:100%; height:100%; object-fit:contain; padding:6px; }
+  .thumb.active { border-color: var(--navy); }
+  .thumb:hover { transform: translateY(-2px); border-color: rgba(26,53,96,0.3); }
+
+  /* ════════════════════════════
+     INFO DERECHA
+  ════════════════════════════ */
+  .info-col { display: flex; flex-direction: column; gap: 1.2rem; }
+
+  .product-meta {
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--jungle-md); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .product-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    letter-spacing: 0.03em; line-height: 1.05;
+    color: var(--text-dark);
+  }
+
+  .product-precio {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem; letter-spacing: 0.02em;
+    color: var(--navy);
+  }
+  .product-precio .currency { font-family:'Nunito',sans-serif; font-size:1rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
+
+  /* Divider */
+  .info-divider { height:1px; background: rgba(26,53,96,0.10); }
+
+  /* Selector label */
+  .selector-label {
+    font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 0.55rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .selector-label .selected-val { color: var(--text-dark); text-transform: none; letter-spacing: 0; font-size:0.8rem; }
+
+  /* Talla chips */
+  .size-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .size-btn {
+    min-width: 48px; padding: 0.45rem 0.75rem;
+    border: 2px solid rgba(26,53,96,0.18); border-radius: 10px;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.88rem;
+    color: var(--navy); background: transparent; cursor: pointer;
+    transition: all 0.18s; text-align:center;
+  }
+  .size-btn:hover { border-color: var(--navy); background: rgba(26,53,96,0.05); }
+  .size-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .size-btn.agotada { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+
+  /* Color */
+  .color-opts { display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; }
+  .color-opt {
+    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+    border: 3px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,0.14);
+    transition: transform 0.18s, border-color 0.18s;
+  }
+  .color-opt:hover { transform: scale(1.15); }
+  .color-opt.active { border-color: var(--gold); transform: scale(1.15); }
+
+  /* Cantidad */
+  .qty-wrap { display: flex; align-items: center; gap: 0; border: 2px solid rgba(26,53,96,0.18); border-radius: 12px; overflow: hidden; width: fit-content; }
+  .qty-btn {
+    width: 40px; height: 40px; border: none; background: transparent;
+    font-size: 1.2rem; font-weight: 700; cursor: pointer; color: var(--navy);
+    transition: background 0.18s;
+  }
+  .qty-btn:hover { background: rgba(26,53,96,0.07); }
+  .qty-val { width: 44px; text-align:center; font-weight:800; font-size:0.95rem; border:none; outline:none; background:transparent; }
+
+  /* Stock */
+  .stock-line {
+    font-size: 0.8rem; font-weight: 700;
+    display: flex; align-items:center; gap:0.35rem;
+  }
+  .stock-line.ok  { color: var(--jungle-md); }
+  .stock-line.low { color: var(--earth); }
+  .stock-line svg { width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round; }
+
+  /* CTA buttons */
+  .cta-group { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .btn-cart-main {
+    background: var(--jungle); color: #fff; border: none;
+    border-radius: 14px; padding: 0.9rem 1.5rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.95rem;
+    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:0.5rem;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(27,67,50,0.2);
+  }
+  .btn-cart-main:hover { background:var(--jungle-md); transform:translateY(-2px); box-shadow:0 8px 24px rgba(27,67,50,0.28); }
+  .btn-cart-main svg { width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round; }
+
+  .btn-wishlist {
+    background: transparent; color: var(--text-muted);
+    border: 2px solid rgba(26,53,96,0.15); border-radius: 14px;
+    padding: 0.8rem 1.5rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.88rem;
+    letter-spacing:0.04em; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:0.4rem;
+    transition: all 0.2s;
+  }
+  .btn-wishlist:hover { border-color: var(--earth); color:var(--earth); }
+  .btn-wishlist svg { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round; }
+
+  /* Guarantee badge */
+  .guarantee {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-size: 0.8rem; font-weight: 700; color: var(--jungle-md);
+  }
+  .guarantee svg { width:16px;height:16px;stroke:var(--jungle-md);fill:none;stroke-width:2;stroke-linecap:round; flex-shrink:0; }
+
+  /* Acordeón descripción */
+  .accordion-item {
+    border-bottom: 1px solid rgba(26,53,96,0.10);
+  }
+  .accordion-btn {
+    width:100%; background:transparent; border:none;
+    padding: 0.85rem 0;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.9rem;
+    color: var(--text-dark); cursor:pointer;
+    transition: color 0.2s;
+  }
+  .accordion-btn:hover { color: var(--navy); }
+  .accordion-btn .acc-icon {
+    width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;
+    transition: transform 0.25s;
+    flex-shrink:0;
+  }
+  .accordion-btn[aria-expanded="true"] .acc-icon { transform: rotate(45deg); }
+  .accordion-content {
+    display:none; padding-bottom:0.85rem;
+    font-size:0.88rem; color:var(--text-muted); line-height:1.7;
+  }
+  .accordion-content.open { display:block; }
+
+  /* ════════════════════════════
+     SECCIÓN PRODUCTOS RELACIONADOS
+  ════════════════════════════ */
+  .related-section {
+    background: #fff;
+    padding: 3.5rem 0;
+    border-top: 1px solid rgba(26,53,96,0.08);
+  }
+  .related-inner { max-width:1200px; margin:0 auto; padding:0 1.5rem; }
+
+  .related-title {
+    font-family:'Bebas Neue',sans-serif;
+    font-size: 1.6rem; letter-spacing:0.05em;
+    color: var(--text-dark); margin-bottom: 1.5rem;
+  }
+  .related-title span { color: var(--jungle-md); }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.2rem;
+  }
+
+  /* Mini product card */
+  .mini-card {
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(26,53,96,0.08);
+    background: var(--offwhite);
+    box-shadow: 0 2px 10px rgba(27,67,50,0.05);
+    transition: transform 0.3s cubic-bezier(.22,.68,0,1.15), box-shadow 0.3s;
+    cursor: pointer; text-decoration: none; display:block; color:inherit;
+  }
+  .mini-card:hover { transform: translateY(-5px); box-shadow: 0 14px 36px rgba(27,67,50,0.13); }
+  .mini-img {
+    background: #F0EFEA; aspect-ratio:1/1; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mini-img img { width:100%; height:100%; object-fit:contain; padding:0.6rem; transition:transform 0.3s; }
+  .mini-card:hover .mini-img img { transform:scale(1.06); }
+  .mini-info { padding:0.7rem 0.85rem 0.85rem; }
+  .mini-name { font-weight:800; font-size:0.8rem; color:var(--text-dark); line-height:1.3; margin-bottom:0.15rem; }
+  .mini-type { font-size:0.7rem; color:var(--text-muted); font-weight:600; margin-bottom:0.4rem; }
+  .mini-price { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--navy); }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .detail-layout { grid-template-columns:1fr; gap:2rem; }
+    .gallery-col { position:static; }
+  }
+</style>
+
+<div class="page-wrapper">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-bar">
+    <div class="breadcrumb-inner">
+      <a href="{{ url_for('home') }}">Inicio</a>
+      <span class="sep">›</span>
+      <a href="{{ url_for('ropa') }}">Ropa</a>
+      <span class="sep">›</span>
+      <span class="current">{{ producto.nombre }}</span>
+    </div>
+  </div>
+
+  <!-- Detalle principal -->
+  <div class="detail-layout">
+
+    <!-- ══ GALERÍA ══ -->
+    <div class="gallery-col">
+      <div class="main-img-wrap" id="main-img-wrap">
+        <img id="main-img"
+             src="{{ url_for('static', filename=producto.imagen_ruta) }}"
+             alt="{{ producto.nombre }}"
+             onerror="this.src=''">
+        <span class="zoom-hint">🔍 Ampliar</span>
+      </div>
+      <!-- Thumbnails: aquí puedes agregar más ángulos cuando los tengas -->
+      <div class="thumbs" id="thumbs">
+        <div class="thumb active"
+             data-src="{{ url_for('static', filename=producto.imagen_ruta) }}">
+          <img src="{{ url_for('static', filename=producto.imagen_ruta) }}"
+               alt="{{ producto.nombre }}"
+               onerror="this.src=''">
+        </div>
+        <!-- Agrega más thumbs aquí cuando tengas imágenes adicionales:
+        <div class="thumb" data-src="{{ url_for('static', filename='imagenes/productos/XXX-back.jpg') }}">
+          <img src="..." alt="Vista trasera">
+        </div>
+        -->
+      </div>
+    </div>
+
+    <!-- ══ INFO ══ -->
+    <div class="info-col">
+
+      <div>
+        <p class="product-meta">{{ producto.diseno }} · Colección Mesozoica</p>
+        <h1 class="product-title">{{ producto.nombre }}</h1>
+      </div>
+
+      <p class="product-precio">
+        <span class="currency">$</span>{{ "%.2f"|format(producto.precio) }}
+        <span style="font-family:'Nunito',sans-serif;font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-left:0.4rem;">USD</span>
+      </p>
+
+      <div class="info-divider"></div>
+
+      <!-- Talla -->
+      <div>
+        <div class="selector-label">
+          Talla
+          <span class="selected-val" id="talla-selected">{{ producto.talla }}</span>
+        </div>
+        <div class="size-grid">
+          {% set tallas = ['XS','S','M','L','XL','XXL'] %}
+          {% for t in tallas %}
+          <button class="size-btn {% if t == producto.talla %}active{% endif %}"
+                  onclick="selectTalla(this, '{{ t }}')">{{ t }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Color (extraído del nombre) -->
+      <div>
+        <div class="selector-label">
+          Color
+          <span class="selected-val" id="color-selected">
+            {% if 'Negro' in producto.nombre %}Negro{% else %}Blanco{% endif %}
+          </span>
+        </div>
+        <div class="color-opts">
+          {% if 'Negro' in producto.nombre %}
+            <div class="color-opt active" style="background:#1C1A18" title="Negro"></div>
+          {% else %}
+            <div class="color-opt active" style="background:#F0EDE0;border:2px solid #ddd;" title="Blanco"></div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Cantidad -->
+      <div>
+        <div class="selector-label">Cantidad</div>
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <input class="qty-val" id="qty-val" type="number" value="1" min="1" max="{{ producto.cantidad_disponible }}" readonly>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Stock -->
+      {% if producto.cantidad_disponible > 5 %}
+      <p class="stock-line ok">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        En stock ({{ producto.cantidad_disponible }} disponibles)
+      </p>
+      {% elif producto.cantidad_disponible > 0 %}
+      <p class="stock-line low">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        ¡Últimas {{ producto.cantidad_disponible }} unidades!
+      </p>
+      {% else %}
+      <p class="stock-line low">Agotado temporalmente</p>
+      {% endif %}
+
+      <!-- CTAs -->
+      <div class="cta-group">
+        <button class="btn-cart-main">
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Agregar al carrito
+        </button>
+        <button class="btn-wishlist">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          Guardar en favoritos
+        </button>
+      </div>
+
+      <!-- Garantía -->
+      <div class="guarantee">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        30 días de garantía de satisfacción
+      </div>
+
+      <div class="info-divider"></div>
+
+      <!-- Acordeón -->
+      <div>
+        <div class="accordion-item">
+          <button class="accordion-btn" aria-expanded="true" onclick="toggleAcc(this)">
+            Descripción
+            <svg class="acc-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="accordion-content open">
+            Las ilustraciones fueron hechas a mano por artistas, y los diseños fueron creados sin el uso de inteligencia artificial generativa. Cada prenda celebra la historia natural con precisión científica y pasión paleontológica.
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-btn" aria-expanded="false" onclick="toggleAcc(this)">
+            Detalles del producto
+            <svg class="acc-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="accordion-content">
+            <strong>Diseño:</strong> {{ producto.diseno }}<br>
+            <strong>Talla:</strong> {{ producto.talla }}<br>
+            <strong>Material:</strong> 100% algodón de alta calidad<br>
+            <strong>Cuidado:</strong> Lavar a máquina en frío, no usar blanqueador
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-btn" aria-expanded="false" onclick="toggleAcc(this)">
+            Envío y devoluciones
+            <svg class="acc-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <div class="accordion-content">
+            Envío a todo México y América Latina. Los pedidos se procesan en 1–3 días hábiles. Devoluciones aceptadas en los primeros 30 días si el producto llega defectuoso.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /info-col -->
+  </div><!-- /detail-layout -->
+
+  <!-- ════════════════════════════════════
+       PRODUCTOS RELACIONADOS
+  ════════════════════════════════════ -->
+  <div class="related-section">
+    <div class="related-inner">
+      <h2 class="related-title">Más de esta <span>colección</span></h2>
+      <div class="related-grid">
+        {% for p in relacionados %}
+        <a class="mini-card" href="{{ url_for('producto_detalle', producto_id=p.producto_id) }}">
+          <div class="mini-img">
+            <img src="{{ url_for('static', filename=p.imagen_ruta) }}"
+                 alt="{{ p.nombre }}"
+                 onerror="this.src=''">
+          </div>
+          <div class="mini-info">
+            <p class="mini-name">{{ p.nombre }}</p>
+            <p class="mini-type">{{ p.diseno }}</p>
+            <p class="mini-price"><span style="font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;color:var(--text-muted);vertical-align:super;">$</span>{{ "%.2f"|format(p.precio) }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<script>
+  /* ── Thumbnail switcher ── */
+  document.querySelectorAll('.thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+      document.getElementById('main-img').src = thumb.dataset.src;
+    });
+  });
+
+  /* ── Selector de talla ── */
+  function selectTalla(btn, talla) {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('talla-selected').textContent = talla;
+  }
+
+  /* ── Cantidad ── */
+  function changeQty(delta) {
+    const input = document.getElementById('qty-val');
+    const max   = parseInt(input.max) || 99;
+    let val = parseInt(input.value) + delta;
+    val = Math.max(1, Math.min(val, max));
+    input.value = val;
+  }
+
+  /* ── Acordeón ── */
+  function toggleAcc(btn) {
+    const content  = btn.nextElementSibling;
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', !expanded);
+    content.classList.toggle('open', !expanded);
+  }
+</script>
+
+{% endblock %}

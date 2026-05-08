@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1082 313">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #d5c5a4;
+      }
+
+      .cls-2 {
+        fill: #1a4331;
+      }
+
+      .cls-3 {
+        letter-spacing: -.03em;
+      }
+
+      .cls-3, .cls-4 {
+        fill: #20385f;
+      }
+
+      .cls-5 {
+        fill: #d5b069;
+      }
+
+      .cls-6 {
+        font-family: BebasNeue-Regular, 'Bebas Neue';
+        font-size: 193.66px;
+      }
+
+      .cls-7 {
+        fill: #804315;
+      }
+    </style>
+  </defs>
+  <text class="cls-6" transform="translate(124.2 218.48)"><tspan class="cls-3" x="0" y="0">P</tspan><tspan class="cls-2" x="67.98" y="0">A</tspan><tspan class="cls-7" x="145.63" y="0">L</tspan><tspan class="cls-5" x="212.25" y="0">E</tspan><tspan class="cls-1" x="282.55" y="0">O PRiNTS</tspan></text>
+  <rect class="cls-7" x="540.68" y="39.97" width="244.43" height="19.27"/>
+  <rect class="cls-4" x="52.18" y="39.97" width="244.43" height="19.27"/>
+  <rect class="cls-2" x="296.25" y="39.97" width="244.43" height="19.27"/>
+  <rect class="cls-5" x="785.11" y="39.97" width="244.43" height="19.27"/>
+  <rect class="cls-7" x="540.49" y="251.73" width="244.43" height="19.27"/>
+  <rect class="cls-4" x="52" y="251.73" width="244.43" height="19.27"/>
+  <rect class="cls-2" x="296.06" y="251.73" width="244.43" height="19.27"/>
+  <rect class="cls-5" x="784.92" y="251.73" width="244.43" height="19.27"/>
+</svg>

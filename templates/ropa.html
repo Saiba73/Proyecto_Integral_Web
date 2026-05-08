@@ -255,6 +255,133 @@
   .no-results svg { width: 56px; height: 56px; stroke: rgba(26,53,96,0.2); fill: none; stroke-width: 1.5; margin-bottom: 1rem; }
   .no-results p { font-weight: 700; color: var(--text-muted); }
 
+  /* ── Tarjeta clickeable ── */
+  .product-card { cursor: pointer; }
+
+  /* MODAL QUICK VIEW */
+  .qv-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(15,12,8,0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .qv-overlay.open { display: flex; }
+
+  .qv-modal {
+    background: #fff; border-radius: 22px;
+    max-width: 640px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.28);
+    position: relative;
+    animation: qvIn 0.3s cubic-bezier(.22,.68,0,1.2) forwards;
+  }
+  @keyframes qvIn {
+    from { opacity:0; transform: scale(0.92) translateY(16px); }
+    to   { opacity:1; transform: scale(1)    translateY(0); }
+  }
+
+  .qv-close {
+    position: absolute; top: 14px; right: 14px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(0,0,0,0.07); border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .qv-close:hover { background: rgba(0,0,0,0.14); transform: rotate(90deg); }
+  .qv-close svg { width: 16px; height: 16px; stroke: var(--text-dark); fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+  .qv-body {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  /* Imagen grande */
+  .qv-img-side {
+    background: #F0EFEA;
+    border-radius: 22px 0 0 22px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem; min-height: 320px;
+    overflow: hidden; position: relative;
+  }
+  .qv-img-side img {
+    width: 100%; max-height: 300px;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+  }
+  .qv-img-side:hover img { transform: scale(1.05); }
+
+  /* Info lado derecho */
+  .qv-info-side { padding: 1.8rem 1.6rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .qv-nombre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; letter-spacing: 0.04em;
+    color: var(--text-dark); line-height: 1.1;
+  }
+  .qv-tipo { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+
+  .qv-precio {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem; color: var(--navy); margin: 0.2rem 0;
+  }
+  .qv-precio .currency { font-family: 'Nunito',sans-serif; font-size:0.9rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
+
+  .qv-label { font-size:0.7rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.3rem; }
+
+  .qv-talla-chip {
+    display: inline-block; border: 2px solid rgba(26,53,96,0.2);
+    border-radius: 8px; padding: 0.3rem 0.8rem;
+    font-weight: 800; font-size: 0.9rem; color: var(--navy);
+    background: rgba(26,53,96,0.05);
+  }
+
+  .qv-color-dot {
+    display: inline-block; width: 20px; height: 20px;
+    border-radius: 50%; border: 2px solid rgba(0,0,0,0.12);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    vertical-align: middle;
+  }
+
+  .qv-stock {
+    font-size: 0.8rem; font-weight: 700;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .qv-stock.ok  { color: var(--jungle-md); }
+  .qv-stock.low { color: var(--earth); }
+
+  .qv-btn-group { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+
+  .qv-btn-cart {
+    background: var(--jungle); color: #fff; border: none;
+    border-radius: 12px; padding: 0.75rem;
+    font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.9rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s, transform 0.18s;
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  }
+  .qv-btn-cart:hover { background: var(--jungle-md); transform: translateY(-1px); }
+  .qv-btn-cart svg { width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round; }
+
+  .qv-btn-detail {
+    background: transparent; color: var(--navy);
+    border: 2px solid rgba(26,53,96,0.2); border-radius: 12px;
+    padding: 0.65rem;
+    font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.85rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    text-decoration: none; text-align: center; display: block;
+  }
+  .qv-btn-detail:hover { border-color: var(--navy); background: rgba(26,53,96,0.05); color: var(--navy); }
+
+  @media (max-width: 560px) {
+    .qv-body { grid-template-columns: 1fr; }
+    .qv-img-side { border-radius: 22px 22px 0 0; min-height: 220px; }
+  }
+
   /* ── Responsive ── */
   @media (max-width: 900px) {
     .shop-layout { grid-template-columns: 1fr; }
@@ -271,7 +398,7 @@
   <!-- HERO -->
   <section class="products-hero">
     <div class="products-hero-inner">
-      <p class="hero-eyebrow">Colección Mesozoica</p>
+      <p class="hero-eyebrow">Colección Prehistórica</p>
       <h1>Ropa <span>Paleo</span></h1>
       <p>Prendas de calidad inspiradas en millones de años de historia natural</p>
     </div>
@@ -341,9 +468,7 @@
       <button class="btn-clear" id="btn-clear">Limpiar filtros</button>
     </aside>
 
-    <!-- ════════════════════
-         ZONA PRODUCTOS
-    ════════════════════ -->
+    <!-- ZONA PRODUCTOS -->
     <section class="products-area">
       <div class="products-topbar">
         <p class="products-count">Mostrando <strong id="count-visible">6</strong> de <strong id="count-total">6</strong> productos</p>
@@ -365,11 +490,13 @@
 
         <!-- 1 — T-shirt Blanco M -->
         <div class="product-card"
+             data-id="2"
              data-talla="M"
              data-tipo="T-shirt"
              data-color="Blanco"
              data-precio="22.99"
-             data-nombre="Pachycephalosaurus T-shirt - Blanco">
+             data-nombre="Pachycephalosaurus T-shirt - Blanco"
+             data-img="{{ url_for('static', filename='imagenes/productos/Pachy-blanco-Tshirt.jpg') }}">
           <div class="product-img-wrap">
             <img src="{{ url_for('static', filename='imagenes/productos/Pachy-blanco-Tshirt.jpg') }}"
                  alt="Pachycephalosaurus T-shirt Blanco"
@@ -399,11 +526,13 @@
 
         <!-- 2 — T-shirt Negro XL -->
         <div class="product-card"
+             data-id="8"
              data-talla="XL"
              data-tipo="T-shirt"
              data-color="Negro"
              data-precio="22.99"
-             data-nombre="Tyrannosaurus T-shirt - Negro">
+             data-nombre="Tyrannosaurus T-shirt - Negro"
+             data-img="{{ url_for('static', filename='imagenes/productos/Trex-negro-Tshirt.jpg') }}">
           <div class="product-img-wrap">
             <img src="{{ url_for('static', filename='imagenes/productos/Trex-negro-Tshirt.jpg') }}"
                  alt="Tyrannosaurus T-shirt Negro"
@@ -432,11 +561,13 @@
 
         <!-- 3 — Sweatshirt Negro L -->
         <div class="product-card"
+             data-id="3"
              data-talla="L"
              data-tipo="Sweatshirt"
              data-color="Negro"
              data-precio="32.99"
-             data-nombre="Pachycephalosaurus Sweatshirt - Negro">
+             data-nombre="Pachycephalosaurus Sweatshirt - Negro"
+             data-img="{{ url_for('static', filename='imagenes/productos/Pachy-negro-Sweatshirt.jpg') }}">
           <div class="product-img-wrap">
             <img src="{{ url_for('static', filename='imagenes/productos/Pachy-negro-Sweatshirt.jpg') }}"
                  alt="Pachycephalosaurus Sweatshirt Negro"
@@ -464,11 +595,13 @@
 
         <!-- 4 — Sweatshirt Blanco S -->
         <div class="product-card"
+             data-id="4"
              data-talla="S"
              data-tipo="Sweatshirt"
              data-color="Blanco"
              data-precio="32.99"
-             data-nombre="Therizinosaurus Sweatshirt - Blanco">
+             data-nombre="Therizinosaurus Sweatshirt - Blanco"
+             data-img="{{ url_for('static', filename='imagenes/productos/Theriz-blanco-Sweatshirt.jpg') }}">
           <div class="product-img-wrap">
             <img src="{{ url_for('static', filename='imagenes/productos/Theriz-blanco-Sweatshirt.jpg') }}"
                  alt="Therizinosaurus Sweatshirt Blanco"
@@ -496,11 +629,13 @@
 
         <!-- 5 — Hoodie Blanco L -->
         <div class="product-card"
+             data-id="6"
              data-talla="L"
              data-tipo="Hoodie"
              data-color="Blanco"
              data-precio="39.99"
-             data-nombre="Tyrannosaurus Hoodie - Blanco">
+             data-nombre="Tyrannosaurus Hoodie - Blanco"
+             data-img="{{ url_for('static', filename='imagenes/productos/Trex-blanco-Hoodie.jpg') }}">
           <div class="product-img-wrap">
             <img src="{{ url_for('static', filename='imagenes/productos/Trex-blanco-Hoodie.jpg') }}"
                  alt="Tyrannosaurus Hoodie Blanco"
@@ -529,11 +664,13 @@
 
         <!-- 6 — Hoodie Blanco S -->
         <div class="product-card"
+             data-id="1"
              data-talla="S"
              data-tipo="Hoodie"
              data-color="Blanco"
              data-precio="39.99"
-             data-nombre="Pachycephalosaurus Hoodie - Blanco">
+             data-nombre="Pachycephalosaurus Hoodie - Blanco"
+             data-img="{{ url_for('static', filename='imagenes/productos/Pachy-blanco-Hoodie.jpg') }}">
           <div class="product-img-wrap">
             <img src="{{ url_for('static', filename='imagenes/productos/Pachy-blanco-Hoodie.jpg') }}"
                  alt="Pachycephalosaurus Hoodie Blanco"
@@ -571,16 +708,117 @@
   </div><!-- /shop-layout -->
 </div><!-- /page-wrapper -->
 
+<!-- ════════════════════════════════════════
+     MODAL QUICK VIEW
+════════════════════════════════════════ -->
+<div class="qv-overlay" id="qv-overlay" role="dialog" aria-modal="true" aria-label="Vista rápida del producto">
+  <div class="qv-modal" id="qv-modal">
+    <button class="qv-close" id="qv-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="qv-body">
+      <!-- Imagen -->
+      <div class="qv-img-side">
+        <img id="qv-img" src="" alt="">
+      </div>
+      <!-- Info -->
+      <div class="qv-info-side">
+        <p class="qv-tipo" id="qv-tipo">—</p>
+        <h2 class="qv-nombre" id="qv-nombre">—</h2>
+        <p class="qv-precio"><span class="currency">$</span><span id="qv-precio">—</span></p>
+
+        <div>
+          <p class="qv-label">Talla</p>
+          <span class="qv-talla-chip" id="qv-talla">—</span>
+        </div>
+
+        <div>
+          <p class="qv-label">Color</p>
+          <span class="qv-color-dot" id="qv-color-dot"></span>
+          <span style="font-weight:700;font-size:0.88rem;margin-left:0.4rem;" id="qv-color-text">—</span>
+        </div>
+
+        <p class="qv-stock ok" id="qv-stock">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          En stock
+        </p>
+
+        <div class="qv-btn-group">
+          <button class="qv-btn-cart" id="qv-btn-cart">
+            <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            Agregar al carrito
+          </button>
+          <a class="qv-btn-detail" id="qv-btn-detail" href="#">Ver detalle completo →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
-  // ── Estado del filtro ──
-  const state = {
-    talla:    '',
-    tipo:     '',
-    color:    '',
-    priceMin: 0,
-    priceMax: 9999,
-  };
+  /* ════════════════════════════════
+     QUICK VIEW MODAL
+  ════════════════════════════════ */
+  const overlay   = document.getElementById('qv-overlay');
+  const qvClose   = document.getElementById('qv-close');
+  const colorMap  = { 'Blanco': '#F0EDE0', 'Negro': '#1C1A18' };
+
+  function openModal(card) {
+    const d = card.dataset;
+    document.getElementById('qv-img').src       = d.img   || '';
+    document.getElementById('qv-img').alt       = d.nombre || '';
+    document.getElementById('qv-nombre').textContent  = d.nombre  || '—';
+    document.getElementById('qv-tipo').textContent    = d.tipo    || '—';
+    document.getElementById('qv-precio').textContent  = d.precio  || '—';
+    document.getElementById('qv-talla').textContent   = d.talla   || '—';
+    document.getElementById('qv-color-text').textContent = d.color || '—';
+    document.getElementById('qv-color-dot').style.background = colorMap[d.color] || '#ccc';
+    document.getElementById('qv-btn-detail').href =
+      `/producto/${d.id}`;   /* → ruta de Flask: /producto/<id> */
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  qvClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ════════════════════════════════
+     TARJETAS: click → detalle, ojo → modal
+  ════════════════════════════════ */
+  document.querySelectorAll('.product-card').forEach(card => {
+    // Click en el ojo — abre modal, no navega
+    const qvBtn = card.querySelector('.product-quickview');
+    if (qvBtn) {
+      qvBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        openModal(card);
+      });
+    }
+
+    // Click en "Agregar" — solo stopPropagation por ahora
+    const addBtn = card.querySelector('.btn-add-cart');
+    if (addBtn) {
+      addBtn.addEventListener('click', e => e.stopPropagation());
+    }
+
+    // Click en cualquier otro punto de la tarjeta → página de detalle
+    card.addEventListener('click', () => {
+      const id = card.dataset.id;
+      if (id) window.location.href = `/producto/${id}`;
+    });
+  });
+
+  /* ════════════════════════════════
+     FILTROS
+  ════════════════════════════════ */
+  const state = { talla: '', tipo: '', color: '', priceMin: 0, priceMax: 9999 };
 
   const grid      = document.getElementById('products-grid');
   const noResults = document.getElementById('no-results');
@@ -588,43 +826,28 @@
   const countTot  = document.getElementById('count-total');
   const sortSel   = document.getElementById('sort-select');
 
-  function getCards() {
-    return Array.from(grid.querySelectorAll('.product-card'));
-  }
+  function getCards() { return Array.from(grid.querySelectorAll('.product-card')); }
 
-  // ── Aplicar filtros ──
   function applyFilters() {
     state.priceMin = parseFloat(document.getElementById('price-min').value) || 0;
     state.priceMax = parseFloat(document.getElementById('price-max').value) || 9999;
-
     const cards = getCards();
     let visible = 0;
-
     cards.forEach(card => {
-      const talla  = card.dataset.talla;
-      const tipo   = card.dataset.tipo;
-      const color  = card.dataset.color;
-      const precio = parseFloat(card.dataset.precio);
-
-      const matchTalla  = !state.talla  || talla  === state.talla;
-      const matchTipo   = !state.tipo   || tipo   === state.tipo;
-      const matchColor  = !state.color  || color  === state.color;
-      const matchPrecio = precio >= state.priceMin && precio <= state.priceMax;
-
-      if (matchTalla && matchTipo && matchColor && matchPrecio) {
-        card.classList.remove('hidden');
-        visible++;
-      } else {
-        card.classList.add('hidden');
-      }
+      const ok =
+        (!state.talla || card.dataset.talla  === state.talla)  &&
+        (!state.tipo  || card.dataset.tipo   === state.tipo)   &&
+        (!state.color || card.dataset.color  === state.color)  &&
+        parseFloat(card.dataset.precio) >= state.priceMin       &&
+        parseFloat(card.dataset.precio) <= state.priceMax;
+      card.classList.toggle('hidden', !ok);
+      if (ok) visible++;
     });
-
     countVis.textContent = visible;
     countTot.textContent = cards.length;
     noResults.classList.toggle('visible', visible === 0);
   }
 
-  // ── Chips de filtro (talla, tipo, color) ──
   function setupChipGroup(groupId, stateKey) {
     const group = document.getElementById(groupId);
     if (!group) return;
@@ -641,41 +864,30 @@
   setupChipGroup('filter-tipo',  'tipo');
   setupChipGroup('filter-color', 'color');
 
-  // ── Botón aplicar ──
   document.getElementById('btn-apply').addEventListener('click', applyFilters);
-
-  // ── Botón limpiar ──
   document.getElementById('btn-clear').addEventListener('click', () => {
     state.talla = ''; state.tipo = ''; state.color = '';
     state.priceMin = 0; state.priceMax = 9999;
-
     document.getElementById('price-min').value = 0;
     document.getElementById('price-max').value = 100;
-
     ['filter-talla','filter-tipo','filter-color'].forEach(id => {
-      const group = document.getElementById(id);
-      group.querySelectorAll('.chip').forEach((c,i) => c.classList.toggle('active', i===0));
+      document.getElementById(id).querySelectorAll('.chip').forEach((c,i) => c.classList.toggle('active', i===0));
     });
-
     applyFilters();
   });
 
-  // ── Ordenar ──
   sortSel.addEventListener('change', () => {
-    const val   = sortSel.value;
+    const val = sortSel.value;
     const cards = getCards();
-
-    cards.sort((a, b) => {
-      if (val === 'price-asc')  return parseFloat(a.dataset.precio) - parseFloat(b.dataset.precio);
-      if (val === 'price-desc') return parseFloat(b.dataset.precio) - parseFloat(a.dataset.precio);
-      if (val === 'name-asc')   return a.dataset.nombre.localeCompare(b.dataset.nombre, 'es');
+    cards.sort((a,b) => {
+      if (val==='price-asc')  return parseFloat(a.dataset.precio) - parseFloat(b.dataset.precio);
+      if (val==='price-desc') return parseFloat(b.dataset.precio) - parseFloat(a.dataset.precio);
+      if (val==='name-asc')   return a.dataset.nombre.localeCompare(b.dataset.nombre,'es');
       return 0;
     });
-
     cards.forEach(c => grid.appendChild(c));
   });
 
-  // Inicializar contador
   applyFilters();
 })();
 </script>
