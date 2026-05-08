@@ -6,7 +6,7 @@ CREATE TABLE Usuario (
     usuario_id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(30) NOT NULL,
     correo VARCHAR(30) UNIQUE NOT NULL,
-    contrasena VARCHAR(20) NOT NULL,
+    contrasena VARCHAR(225) NOT NULL,
     tipo_usuario ENUM('cliente', 'admin') DEFAULT 'cliente'
 );
 
@@ -118,8 +118,7 @@ CREATE INDEX idx_producto_nombre ON Ropa(nombre);
 CREATE INDEX idx_tazas_nombre ON Tazas(nombre);
 CREATE INDEX idx_impresiones_nombre ON Impresiones3D(nombre);
 
-INSERT INTO Usuario (nombre, correo, contrasena, tipo_usuario) 
-VALUES ('Administrador', 'admin@ejemplo.com', '1234', 'admin');
+
 
 INSERT INTO Ropa (nombre, diseno, talla, cantidad_disponible, precio, imagen_ruta, imagen_nombre) VALUES
 ('Pachycephalosaurus Hoodie - Blanco', 'Hoodie','S', '15', '39.99', 'static/imagenes/productos/Pachy-blanco-Hoodie.jpg', 'Pachy-blanco-Hoodie.jpg'),

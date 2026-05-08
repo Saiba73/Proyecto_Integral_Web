@@ -37,19 +37,19 @@ def login():
         usuario = obtener_usuario_por_email(email)
         
         if usuario:
-            if bcrypt.check_password_hash(usuario['password_hash'], password):
+            # Comparamos con 'contrasena' (nombre en tu SQL)
+            if bcrypt.check_password_hash(usuario['contrasena'], password):
                 session['logged_in'] = True
-                session['user_id'] = usuario['id']
-                session['user_email'] = usuario['email']
+                session['user_id'] = usuario['usuario_id'] # Antes era usuario['id']
+                session['user_email'] = usuario['correo']    # Antes era usuario['email']
+                session['user_role'] = usuario['tipo_usuario']
                 
-                # 3. Redirigir al Home Protegido
                 return redirect(url_for('home'))
             else:
-                return render_template('login.html', error="Contraseña o email incorrectos.")
+                return render_template('login.html', error="Contraseña incorrecta.")
         else:
-            return render_template('login.html', error="Contraseña o email incorrectos.")
+            return render_template('login.html', error="El correo no está registrado.")
             
-    # Muestra el formulario GET
     return render_template('login.html')
 
 @app.route('/registrar', methods=['GET', 'POST'])

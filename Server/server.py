@@ -1,6 +1,5 @@
 import os
 import mysql.connector
-from mysql.connector import errorcode
 
 db_config = {
     'user': os.environ.get('DB_USER'),
@@ -13,7 +12,8 @@ def agregar_usuario(nombre, email, password_hash):
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
-        insertar_usuario = "INSERT INTO usuarios (nombre, email, password_hash) VALUES (%s, %s, %s)"
+        # Tabla: Usuario | Columnas: nombre, correo, contrasena
+        insertar_usuario = "INSERT INTO Usuario (nombre, correo, contrasena) VALUES (%s, %s, %s)"
         cursor.execute(insertar_usuario, (nombre, email, password_hash))
         cnx.commit()
         last_id = cursor.lastrowid
@@ -28,7 +28,8 @@ def obtener_usuario_por_email(email):
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        # Buscamos en la tabla Usuario por la columna correo
+        cursor.execute("SELECT * FROM Usuario WHERE correo = %s", (email,))
         usuario = cursor.fetchone()
         cursor.close()
         cnx.close()
@@ -36,24 +37,19 @@ def obtener_usuario_por_email(email):
     except mysql.connector.Error as err:
         print("Error al obtener usuario:", err)
         return None
-    
-    # server.py
 
 def obtener_perfil_completo(usuario_id):
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor(dictionary=True)
         
-        # 1. Datos básicos
         cursor.execute("SELECT nombre, correo, tipo_usuario FROM Usuario WHERE usuario_id = %s", (usuario_id,))
         usuario = cursor.fetchone()
         
-        # 2. Direcciones
         cursor.execute("SELECT * FROM Direccion WHERE usuario_id = %s", (usuario_id,))
         direcciones = cursor.fetchall()
         
-        # 3. Métodos de Pago
-        cursor.execute("SELECT metodo_de_pago_id, num_tarjeta, fecha_expiracion, direccion_de_facturacion FROM Metodos_pago WHERE usuario_id = %s", (usuario_id,))
+        cursor.execute("SELECT * FROM Metodos_pago WHERE usuario_id = %s", (usuario_id,))
         pagos = cursor.fetchall()
         
         cursor.close()
