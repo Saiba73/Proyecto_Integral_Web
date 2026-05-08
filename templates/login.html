@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - Paleo Prints{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos específicos para la página de login */
+    :root {
+        --verde-oscuro: #1a3c34;
+        --azul-footer: #2c4a7c;
+        --marron-link: #8b4513;
+        --gris-texto: #666;
+    }
+
+    /* Fondo de pantalla completa con textura */
+    .login-body-wrapper {
+        background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                          url("{{ url_for('static', filename='imagenes/fondo-fosiles.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Esto asegura que cubra todo incluso si el contenedor de base.html tiene padding */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1050; 
+    }
+
+    /* Tarjeta Blanca */
+    .login-card {
+        background: white;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 420px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    .login-content {
+        padding: 40px 45px 20px 45px;
+    }
+
+    .back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: var(--gris-texto);
+        text-decoration: none;
+        font-size: 1.2rem;
+    }
+
+    .login-logo {
+        display: block;
+        margin: 0 auto 15px;
+        height: 55px;
+    }
+
+    .login-header h2 {
+        color: var(--verde-oscuro);
+        font-weight: 700;
+        font-size: 1.6rem;
+        margin-bottom: 5px;
+    }
+
+    .login-header p {
+        color: #999;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+    }
+
+    /* Formulario e Inputs */
+    .custom-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #444;
+        margin-bottom: 5px;
+    }
+
+    .custom-input {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .toggle-pass {
+        font-size: 0.75rem;
+        color: var(--verde-oscuro);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .forgot-link {
+        color: var(--marron-link);
+        font-size: 0.85rem;
+        text-decoration: underline;
+        display: block;
+        margin: 10px 0 25px;
+    }
+
+    /* Botones */
+    .btn-login-submit {
+        background-color: var(--verde-oscuro);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-login-submit:hover {
+        background-color: #122b25;
+        color: white;
+    }
+
+    /* Footer de la tarjeta */
+    .login-footer {
+        background-color: #2b2b2b;
+        padding: 25px;
+        text-align: center;
+        color: white;
+    }
+
+    .login-footer p {
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+
+    .btn-create-account {
+        background-color: var(--azul-footer);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+</style>
+
+<div class="login-body-wrapper">
+    <div class="login-card">
+        <a href="{{ url_for('home') }}" class="back-btn">
+            <span>&#10094;</span> 
+        </a>
+
+        <div class="login-content">
+            <div class="login-header text-center">
+                <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints" class="login-logo">
+                <h2>Iniciar sesión</h2>
+                <p>Para acceder a tu cuenta</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger py-2" style="font-size: 0.8rem;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="d-flex flex-column">
+                    <label class="custom-label">Correo</label>
+                    <input type="email" name="email" class="form-control custom-input" required>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="custom-label">Contraseña</label>
+                        <span class="toggle-pass">👁 Ocultar</span>
+                    </div>
+                    <input type="password" name="password" class="form-control custom-input" required>
+                </div>
+
+                <div class="text-center">
+                    <a href="#" class="forgot-link">Olvidé mi contraseña</a>
+                </div>
+
+                <button type="submit" class="btn btn-login-submit w-100">Iniciar Sesión</button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            <p>¿No tienes cuenta?</p>
+            <a href="{{ url_for('registrar') }}" class="btn-create-account">¡Vamos a crear una!</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

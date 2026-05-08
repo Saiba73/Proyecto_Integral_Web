@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil — Paleo Prints{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Encabezado de usuario ── */
+  .pp-profile-header { text-align: center; margin-bottom: 1.5rem; }
+  .pp-profile-header h2 { font-weight: 700; margin-bottom: 0; }
+  .pp-profile-header p  { color: #555; margin: 0; }
+
+  /* ── Pestañas ── */
+  .pp-tabs { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .pp-tab-btn {
+    background: #fff;
+    border: 2px solid #7b1c1c;
+    color: #7b1c1c;
+    border-radius: 6px;
+    padding: .35rem 1.1rem;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .pp-tab-btn.active, .pp-tab-btn:hover { background: #7b1c1c; color: #fff; }
+
+  /* ── Panel general ── */
+  .pp-tab-pane { display: none; }
+  .pp-tab-pane.active { display: block; }
+
+  /* ── Tarjeta de orden ── */
+  .pp-order-card { border: 2px solid #7b1c1c; border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+  .pp-order-header { display: flex; flex-wrap: wrap; gap: .25rem; background: #fff; border-bottom: 1px solid #7b1c1c; }
+  .pp-order-header span { padding: .4rem .8rem; font-size: .82rem; font-weight: 600; border-right: 1px solid #7b1c1c; white-space: nowrap; }
+  .pp-order-header span:last-child { border-right: none; }
+  .pp-order-body { padding: .6rem .9rem; }
+  .pp-order-body ul { list-style: none; padding: 0; margin: 0; font-size: .9rem; }
+  .pp-order-body ul li { padding: .15rem 0; }
+  .pp-order-footer { text-align: right; padding: .4rem .9rem; border-top: 1px solid #eee; font-weight: 700; font-size: .95rem; }
+
+  /* ── Etiqueta predeterminada ── */
+  .pp-label-default { font-size: .78rem; font-weight: 700; color: #7b1c1c; margin-bottom: .25rem; }
+
+  /* ── Tarjeta de dirección / pago ── */
+  .pp-card {
+    border: 2px solid #7b1c1c;
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+  }
+  .pp-card-info { font-size: .88rem; line-height: 1.5; }
+  .pp-card-actions { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+
+  /* ── Botones ── */
+  .pp-btn {
+    border: 2px solid #7b1c1c;
+    background: #fff;
+    color: #7b1c1c;
+    border-radius: 6px;
+    padding: .28rem .8rem;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s, color .2s;
+  }
+  .pp-btn:hover { background: #7b1c1c; color: #fff; }
+  .pp-btn-set { font-size: .75rem; padding: .25rem .6rem; line-height: 1.2; text-align: center; }
+  .pp-btn-new { display: block; margin-left: auto; margin-top: .5rem; }
+  .pp-btn-solid { background: #7b1c1c; color: #fff; }
+  .pp-btn-solid:hover { background: #5a1414; color: #fff; }
+
+  /* ── Modales ── */
+  .pp-modal .modal-header { background: #7b1c1c; color: #fff; border-bottom: none; }
+  .pp-modal .modal-footer { border-top: 1px solid #e0c9c9; }
+  .pp-modal .modal-content { border: 2px solid #7b1c1c; border-radius: 10px; overflow: hidden; }
+  .pp-input { border: 1.5px solid #7b1c1c; border-radius: 6px; font-size: .88rem; }
+  .pp-input:focus { border-color: #7b1c1c; box-shadow: 0 0 0 .2rem rgba(123,28,28,.2); }
+  .pp-check { border-color: #7b1c1c; }
+  .pp-check:checked { background-color: #7b1c1c; border-color: #7b1c1c; }
+  .form-label { font-size: .85rem; font-weight: 600; margin-bottom: .25rem; }
+  .pp-modal-error { color: #7b1c1c; font-size: .82rem; margin-top: .5rem; display: none; }
+</style>
+
+<!-- ── Encabezado ── -->
+<div class="pp-profile-header">
+  <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+  <p>{{ usuario.email }}</p>
+</div>
+
+<!-- ── Pestañas ── -->
+<div class="pp-tabs">
+  <button class="pp-tab-btn active" onclick="mostrarPestana('ordenes', this)">Ordenes</button>
+  <button class="pp-tab-btn"        onclick="mostrarPestana('direcciones', this)">Direcciones</button>
+  <button class="pp-tab-btn"        onclick="mostrarPestana('pagos', this)">Métodos de pago</button>
+</div>
+
+<!-- ════════════════ PESTAÑA: ÓRDENES ════════════════ -->
+<div id="ordenes" class="pp-tab-pane active">
+  {% if ordenes %}
+    {% for orden in ordenes %}
+    <div class="pp-order-card">
+      <div class="pp-order-header">
+        <span>OrdenNo.{{ "%02d"|format(orden.id) }}</span>
+        <span>Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') }}</span>
+        <span>Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') if orden.fecha_envio else '—' }}</span>
+        <span>{{ 'Recibido' if orden.recibido else 'En camino' }}</span>
+      </div>
+      <div class="pp-order-body">
+        <ul>
+          {% for item in orden.items %}
+          <li>{{ item.nombre }} {{ item.estilo }} x{{ item.cantidad }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="pp-order-footer">Total: ${{ "%.0f"|format(orden.total) }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-muted">No tienes órdenes aún.</p>
+  {% endif %}
+</div>
+
+<!-- ════════════════ PESTAÑA: DIRECCIONES ════════════════ -->
+<div id="direcciones" class="pp-tab-pane">
+  {% if direcciones %}
+    {% for dir in direcciones %}
+    <div>
+      {% if dir.predeterminada %}<div class="pp-label-default">Predeterminada</div>{% endif %}
+      <div class="pp-card">
+        <div class="pp-card-info">
+          {{ dir.calle }}, {{ dir.colonia }}<br>
+          {{ dir.alcaldia }}, {{ dir.ciudad }}<br>
+          CP {{ dir.cp }}
+        </div>
+        <div class="pp-card-actions">
+          {% if not dir.predeterminada %}
+          <form method="POST" action="{{ url_for('set_direccion_default', id=dir.id) }}">
+            <button type="submit" class="pp-btn pp-btn-set">Establecer como<br>Predeterminada</button>
+          </form>
+          {% endif %}
+          <!-- <button class="pp-btn" onclick="abrirEditarDireccion({{ dir.id }})">Editar</button> -->
+          <form method="POST" action="{{ url_for('borrar_direccion', id=dir.id) }}"
+                onsubmit="return confirm('¿Eliminar esta dirección?')">
+            <button type="submit" class="pp-btn">Borrar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-muted">No tienes direcciones guardadas.</p>
+  {% endif %}
+  <button class="pp-btn pp-btn-new" onclick="abrirNuevaDireccion()">Nueva Dirección</button>
+</div>
+
+<!-- ════════════════ PESTAÑA: MÉTODOS DE PAGO ════════════════ -->
+<div id="pagos" class="pp-tab-pane">
+  {% if metodos_pago %}
+    {% for metodo in metodos_pago %}
+    <div>
+      {% if metodo.predeterminado %}<div class="pp-label-default">Predeterminada</div>{% endif %}
+      <div class="pp-card">
+        <div class="pp-card-info">
+          {{ metodo.tipo }}<br>
+          {{ metodo.titular }}<br>
+          •••• •••• •••• {{ metodo.ultimos4 }}
+        </div>
+        <div class="pp-card-actions">
+          {% if not metodo.predeterminado %}
+          <form method="POST" action="{{ url_for('set_pago_default', id=metodo.id) }}">
+            <button type="submit" class="pp-btn pp-btn-set">Establecer como<br>Predeterminada</button>
+          </form>
+          {% endif %}
+          <!-- <button class="pp-btn" onclick="abrirEditarPago({{ metodo.id }})">Editar</button> -->
+          <form method="POST" action="{{ url_for('borrar_pago', id=metodo.id) }}"
+                onsubmit="return confirm('¿Eliminar este método?')">
+            <button type="submit" class="pp-btn">Borrar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-muted">No tienes métodos de pago guardados.</p>
+  {% endif %}
+  <button class="pp-btn pp-btn-new" onclick="abrirNuevoPago()">Nuevo método</button>
+</div>
+
+<!-- ════════════════ MODAL: DIRECCIÓN (nueva y editar) ════════════════ -->
+<div class="modal fade" id="modalDireccion" tabindex="-1" aria-labelledby="modalDireccionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content pp-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDireccionLabel">Nueva Dirección</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="dirId">
+        <div class="mb-3">
+          <label class="form-label">Calle y número</label>
+          <input type="text" id="dirCalle" class="form-control pp-input" placeholder="Ej. Calle Durango 248">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Colonia</label>
+          <input type="text" id="dirColonia" class="form-control pp-input" placeholder="Ej. Colonia Roma Norte">
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-8">
+            <label class="form-label">Alcaldía / Municipio</label>
+            <input type="text" id="dirAlcaldia" class="form-control pp-input" placeholder="Ej. Cuauhtémoc">
+          </div>
+          <div class="col-4">
+            <label class="form-label">C.P.</label>
+            <input type="text" id="dirCp" class="form-control pp-input" placeholder="06700" maxlength="5">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Ciudad / Estado</label>
+          <input type="text" id="dirCiudad" class="form-control pp-input" placeholder="Ej. Ciudad de México">
+        </div>
+        <div class="form-check">
+          <input class="form-check-input pp-check" type="checkbox" id="dirPredeterminada">
+          <label class="form-check-label" for="dirPredeterminada">Establecer como predeterminada</label>
+        </div>
+        <p class="pp-modal-error" id="dirError">Por favor completa todos los campos.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="pp-btn" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pp-btn pp-btn-solid" onclick="guardarDireccion()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: MÉTODO DE PAGO (nuevo y editar) ════════════════ -->
+<div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content pp-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPagoLabel">Nuevo Método de Pago</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pagoId">
+        <div class="mb-3">
+          <label class="form-label">Tipo de tarjeta</label>
+          <select id="pagoTipo" class="form-select pp-input">
+            <option value="" disabled selected>Selecciona...</option>
+            <option value="Visa">Visa</option>
+            <option value="Master Card">Master Card</option>
+            <option value="American Express">American Express</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nombre del titular</label>
+          <input type="text" id="pagoTitular" class="form-control pp-input" placeholder="Como aparece en la tarjeta">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Número de tarjeta</label>
+          <input type="text" id="pagoNumero" class="form-control pp-input"
+                 placeholder="•••• •••• •••• ••••" maxlength="19" inputmode="numeric">
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label">Vencimiento</label>
+            <input type="text" id="pagoVencimiento" class="form-control pp-input" placeholder="MM/AA" maxlength="5">
+          </div>
+          <div class="col-6">
+            <label class="form-label" id="pagoCvvLabel">CVV</label>
+            <input type="text" id="pagoCvv" class="form-control pp-input" placeholder="•••" maxlength="4">
+          </div>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input pp-check" type="checkbox" id="pagoPredeterminado">
+          <label class="form-check-label" for="pagoPredeterminado">Establecer como predeterminado</label>
+        </div>
+        <p class="pp-modal-error" id="pagoError">Por favor completa todos los campos.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="pp-btn" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pp-btn pp-btn-solid" onclick="guardarPago()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ Scripts ════════════════ -->
+<script>
+  /* ── Cambio de pestaña ── */
+  function mostrarPestana(id, btn) {
+    document.querySelectorAll('.pp-tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.pp-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ══════════════════════════════
+     DIRECCIÓN
+  ══════════════════════════════ */
+  function abrirNuevaDireccion() {
+    document.getElementById('modalDireccionLabel').textContent = 'Nueva Dirección';
+    document.getElementById('dirId').value = '';
+    ['dirCalle','dirColonia','dirAlcaldia','dirCp','dirCiudad'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('dirPredeterminada').checked = false;
+    document.getElementById('dirError').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('modalDireccion')).show();
+  }
+
+  async function abrirEditarDireccion(id) {
+    document.getElementById('modalDireccionLabel').textContent = 'Editar Dirección';
+    document.getElementById('dirError').style.display = 'none';
+
+    try {
+      const res  = await fetch(`/perfil/direccion/${id}`);
+      const data = await res.json();
+      document.getElementById('dirId').value             = id;
+      document.getElementById('dirCalle').value          = data.calle       || '';
+      document.getElementById('dirColonia').value        = data.colonia     || '';
+      document.getElementById('dirAlcaldia').value       = data.alcaldia    || '';
+      document.getElementById('dirCp').value             = data.cp          || '';
+      document.getElementById('dirCiudad').value         = data.ciudad      || '';
+      document.getElementById('dirPredeterminada').checked = !!data.predeterminada;
+    } catch {
+      alert('No se pudo cargar la dirección.');
+      return;
+    }
+
+    new bootstrap.Modal(document.getElementById('modalDireccion')).show();
+  }
+
+  async function guardarDireccion() {
+    const campos = ['dirCalle','dirColonia','dirAlcaldia','dirCp','dirCiudad'];
+    const vacío  = campos.some(id => !document.getElementById(id).value.trim());
+    if (vacío) { document.getElementById('dirError').style.display = 'block'; return; }
+    document.getElementById('dirError').style.display = 'none';
+
+    const id      = document.getElementById('dirId').value;
+    const metodo  = id ? 'PUT' : 'POST';
+    const url     = id ? `/perfil/direccion/${id}` : '/perfil/direccion/nueva';
+    const payload = {
+      calle:          document.getElementById('dirCalle').value.trim(),
+      colonia:        document.getElementById('dirColonia').value.trim(),
+      alcaldia:       document.getElementById('dirAlcaldia').value.trim(),
+      cp:             document.getElementById('dirCp').value.trim(),
+      ciudad:         document.getElementById('dirCiudad').value.trim(),
+      predeterminada: document.getElementById('dirPredeterminada').checked,
+    };
+
+    const res = await fetch(url, {
+      method:  metodo,
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (res.ok) { location.reload(); }
+    else { alert('Error al guardar la dirección.'); }
+  }
+
+  /* ══════════════════════════════
+     MÉTODO DE PAGO
+  ══════════════════════════════ */
+  function abrirNuevoPago() {
+    document.getElementById('modalPagoLabel').textContent = 'Nuevo Método de Pago';
+    document.getElementById('pagoId').value = '';
+    document.getElementById('pagoTipo').value = '';
+    ['pagoTitular','pagoNumero','pagoVencimiento','pagoCvv'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('pagoPredeterminado').checked = false;
+    // En modo nuevo, el número y CVV son editables normalmente
+    document.getElementById('pagoNumero').placeholder = '•••• •••• •••• ••••';
+    document.getElementById('pagoNumero').disabled    = false;
+    document.getElementById('pagoCvvLabel').textContent = 'CVV';
+    document.getElementById('pagoError').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('modalPago')).show();
+  }
+
+  async function abrirEditarPago(id) {
+    document.getElementById('modalPagoLabel').textContent = 'Editar Método de Pago';
+    document.getElementById('pagoError').style.display = 'none';
+
+    try {
+      const res  = await fetch(`/perfil/pago/${id}`);
+      const data = await res.json();
+      document.getElementById('pagoId').value              = id;
+      document.getElementById('pagoTipo').value            = data.tipo       || '';
+      document.getElementById('pagoTitular').value         = data.titular    || '';
+      document.getElementById('pagoVencimiento').value     = data.vencimiento|| '';
+      document.getElementById('pagoPredeterminado').checked = !!data.predeterminado;
+      // Mostrar solo los últimos 4 dígitos (no editable); CVV siempre se reingresa
+      document.getElementById('pagoNumero').value       = `•••• •••• •••• ${data.ultimos4}`;
+      document.getElementById('pagoNumero').disabled    = true;
+      document.getElementById('pagoCvv').value          = '';
+      document.getElementById('pagoCvvLabel').textContent = 'CVV (reingresa)';
+    } catch {
+      alert('No se pudo cargar el método de pago.');
+      return;
+    }
+
+    new bootstrap.Modal(document.getElementById('modalPago')).show();
+  }
+
+  async function guardarPago() {
+    const id     = document.getElementById('pagoId').value;
+    const esEditar = !!id;
+    const campos = ['pagoTipo','pagoTitular','pagoVencimiento','pagoCvv'];
+    if (!esEditar) campos.push('pagoNumero');
+    const vacío = campos.some(f => !document.getElementById(f).value.trim());
+    if (vacío) { document.getElementById('pagoError').style.display = 'block'; return; }
+    document.getElementById('pagoError').style.display = 'none';
+
+    const metodo  = esEditar ? 'PUT' : 'POST';
+    const url     = esEditar ? `/perfil/pago/${id}` : '/perfil/pago/nuevo';
+    const payload = {
+      tipo:           document.getElementById('pagoTipo').value.trim(),
+      titular:        document.getElementById('pagoTitular').value.trim(),
+      vencimiento:    document.getElementById('pagoVencimiento').value.trim(),
+      cvv:            document.getElementById('pagoCvv').value.trim(),
+      predeterminado: document.getElementById('pagoPredeterminado').checked,
+    };
+    if (!esEditar) payload.numero = document.getElementById('pagoNumero').value.trim();
+
+    const res = await fetch(url, {
+      method:  metodo,
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (res.ok) { location.reload(); }
+    else { alert('Error al guardar el método de pago.'); }
+  }
+</script>
+{% endblock %}

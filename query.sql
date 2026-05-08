@@ -118,6 +118,9 @@ CREATE INDEX idx_producto_nombre ON Ropa(nombre);
 CREATE INDEX idx_tazas_nombre ON Tazas(nombre);
 CREATE INDEX idx_impresiones_nombre ON Impresiones3D(nombre);
 
+INSERT INTO Usuario (nombre, correo, contrasena, tipo_usuario) 
+VALUES ('Administrador', 'admin@ejemplo.com', '1234', 'admin');
+
 INSERT INTO Ropa (nombre, diseno, talla, cantidad_disponible, precio, imagen_ruta, imagen_nombre) VALUES
 ('Pachycephalosaurus Hoodie - Blanco', 'Hoodie','S', '15', '39.99', 'static/imagenes/productos/Pachy-blanco-Hoodie.jpg', 'Pachy-blanco-Hoodie.jpg'),
 ('Pachycephalosaurus T-shirt - Blanco', 'T-shirt','M', '10', '22.99', 'static/imagenes/productos/Pachy-blanco-Tshirt.jpg', 'Pachy-blanco-Tshirt.jpg'),
