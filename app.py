@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from Server.server import agregar_usuario, obtener_usuario_por_email, obtener_perfil_completo, guardar_direccion_db, agregar_usuario
+from Server.server import agregar_usuario, obtener_perfil_completo, guardar_direccion_db, agregar_usuario, agregar_metodo_pago, obtener_usuario_por_correo
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_de_desarrollo_insegura') 
@@ -34,16 +34,15 @@ def login():
         email = request.form['email']
         password = request.form['password']
         
-        usuario = obtener_usuario_por_email(email)
+        # Usamos la nueva función aquí también
+        usuario = obtener_usuario_por_correo(email)
         
         if usuario:
-            # Comparamos con 'contrasena' (nombre en tu SQL)
             if bcrypt.check_password_hash(usuario['contrasena'], password):
                 session['logged_in'] = True
-                session['user_id'] = usuario['usuario_id'] # Antes era usuario['id']
-                session['user_email'] = usuario['correo']    # Antes era usuario['email']
+                session['user_id'] = usuario['usuario_id']
+                session['user_email'] = usuario['correo']
                 session['user_role'] = usuario['tipo_usuario']
-                
                 return redirect(url_for('home'))
             else:
                 return render_template('login.html', error="Contraseña incorrecta.")
@@ -65,7 +64,7 @@ def registrar():
             return render_template('registrar.html', error="Las contraseñas no coinciden.")
 
         # 2. Verificar si el usuario ya existe
-        if obtener_usuario_por_email(email):
+        if obtener_usuario_por_correo(email):
             return render_template('registrar.html', error="Este correo ya está registrado.")
 
         # 3. Encriptar contraseña
@@ -101,26 +100,87 @@ def carrito():
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Requiere login
-@app.route('/cambiarContrasena', methods=['GET', 'PUT'])
-@login_required
-def cambiar_contrasena():
-    return render_template('cambiarContrasena.html')
+# @app.route('/cambiarContrasena', methods=['GET', 'PUT'])
+# @login_required
+# def cambiar_contrasena():
+#     return render_template('cambiarContrasena.html')
 
 
 @app.route('/perfil')
 @login_required
 def perfil():
-    from Server.server import obtener_perfil_completo
+    # Ya no necesitas el 'from Server.server import...' aquí si ya lo importaste arriba
     u_id = session.get('user_id')
     
+    # Obtenemos los datos desde server.py
     usuario, direcciones, pagos = obtener_perfil_completo(u_id)
     
-    # Adaptamos los datos para que el HTML no se rompa si falta algo
+    # Si no se encuentra el usuario, podrías redirigir o mostrar un error
+    if not usuario:
+        return redirect(url_for('home'))
+
     return render_template('perfil.html', 
                            usuario=usuario, 
                            direcciones=direcciones, 
                            metodos_pago=pagos,
                            ordenes=[])
+
+# Rutas de pago ------------------------------------------------
+
+@app.route('/perfil/pago/nuevo', methods=['POST'])
+def nuevo_pago_perfil():
+    if not session.get('logged_in'):
+        return jsonify({'error': 'No autorizado'}), 401
+
+    data = request.get_json()
+    usuario_id = session.get('user_id')
+    
+    tipo = data.get('tipo')
+    titular = data.get('titular')
+    numero_completo = data.get('numero')
+    ultimos4 = numero_completo[-4:] if numero_completo else "0000"
+    vencimiento = data.get('vencimiento')
+    predeterminado = 1 if data.get('predeterminado') else 0
+
+    # USAMOS LA FUNCIÓN QUE YA SE IMPORTÓ AL INICIO DE APP.PY
+    exito = agregar_metodo_pago(usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado)
+
+    if exito:
+        return jsonify({'status': 'success'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'No se pudo guardar en la base de datos'}), 500
+
+# La función borrar_pago ya la tienes, pero asegúrate que el nombre coincida
+@app.route('/perfil/pago/borrar/<int:id>', methods=['POST'])
+@login_required
+def borrar_pago(id):
+    u_id = session.get('user_id')
+    # Importamos aquí mismo para asegurar que esté disponible
+    from Server.server import eliminar_metodo_pago_db
+    
+    if eliminar_metodo_pago_db(id, u_id):
+        return redirect(url_for('perfil'))
+    return "Error al eliminar", 500
+
+@app.route('/perfil/pago/default/<int:id>', methods=['POST'])
+@login_required
+def set_pago_default(id):
+    u_id = session.get('user_id')
+    from Server.server import establecer_pago_predeterminado
+    if establecer_pago_predeterminado(u_id, id):
+        return redirect(url_for('perfil'))
+    return "Error al actualizar pago", 500
+
+# Rutas de direccion -------------------------------------------------------------------------
+@app.route('/perfil/direccion/default/<int:id>', methods=['POST'])
+@login_required
+def set_direccion_default(id):
+    u_id = session.get('user_id')
+    from Server.server import establecer_direccion_predeterminada
+    if establecer_direccion_predeterminada(u_id, id):
+        return redirect(url_for('perfil'))
+    return "Error al actualizar dirección", 500
+
 
 @app.route('/api/direccion/<int:id>', methods=['GET'])
 @login_required
@@ -130,19 +190,51 @@ def api_get_direccion(id):
     # Por ahora devolvemos un ejemplo:
     return jsonify({"calle": "Calle Falsa 123", "ciudad": "Juárez", "cp": "32000", "pais": "México"})
 
-@app.route('/api/direccion/guardar', methods=['POST'])
+@app.route('/perfil/direccion/nueva', methods=['POST'])
 @login_required
-def api_guardar_direccion():
-    from Server.server import guardar_direccion_db
+def nueva_direccion_perfil():
     data = request.get_json()
     u_id = session.get('user_id')
     
-    exito = guardar_direccion_db(u_id, data, data.get('id'))
+    # Concatenamos colonia y alcaldía para no perder información 
+    # ya que tu DB parece solo tener 'calle' y 'ciudad'
+    calle_completa = f"{data.get('calle')} - Col. {data.get('colonia')}"
+    ciudad_completa = f"{data.get('alcaldia')}, {data.get('ciudad')}"
+
+    payload = {
+        'calle': calle_completa,
+        'ciudad': ciudad_completa,
+        'cp': data.get('cp'),
+        'pais': 'México'
+    }
+    
+    from Server.server import guardar_direccion_db
+    exito = guardar_direccion_db(u_id, payload)
     
     if exito:
         return jsonify({"status": "success"}), 200
-    else:
-        return jsonify({"status": "error"}), 500
+    return jsonify({"status": "error"}), 500
+    
+@app.route('/perfil/direccion/borrar/<int:id>', methods=['POST'])
+@login_required
+def borrar_direccion(id):
+    u_id = session.get('user_id')
+    # Aquí llamarías a una función en server.py para hacer el DELETE
+    return redirect(url_for('perfil'))
+
+# Ruta para EDITAR (PUT) si decides habilitarla luego
+@app.route('/perfil/direccion/<int:id>', methods=['PUT'])
+@login_required
+def editar_direccion_perfil(id):
+    data = request.get_json()
+    u_id = session.get('user_id')
+    from Server.server import guardar_direccion_db
+    exito = guardar_direccion_db(u_id, data, id)
+    if exito:
+        return jsonify({"status": "success"}), 200
+    return jsonify({"status": "error"}), 500
+
+# Administracion de cuentas -------------------------------------------------------------------------------------------------
 
 @app.route('/perfilAdmin', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required

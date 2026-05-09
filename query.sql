@@ -2,32 +2,37 @@ CREATE DATABASE paleoprints;
 
 USE paleoprints;
 
+-- DROP DATABASE paleoprints;
+
 CREATE TABLE Usuario (
     usuario_id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(30) NOT NULL,
-    correo VARCHAR(30) UNIQUE NOT NULL,
-    contrasena VARCHAR(225) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
     tipo_usuario ENUM('cliente', 'admin') DEFAULT 'cliente'
 );
 
-
 CREATE TABLE Direccion (
     direccion_id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
     pais VARCHAR(60) NOT NULL,
-    calle VARCHAR(30) NOT NULL,
-    ciudad VARCHAR(15) NOT NULL,
-    codigo_postal INT(10) NOT NULL
+    calle VARCHAR(100) NOT NULL,
+    ciudad VARCHAR(50) NOT NULL,
+    codigo_postal VARCHAR(10) NOT NULL,
+    predeterminada TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id) ON DELETE CASCADE
 );
-
 
 CREATE TABLE Metodos_pago (
     metodo_de_pago_id INT PRIMARY KEY AUTO_INCREMENT,
-    num_tarjeta VARCHAR(19) NOT NULL,
-    fecha_expiracion VARCHAR(4) NOT NULL,
-    cvv INT(3) NOT NULL,
-    direccion_de_facturacion VARCHAR(500) NOT NULL
+    usuario_id INT NOT NULL,
+    tipo VARCHAR(20) NOT NULL,       -- Ej: 'Visa', 'Mastercard'
+    titular VARCHAR(100) NOT NULL,   -- Nombre en la tarjeta
+    ultimos4 VARCHAR(4) NOT NULL,    -- Solo los últimos 4 dígitos
+    vencimiento VARCHAR(7) NOT NULL, -- Formato MM/YYYY
+    predeterminado TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id) ON DELETE CASCADE
 );
-
 
 CREATE TABLE Carrito (
     carrito_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -36,20 +41,6 @@ CREATE TABLE Carrito (
     FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE Cliente (
-    cliente_id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT UNIQUE NOT NULL,
-    direccion_id INT,
-    metodo_de_pago_id INT,
-    carrito_id INT,
-    FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id) ON DELETE CASCADE,
-    FOREIGN KEY (direccion_id) REFERENCES Direccion(direccion_id) ON DELETE SET NULL,
-    FOREIGN KEY (metodo_de_pago_id) REFERENCES Metodos_pago(metodo_de_pago_id) ON DELETE SET NULL,
-    FOREIGN KEY (carrito_id) REFERENCES Carrito(carrito_id) ON DELETE SET NULL
-);
-
-
 CREATE TABLE Ropa (
     producto_id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
@@ -57,65 +48,48 @@ CREATE TABLE Ropa (
     talla VARCHAR(5),
     cantidad_disponible INT DEFAULT 0,
     precio FLOAT NOT NULL,
-    imagen_ruta VARCHAR(500),  -- Ruta de la imagen en el servidor
-    imagen_nombre VARCHAR(100)  -- Nombre original del archivo
+    imagen_ruta VARCHAR(500),
+    imagen_nombre VARCHAR(100)
 );
-
 
 CREATE TABLE Tazas (
     producto_id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     diseno VARCHAR(50),
-    tamano VARCHAR(20),  -- Cambiado de talla a tamaño
+    tamano VARCHAR(20),
     cantidad_disponible INT DEFAULT 0,
     precio FLOAT NOT NULL,
     imagen_ruta VARCHAR(500),
     imagen_nombre VARCHAR(100)
 );
-
 
 CREATE TABLE Impresiones3D (
     producto_id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     diseno VARCHAR(50),
-    tamaño VARCHAR(20),
+    tamano VARCHAR(20),
     cantidad_disponible INT DEFAULT 0,
     precio FLOAT NOT NULL,
     imagen_ruta VARCHAR(500),
     imagen_nombre VARCHAR(100)
 );
 
-
 CREATE TABLE Orden (
     orden_id INT PRIMARY KEY AUTO_INCREMENT,
-    cliente_id INT NOT NULL,
-    fecha_creada DATE NOT NULL,
+    usuario_id INT NOT NULL,
+    fecha_creada DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_de_envio DATE,
     estatus VARCHAR(20) DEFAULT 'pendiente',
-    productos_id VARCHAR(500),  -- IDs separados por coma (ej: "1,2,3")
-    cantidad_por_producto VARCHAR(500),
+    productos_id TEXT, -- Usamos TEXT por si la lista es larga
+    cantidad_por_producto TEXT,
     pago_total FLOAT NOT NULL,
-    FOREIGN KEY (cliente_id) REFERENCES Cliente(cliente_id) ON DELETE CASCADE
-);
-
-
-CREATE TABLE Ventas (
-    venta_id INT PRIMARY KEY AUTO_INCREMENT,
-    orden_id INT NOT NULL,
-    cliente_id INT NOT NULL,
-    fecha_creada DATE NOT NULL,
-    productos_id VARCHAR(500),
-    cantidad_por_producto VARCHAR(500),
-    estatus VARCHAR(20),
-    pago_total FLOAT,
-    FOREIGN KEY (orden_id) REFERENCES Orden(orden_id) ON DELETE CASCADE,
-    FOREIGN KEY (cliente_id) REFERENCES Cliente(cliente_id) ON DELETE CASCADE
+    FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id) ON DELETE CASCADE
 );
 
 
 CREATE INDEX idx_usuario_correo ON Usuario(correo);
-CREATE INDEX idx_producto_nombre ON Ropa(nombre);
-CREATE INDEX idx_tazas_nombre ON Tazas(nombre);
+CREATE INDEX idx_producto_ropa ON Ropa(nombre);
+CREATE INDEX idx_producto_tazas ON Tazas(nombre);
 CREATE INDEX idx_impresiones_nombre ON Impresiones3D(nombre);
 
 
@@ -138,3 +112,5 @@ INSERT INTO Tazas (nombre, diseno, tamano, cantidad_disponible, precio, imagen_r
 
 SELECT * FROM Ropa;
 SELECT * FROM Tazas;
+SELECT * FROM Direccion;
+SELECT * FROM Usuario;

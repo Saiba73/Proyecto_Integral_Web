@@ -134,20 +134,23 @@
       {% if dir.predeterminada %}<div class="pp-label-default">Predeterminada</div>{% endif %}
       <div class="pp-card">
         <div class="pp-card-info">
-          {{ dir.calle }}, {{ dir.colonia }}<br>
-          {{ dir.alcaldia }}, {{ dir.ciudad }}<br>
-          CP {{ dir.cp }}
+          {{ dir.calle }}, {{ dir.ciudad }}<br>
+          CP {{ dir.codigo_postal }} 
         </div>
         <div class="pp-card-actions">
           {% if not dir.predeterminada %}
-          <form method="POST" action="{{ url_for('set_direccion_default', id=dir.id) }}">
+          <!-- CAMBIO: Usa dir.direccion_id en lugar de id=dir.id -->
+          <form method="POST" action="{{ url_for('set_direccion_default', id=dir.direccion_id) }}">
             <button type="submit" class="pp-btn pp-btn-set">Establecer como<br>Predeterminada</button>
           </form>
           {% endif %}
-          <!-- <button class="pp-btn" onclick="abrirEditarDireccion({{ dir.id }})">Editar</button> -->
-          <form method="POST" action="{{ url_for('borrar_direccion', id=dir.id) }}"
+          
+          <!-- CAMBIO: Asegúrate que el botón de editar (si lo descomentas) use dir.direccion_id -->
+          <!-- <button class="pp-btn" onclick="abrirEditarDireccion({{ dir.direccion_id }})">Editar</button> -->
+          
+          <form method="POST" action="{{ url_for('borrar_direccion', id=dir.direccion_id) }}"
                 onsubmit="return confirm('¿Eliminar esta dirección?')">
-            <button type="submit" class="pp-btn">Borrar</button>
+              <button type="submit" class="pp-btn">Borrar</button>
           </form>
         </div>
       </div>
@@ -173,14 +176,18 @@
         </div>
         <div class="pp-card-actions">
           {% if not metodo.predeterminado %}
-          <form method="POST" action="{{ url_for('set_pago_default', id=metodo.id) }}">
+          <!-- CAMBIO: Usa metodo.metodo_de_pago_id en lugar de metodo.id -->
+          <form method="POST" action="{{ url_for('set_pago_default', id=metodo.metodo_de_pago_id) }}">
             <button type="submit" class="pp-btn pp-btn-set">Establecer como<br>Predeterminada</button>
           </form>
           {% endif %}
-          <!-- <button class="pp-btn" onclick="abrirEditarPago({{ metodo.id }})">Editar</button> -->
-          <form method="POST" action="{{ url_for('borrar_pago', id=metodo.id) }}"
+
+          <!-- CAMBIO: Si usas el botón de editar, cámbialo a metodo.metodo_de_pago_id -->
+          <!-- <button class="pp-btn" onclick="abrirEditarPago({{ metodo.metodo_de_pago_id }})">Editar</button> -->
+
+          <form method="POST" action="{{ url_for('borrar_pago', id=metodo.metodo_de_pago_id) }}"
                 onsubmit="return confirm('¿Eliminar este método?')">
-            <button type="submit" class="pp-btn">Borrar</button>
+              <button type="submit" class="pp-btn">Borrar</button>
           </form>
         </div>
       </div>
