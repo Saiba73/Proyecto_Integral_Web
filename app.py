@@ -1,11 +1,16 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from Server.server import agregar_usuario, obtener_perfil_completo, guardar_direccion_db, agregar_usuario, agregar_metodo_pago, obtener_usuario_por_correo
+from Server.server import agregar_usuario, obtener_perfil_completo, guardar_direccion_db, agregar_metodo_pago, obtener_usuario_por_correo, crear_tablas, insertar_productos_iniciales
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_de_desarrollo_insegura') 
 bcrypt = Bcrypt(app)
+
+# Configurar base de datos al iniciar la aplicación
+with app.app_context():
+    crear_tablas()
+    insertar_productos_iniciales()
 
 def login_required(f):
     """Decorador para restringir el acceso si no hay sesión activa."""

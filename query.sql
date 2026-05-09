@@ -108,7 +108,16 @@ INSERT INTO Tazas (nombre, diseno, tamano, cantidad_disponible, precio, imagen_r
 ('Pachycephalosaurus - Blanca', 'Taza','11 OZ', '16', '19.99', 'static/imagenes/productos/Pachy-blanca-taza.jpg', 'Pachy-blanca-taza.jpg'),
 ('Therizinosaurus - Blanca', 'Taza','11 OZ', '8', '19.99', 'static/imagenes/productos/Theriz-blanca-taza.jpg', 'Theriz-blanca-taza.jpg'),
 ('Tyrannosaurus - Blanca', 'Taza','11 OZ', '21', '19.99', 'static/imagenes/productos/Trex-blanca-taza.jpg', 'Trex-blanca-taza.jpg'),
-('Tyrannosaurus - Negra', 'Taza','11 OZ', '14', '19.99', 'static/imagenes/productos/Trex-negra-tazat.jpg', 'Trex-negra-taza.jpg');
+('Tyrannosaurus - Negra', 'Taza','11 OZ', '14', '19.99', 'static/imagenes/productos/Trex-negra-taza.jpg', 'Trex-negra-taza.jpg');
+
+INSERT INTO Impresiones3D (nombre, diseno, tamaño, cantidad_disponible, precio, imagen_ruta, imagen_nombre) 
+VALUES ('Triceratops', 'Cartoon', '15cm', '25', '11.99', 'static/imagenes/productos/Triceratops-3d.jpg', 'Triceratops-3d.jpg'),
+ ('Pterodactyl', 'Figura', '10cm', '21', '9.99', 'static/imagenes/productos/Pterodactyl-3d.jpg', 'Pterodactyl-3d.jpg'),
+ ('Brachiosaurus', 'Llavero', '5cm', '15', '4.99', 'static/imagenes/productos/Brachiosaurus-3d.jpg', 'Brachiosaurus-3d.jpg');
+
+-- Para pruebas LOCALES solamente (sin hash de contraseña)
+INSERT INTO Usuario (nombre, correo, contrasena, tipo_usuario) 
+VALUES ('Admin Principal', 'admin@tuweb.com', 'admin123', 'admin');
 
 SELECT * FROM Ropa;
 SELECT * FROM Tazas;
