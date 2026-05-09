@@ -41,11 +41,12 @@
           <div class="cat-card reveal d1">
             <div class="cat-img-wrap cat-ropa">
               <div class="cat-icon-wrap">
-                <img src="" alt="">
+                <img src="../static/imagenes/Ropa.png" width="400px" height="200px">
               </div>
             </div>
             <p class="cat-name">Ropa</p>
-            <a href="#" class="btn-explore">Explorar</a>
+            <a class="nav-link {% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}"
+             href="{{ url_for('ropa') }}" class="btn-explore">Explorar</a>
           </div>
         </div>
  
@@ -53,11 +54,12 @@
           <div class="cat-card reveal d2">
             <div class="cat-img-wrap cat-tazas">
               <div class="cat-icon-wrap">
-                <img src="" alt="">
+                <img src="../static/imagenes/Taza.png" width="300px" height="250px">
               </div>
             </div>
             <p class="cat-name">Tazas</p>
-            <a href="#" class="btn-explore">Explorar</a>
+            <a class="nav-link {% if request.endpoint == 'tazas' %}active{% endif %}"
+             href="{{ url_for('tazas') }}" class="btn-explore">Explorar</a>
           </div>
         </div>
  
@@ -65,11 +67,12 @@
           <div class="cat-card reveal d3">
             <div class="cat-img-wrap cat-prints">
               <div class="cat-icon-wrap">
-                <img src="" alt="">
+                <img src="../static/imagenes/Impresiones.png" width="400px" height="200px">
               </div>
             </div>
             <p class="cat-name">Impresiones</p>
-            <a href="#" class="btn-explore">Explorar</a>
+            <a class="nav-link {% if request.endpoint == 'impresiones' %}active{% endif %}"
+             href="{{ url_for('impresiones') }} class="btn-explore">Explorar</a>
           </div>
         </div>
  
@@ -88,7 +91,7 @@
         <div class="col-12 col-md-4">
           <div class="why-card reveal d1">
             <div class="why-icon">
-              <img src="" alt="">
+              <img src="../static/imagenes/Corazon_Icon.svg" height="75px" width="75px">
             </div>
             <h3 class="why-card-title">Hecho por fans,<br>para fans</h3>
             <p class="why-card-text">Transformamos nuestra fascinación por la paleontología en piezas que puedas usar, coleccionar y compartir.</p>
@@ -98,7 +101,7 @@
         <div class="col-12 col-md-4">
           <div class="why-card reveal d2">
             <div class="why-icon">
-              <img src="" alt="">
+              <img src="../static/imagenes/Diseno_Icon.svg" height="75px" width="75px">
             </div>
             <h3 class="why-card-title">Diseños originales<br>por artistas</h3>
             <p class="why-card-text">Nuestros productos son creados totalmente por artistas, sin uso de IA generativa.</p>
@@ -108,7 +111,7 @@
         <div class="col-12 col-md-4">
           <div class="why-card reveal d3">
             <div class="why-icon">
-              <img src="../static/imagenes/dinosaurio.png" height="65px" width="65px">
+              <img src="../static/imagenes/Dino_Icon.svg" height="75px" width="75px">
             </div>
             <h3 class="why-card-title">Científicamente<br>precisos</h3>
             <p class="why-card-text">Diseños basados en paleontología actual para quienes valoran el rigor científico y el detalle.</p>

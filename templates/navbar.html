@@ -2,27 +2,23 @@
 
 <nav class="navbar navbar-expand-lg pp-navbar">
   <div class="container-fluid">
-
     <a class="navbar-brand" href="{{ url_for('home') }}">
-      <img src="{{ url_for('static', filename='imagenes/IsotipoSVG.svg') }}" alt="Paleo Prints Logo">
+      <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints Logo">
       <span class="pp-brand-text">Paleo <span>Prints</span></span>
     </a>
-
     <button class="navbar-toggler" type="button"
             data-bs-toggle="collapse" data-bs-target="#ppNavbar"
             aria-controls="ppNavbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="ppNavbar">
-
       <ul class="navbar-nav mx-auto gap-1">
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}"
              href="{{ url_for('home') }}">Inicio</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'ropa' %}active{% endif %}"
+          <a class="nav-link {% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}"
              href="{{ url_for('ropa') }}">Ropa</a>
         </li>
         <li class="nav-item">
@@ -34,26 +30,22 @@
              href="{{ url_for('impresiones') }}">Impresiones</a>
         </li>
       </ul>
-
       <div class="pp-nav-divider d-none d-lg-block"></div>
       <div class="d-flex align-items-center gap-2 pp-icons-group">
-
         <div class="pp-cart-wrap">
-          <a class="pp-icon-btn" href="{{ url_for('carrito') }}" aria-label="Carrito de compras">
+          <a class="pp-icon-btn" href="{{ url_for('carrito') }}" aria-label="Carrito">
             <img src="{{ url_for('static', filename='imagenes/carrito.svg') }}" alt="Carrito">
           </a>
         </div>
-
         {% if session.get('logged_in') %}
           <a class="pp-icon-btn" href="{{ url_for('perfil') }}" aria-label="Mi cuenta">
-            <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Usuario">
+            <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
           </a>
         {% else %}
           <a class="pp-icon-btn" href="{{ url_for('login') }}" aria-label="Iniciar sesión">
-            <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Iniciar sesión">
+            <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Login">
           </a>
         {% endif %}
-
       </div>
     </div>
   </div>
