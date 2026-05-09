@@ -2,119 +2,8 @@
 {% block title %}Impresiones - Paleo Prints{% endblock %}
 
 {% block content %}
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
-  :root {
-    --jungle:#1B4332; --jungle-md:#2D6A4F;
-    --gold:#C9A84C;   --gold-lt:#F0C040;
-    --navy:#1A3560;   --navy-md:#243F72;
-    --earth:#7A3B1E;
-    --cream:#F5EDD6;  --offwhite:#FAF6EC;
-    --text-dark:#1C1A14; --text-muted:#7A6A55;
-  }
-  body { font-family:'Nunito',sans-serif; background:var(--offwhite); color:var(--text-dark); }
-  .page-wrapper { margin-left:calc(-50vw + 50%); margin-right:calc(-50vw + 50%); margin-top:-1.5rem; width:100vw; overflow-x:hidden; }
-
-  /* HERO — Era Paleozoica (navy) */
-  .products-hero { background:var(--navy); padding:3.5rem 0 4rem; text-align:center; position:relative; overflow:hidden; }
-  .products-hero::before { content:''; position:absolute; inset:0;
-    background: radial-gradient(ellipse 60% 80% at 10% 120%, rgba(58,95,160,0.25) 0%, transparent 55%),
-                radial-gradient(ellipse 50% 60% at 90% -10%, rgba(201,168,76,0.12) 0%, transparent 50%);
-    pointer-events:none; }
-  .products-hero::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:44px; background:var(--offwhite); clip-path:polygon(0 100%,100% 100%,100% 30%,0 100%); }
-  .products-hero-inner { position:relative; z-index:1; }
-  .hero-eyebrow { font-size:0.72rem; font-weight:800; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold-lt); margin-bottom:0.4rem; }
-  .products-hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2.4rem,6vw,4rem); color:#fff; letter-spacing:0.05em; margin-bottom:0.5rem; line-height:1; }
-  .products-hero h1 span { color:var(--gold-lt); }
-  .products-hero p { color:rgba(255,255,255,0.68); font-size:0.95rem; font-weight:600; }
-
-  /* Mismos estilos base que ropa/tazas */
-  .shop-layout { max-width:1280px; margin:0 auto; padding:2.5rem 1.5rem 4rem; display:grid; grid-template-columns:230px 1fr; gap:2.5rem; align-items:start; }
-  .sidebar { background:#fff; border-radius:18px; padding:1.5rem; border:1px solid rgba(26,53,96,0.10); box-shadow:0 2px 16px rgba(26,53,96,0.06); position:sticky; top:80px; }
-  .sidebar-title { font-family:'Bebas Neue',sans-serif; font-size:0.95rem; letter-spacing:0.14em; color:var(--navy); text-transform:uppercase; margin-bottom:1rem; padding-bottom:0.6rem; border-bottom:2px solid rgba(26,53,96,0.10); display:flex; align-items:center; gap:0.4rem; }
-  .filter-section { margin-bottom:1.4rem; }
-  .filter-label { font-size:0.72rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.6rem; }
-  .chips { display:flex; flex-wrap:wrap; gap:0.4rem; }
-  .chip { border:1.5px solid rgba(26,53,96,0.18); border-radius:8px; padding:0.28rem 0.65rem; font-size:0.78rem; font-weight:700; color:var(--navy); cursor:pointer; transition:all 0.18s; background:transparent; }
-  .chip:hover { background:rgba(26,53,96,0.07); }
-  .chip.active { background:var(--navy); color:#fff; border-color:var(--navy); }
-  .chips-col { flex-direction:column; }
-  .chips-col .chip { text-align:left; width:100%; }
-  .price-row { display:flex; gap:0.5rem; align-items:center; }
-  .price-input { width:100%; padding:0.4rem 0.55rem; border:1.5px solid rgba(26,53,96,0.15); border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:700; color:var(--text-dark); outline:none; }
-  .price-input:focus { border-color:var(--navy); }
-  .btn-apply { width:100%; background:var(--navy); color:#fff; border:none; border-radius:10px; padding:0.6rem; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.82rem; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; transition:background 0.2s; margin-top:0.5rem; }
-  .btn-apply:hover { background:var(--navy-md); }
-  .btn-clear { width:100%; background:transparent; color:var(--text-muted); border:1.5px solid rgba(0,0,0,0.10); border-radius:10px; padding:0.5rem; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.78rem; cursor:pointer; transition:all 0.18s; margin-top:0.4rem; }
-  .btn-clear:hover { border-color:var(--navy); color:var(--navy); }
-  .products-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.75rem; }
-  .products-count { font-size:0.88rem; font-weight:700; color:var(--text-muted); }
-  .products-count strong { color:var(--text-dark); }
-  .sort-select { padding:0.45rem 1rem; border:1.5px solid rgba(26,53,96,0.15); border-radius:10px; font-family:'Nunito',sans-serif; font-size:0.82rem; font-weight:700; color:var(--text-dark); background:#fff; cursor:pointer; outline:none; }
-  .sort-select:focus { border-color:var(--navy); }
-  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:1.4rem; }
-
-  /* Tarjeta — variante impresiones con fondo azulado */
-  .product-card { background:#fff; border-radius:18px; overflow:hidden; border:1px solid rgba(26,53,96,0.08); box-shadow:0 2px 12px rgba(26,53,96,0.06); transition:transform 0.35s cubic-bezier(.22,.68,0,1.15),box-shadow 0.35s; position:relative; display:flex; flex-direction:column; cursor:pointer; }
-  .product-card:hover { transform:translateY(-6px); box-shadow:0 18px 44px rgba(26,53,96,0.14); }
-  .product-card.hidden { display:none; }
-  .product-img-wrap { position:relative; background:#EBF0F8; aspect-ratio:1/1; overflow:hidden; }
-  .product-img-wrap img { width:100%; height:100%; object-fit:contain; padding:0.8rem; transition:transform 0.4s; }
-  .product-card:hover .product-img-wrap img { transform:scale(1.06); }
-  .product-badge { position:absolute; top:10px; left:10px; font-family:'Nunito',sans-serif; font-size:0.62rem; font-weight:800; letter-spacing:0.10em; text-transform:uppercase; padding:0.18rem 0.55rem; border-radius:100px; background:var(--navy); color:#fff; }
-  .product-badge.gold { background:var(--gold); color:var(--text-dark); }
-  .product-quickview { position:absolute; top:10px; right:10px; width:34px; height:34px; background:#fff; border:none; border-radius:9px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transform:translateY(-4px); transition:opacity 0.25s,transform 0.25s; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
-  .product-card:hover .product-quickview { opacity:1; transform:translateY(0); }
-  .product-quickview svg { width:16px; height:16px; stroke:var(--navy); fill:none; stroke-width:1.8; stroke-linecap:round; }
-  .product-info { padding:0.85rem 1rem 1rem; flex:1; display:flex; flex-direction:column; }
-  .product-name { font-weight:800; font-size:0.86rem; color:var(--text-dark); margin-bottom:0.12rem; line-height:1.3; }
-  .product-type { font-size:0.73rem; font-weight:600; color:var(--text-muted); margin-bottom:0.5rem; }
-  .product-size-tag { display:inline-block; border:1.5px solid rgba(26,53,96,0.2); border-radius:6px; padding:0.12rem 0.45rem; font-size:0.68rem; font-weight:800; color:var(--navy); margin-bottom:0.7rem; }
-  .product-footer { display:flex; align-items:center; justify-content:space-between; margin-top:auto; }
-  .product-price { font-family:'Bebas Neue',sans-serif; font-size:1.25rem; color:var(--text-dark); }
-  .product-price .currency { font-family:'Nunito',sans-serif; font-size:0.76rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
-  .btn-add-cart { background:var(--navy); color:#fff; border:none; border-radius:9px; padding:0.42rem 0.85rem; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.76rem; text-transform:uppercase; cursor:pointer; display:flex; align-items:center; gap:0.3rem; transition:background 0.2s,transform 0.18s; }
-  .btn-add-cart:hover { background:var(--navy-md); transform:translateY(-1px); }
-  .btn-add-cart svg { width:13px; height:13px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; }
-  .no-results { display:none; grid-column:1/-1; text-align:center; padding:3rem 1rem; }
-  .no-results.visible { display:block; }
-  .no-results svg { width:56px; height:56px; stroke:rgba(26,53,96,0.2); fill:none; stroke-width:1.5; margin-bottom:1rem; }
-  .no-results p { font-weight:700; color:var(--text-muted); }
-
-  /* MODAL */
-  .qv-overlay { display:none; position:fixed; inset:0; z-index:2000; background:rgba(15,12,8,0.65); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem; }
-  .qv-overlay.open { display:flex; }
-  .qv-modal { background:#fff; border-radius:22px; max-width:640px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 32px 80px rgba(0,0,0,0.28); position:relative; animation:qvIn 0.3s cubic-bezier(.22,.68,0,1.2) forwards; }
-  @keyframes qvIn { from{opacity:0;transform:scale(0.92) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
-  .qv-close { position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%; background:rgba(0,0,0,0.07); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; transition:background 0.2s,transform 0.2s; }
-  .qv-close:hover { background:rgba(0,0,0,0.14); transform:rotate(90deg); }
-  .qv-close svg { width:16px; height:16px; stroke:var(--text-dark); fill:none; stroke-width:2.5; stroke-linecap:round; }
-  .qv-body { display:grid; grid-template-columns:1fr 1fr; }
-  .qv-img-side { background:#EBF0F8; border-radius:22px 0 0 22px; display:flex; align-items:center; justify-content:center; padding:1.5rem; min-height:320px; overflow:hidden; }
-  .qv-img-side img { width:100%; max-height:300px; object-fit:contain; transition:transform 0.4s; }
-  .qv-img-side:hover img { transform:scale(1.05); }
-  .qv-info-side { padding:1.8rem 1.6rem; display:flex; flex-direction:column; gap:0.6rem; }
-  .qv-nombre { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:0.04em; color:var(--text-dark); line-height:1.1; }
-  .qv-tipo { font-size:0.8rem; font-weight:700; color:var(--text-muted); }
-  .qv-precio { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--navy); }
-  .qv-precio .currency { font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
-  .qv-label { font-size:0.7rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.3rem; }
-  .qv-talla-chip { display:inline-block; border:2px solid rgba(26,53,96,0.2); border-radius:8px; padding:0.3rem 0.8rem; font-weight:800; font-size:0.9rem; color:var(--navy); background:rgba(26,53,96,0.05); }
-  .qv-stock { font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.35rem; color:var(--jungle-md); }
-  .qv-stock svg { width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round; }
-  .qv-btn-group { display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; }
-  .qv-btn-cart { background:var(--navy); color:#fff; border:none; border-radius:12px; padding:0.75rem; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.9rem; text-transform:uppercase; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; transition:background 0.2s; }
-  .qv-btn-cart:hover { background:var(--navy-md); }
-  .qv-btn-cart svg { width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round; }
-  .qv-btn-detail { background:transparent; color:var(--navy); border:2px solid rgba(26,53,96,0.2); border-radius:12px; padding:0.65rem; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.85rem; text-transform:uppercase; cursor:pointer; text-decoration:none; text-align:center; display:block; transition:all 0.2s; }
-  .qv-btn-detail:hover { border-color:var(--navy); background:rgba(26,53,96,0.05); color:var(--navy); }
-  @media (max-width:560px) { .qv-body{grid-template-columns:1fr} .qv-img-side{border-radius:22px 22px 0 0;min-height:200px} }
-  @media (max-width:900px) { .shop-layout{grid-template-columns:1fr} .sidebar{position:static} .products-grid{grid-template-columns:repeat(2,1fr)} }
-  @media (max-width:520px) { .products-grid{grid-template-columns:1fr} }
-</style>
-
 <div class="page-wrapper">
-  <section class="products-hero">
+  <section class="products-hero" style="background: var(--navy);">
     <div class="products-hero-inner">
       <p class="hero-eyebrow">Era Paleozoica</p>
       <h1>Impresiones <span>3D</span></h1>
@@ -125,42 +14,46 @@
   <div class="shop-layout">
     <aside class="sidebar">
       <h2 class="sidebar-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
         Filtros
       </h2>
+
       <div class="filter-section">
         <p class="filter-label">Diseño</p>
         <div class="chips chips-col" id="filter-diseno">
           <button class="chip active" data-value="">Todos</button>
-          <button class="chip" data-value="Tyrannosaurus">Tyrannosaurus</button>
-          <button class="chip" data-value="Pachycephalosaurus">Pachycephalosaurus</button>
-          <button class="chip" data-value="Therizinosaurus">Therizinosaurus</button>
+          <button class="chip" data-value="Cartoon">Cartoon</button>
+          <button class="chip" data-value="Figura">Figura</button>
+          <button class="chip" data-value="Llavero">Llavero</button>
         </div>
       </div>
+
       <div class="filter-section">
         <p class="filter-label">Tamaño</p>
         <div class="chips" id="filter-tamano">
           <button class="chip active" data-value="">Todos</button>
-          <button class="chip" data-value="Pequeño">Pequeño</button>
-          <button class="chip" data-value="Mediano">Mediano</button>
-          <button class="chip" data-value="Grande">Grande</button>
+          <button class="chip" data-value="5cm">Pequeño (5cm)</button>
+          <button class="chip" data-value="10cm">Mediano (10cm)</button>
+          <button class="chip" data-value="15cm">Grande (15cm)</button>
         </div>
       </div>
+
       <div class="filter-section">
         <p class="filter-label">Precio (USD)</p>
         <div class="price-row">
           <input class="price-input" id="price-min" type="number" placeholder="Min" value="0">
-          <span style="color:var(--text-muted);font-weight:700;flex-shrink:0;">—</span>
-          <input class="price-input" id="price-max" type="number" placeholder="Max" value="200">
+          <span>—</span>
+          <input class="price-input" id="price-max" type="number" placeholder="Max" value="50">
         </div>
       </div>
+
       <button class="btn-apply" id="btn-apply">Aplicar filtros</button>
       <button class="btn-clear" id="btn-clear">Limpiar filtros</button>
     </aside>
 
     <section class="products-area">
       <div class="products-topbar">
-        <p class="products-count">Mostrando <strong id="count-visible">3</strong> de <strong id="count-total">3</strong> impresiones</p>
+        <p class="products-count">Mostrando <strong id="count-visible">0</strong> de <strong id="count-total">0</strong> impresiones</p>
         <select class="sort-select" id="sort-select">
           <option value="default">Ordenar por</option>
           <option value="price-asc">Precio: menor a mayor</option>
@@ -170,20 +63,25 @@
       </div>
 
       <div class="products-grid" id="products-grid">
-
-        <!-- Impresión 1 — placeholder hasta tener la tabla Impresiones3D con datos -->
-        <div class="product-card" data-id="1" data-diseno="Tyrannosaurus" data-tamano="Mediano" data-precio="49.99" data-nombre="Tyrannosaurus Rex - Mediano" data-img="{{ url_for('static', filename='imagenes/productos/placeholder_imp.jpg') }}">
+        {% for producto in productos %}
+        <div class="product-card" data-categoria="impresiones"
+             data-id="{{ producto.producto_id }}"
+             data-diseno="{{ producto.diseno }}"
+             data-tamano="{{ producto.tamano }}"
+             data-precio="{{ producto.precio }}"
+             data-nombre="{{ producto.nombre }}"
+             data-img="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}">
           <div class="product-img-wrap">
-            <img src="{{ url_for('static', filename='imagenes/productos/placeholder_imp.jpg') }}" alt="Tyrannosaurus Rex impresión" onerror="this.style.display='none'">
+            <img src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}" alt="{{ producto.nombre }}" onerror="this.style.display='none'">
             <span class="product-badge">Nuevo</span>
             <button class="product-quickview"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"/></svg></button>
           </div>
           <div class="product-info">
-            <p class="product-name">Tyrannosaurus Rex</p>
-            <p class="product-type">Impresión 3D · Mediano</p>
-            <span class="product-size-tag">Mediano</span>
+            <p class="product-name">{{ producto.nombre }}</p>
+            <p class="product-type">Impresión 3D · {{ producto.diseno }}</p>
+            <span class="product-size-tag">{{ producto.tamano }}</span>
             <div class="product-footer">
-              <p class="product-price"><span class="currency">$</span>49.99</p>
+              <p class="product-price"><span class="currency">$</span>{{ producto.precio }}</p>
               <button class="btn-add-cart" onclick="event.stopPropagation()">
                 <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                 Agregar
@@ -191,47 +89,7 @@
             </div>
           </div>
         </div>
-
-        <!-- Impresión 2 -->
-        <div class="product-card" data-id="2" data-diseno="Pachycephalosaurus" data-tamano="Pequeño" data-precio="29.99" data-nombre="Pachycephalosaurus - Pequeño" data-img="{{ url_for('static', filename='imagenes/productos/placeholder_imp.jpg') }}">
-          <div class="product-img-wrap">
-            <img src="{{ url_for('static', filename='imagenes/productos/placeholder_imp.jpg') }}" alt="Pachycephalosaurus impresión" onerror="this.style.display='none'">
-            <button class="product-quickview"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"/></svg></button>
-          </div>
-          <div class="product-info">
-            <p class="product-name">Pachycephalosaurus</p>
-            <p class="product-type">Impresión 3D · Pequeño</p>
-            <span class="product-size-tag">Pequeño</span>
-            <div class="product-footer">
-              <p class="product-price"><span class="currency">$</span>29.99</p>
-              <button class="btn-add-cart" onclick="event.stopPropagation()">
-                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                Agregar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Impresión 3 -->
-        <div class="product-card" data-id="3" data-diseno="Therizinosaurus" data-tamano="Grande" data-precio="89.99" data-nombre="Therizinosaurus - Grande" data-img="{{ url_for('static', filename='imagenes/productos/placeholder_imp.jpg') }}">
-          <div class="product-img-wrap">
-            <img src="{{ url_for('static', filename='imagenes/productos/placeholder_imp.jpg') }}" alt="Therizinosaurus impresión" onerror="this.style.display='none'">
-            <span class="product-badge gold">Edición limitada</span>
-            <button class="product-quickview"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"/></svg></button>
-          </div>
-          <div class="product-info">
-            <p class="product-name">Therizinosaurus</p>
-            <p class="product-type">Impresión 3D · Grande</p>
-            <span class="product-size-tag">Grande</span>
-            <div class="product-footer">
-              <p class="product-price"><span class="currency">$</span>89.99</p>
-              <button class="btn-add-cart" onclick="event.stopPropagation()">
-                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                Agregar
-              </button>
-            </div>
-          </div>
-        </div>
+        {% endfor %}
 
         <div class="no-results" id="no-results">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -242,7 +100,6 @@
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="qv-overlay" id="qv-overlay">
   <div class="qv-modal">
     <button class="qv-close" id="qv-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -253,7 +110,7 @@
         <h2 class="qv-nombre" id="qv-nombre">—</h2>
         <p class="qv-precio"><span class="currency">$</span><span id="qv-precio">—</span></p>
         <div><p class="qv-label">Tamaño</p><span class="qv-talla-chip" id="qv-talla">—</span></div>
-        <p class="qv-stock"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>En stock</p>
+        <p class="qv-stock ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>En stock</p>
         <div class="qv-btn-group">
           <button class="qv-btn-cart"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Agregar al carrito</button>
           <a class="qv-btn-detail" id="qv-btn-detail" href="#">Ver detalle completo →</a>
@@ -264,50 +121,108 @@
 </div>
 
 <script>
-(function(){
-  const overlay=document.getElementById('qv-overlay');
-  const qvClose=document.getElementById('qv-close');
-  function openModal(card){
-    const d=card.dataset;
-    document.getElementById('qv-img').src=d.img||'';
-    document.getElementById('qv-nombre').textContent=d.nombre||'—';
-    document.getElementById('qv-tipo').textContent='Impresión 3D · '+( d.diseno||'—');
-    document.getElementById('qv-precio').textContent=d.precio||'—';
-    document.getElementById('qv-talla').textContent=d.tamano||'—';
-    document.getElementById('qv-btn-detail').href=`/impresion/${d.id}`;
-    overlay.classList.add('open'); document.body.style.overflow='hidden';
-  }
-  function closeModal(){ overlay.classList.remove('open'); document.body.style.overflow=''; }
-  qvClose.addEventListener('click',closeModal);
-  overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(); });
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+(function() {
+  const overlay = document.getElementById('qv-overlay');
+  const qvClose = document.getElementById('qv-close');
 
-  document.querySelectorAll('.product-card').forEach(card=>{
-    card.querySelector('.product-quickview')?.addEventListener('click',e=>{ e.stopPropagation(); openModal(card); });
-    card.addEventListener('click',()=>{ if(card.dataset.id) window.location.href=`/impresion/${card.dataset.id}`; });
+  function openModal(card) {
+    const d = card.dataset;
+    document.getElementById('qv-img').src = d.img || '';
+    document.getElementById('qv-nombre').textContent = d.nombre || '—';
+    document.getElementById('qv-tipo').textContent = 'Impresión 3D · ' + (d.diseno || '—');
+    document.getElementById('qv-precio').textContent = d.precio || '—';
+    document.getElementById('qv-talla').textContent = d.tamano || '—';
+    document.getElementById('qv-btn-detail').href = `/producto/${d.id}`;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  qvClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  const state = { diseno: '', tamano: '', priceMin: 0, priceMax: 9999 };
+  const grid = document.getElementById('products-grid');
+  const noResults = document.getElementById('no-results');
+  const countVis = document.getElementById('count-visible');
+  const countTot = document.getElementById('count-total');
+  const sortSel = document.getElementById('sort-select');
+
+  function getCards() { return Array.from(grid.querySelectorAll('.product-card:not(#no-results)')); }
+
+  function applyFilters() {
+    state.priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+    state.priceMax = parseFloat(document.getElementById('price-max').value) || 9999;
+    const cards = getCards();
+    let visible = 0;
+    cards.forEach(card => {
+      const ok = (!state.diseno || card.dataset.diseno === state.diseno) &&
+                 (!state.tamano || card.dataset.tamano === state.tamano) &&
+                 parseFloat(card.dataset.precio) >= state.priceMin &&
+                 parseFloat(card.dataset.precio) <= state.priceMax;
+      card.classList.toggle('hidden', !ok);
+      if (ok) visible++;
+    });
+    countVis.textContent = visible;
+    countTot.textContent = cards.length;
+    noResults.classList.toggle('visible', visible === 0);
+  }
+
+  function setupChips(id, key) {
+    const group = document.getElementById(id);
+    if (!group) return;
+    group.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state[key] = chip.dataset.value;
+      });
+    });
+  }
+
+  setupChips('filter-diseno', 'diseno');
+  setupChips('filter-tamano', 'tamano');
+
+  document.getElementById('btn-apply').addEventListener('click', applyFilters);
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    state.diseno = '';
+    state.tamano = '';
+    document.getElementById('price-min').value = 0;
+    document.getElementById('price-max').value = 50;
+    ['filter-diseno', 'filter-tamano'].forEach(id => {
+      document.getElementById(id).querySelectorAll('.chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+    });
+    applyFilters();
   });
 
-  const state={diseno:'',tamano:'',priceMin:0,priceMax:9999};
-  const grid=document.getElementById('products-grid');
-  const noResults=document.getElementById('no-results');
-  function getCards(){ return Array.from(grid.querySelectorAll('.product-card')); }
-  function applyFilters(){
-    state.priceMin=parseFloat(document.getElementById('price-min').value)||0;
-    state.priceMax=parseFloat(document.getElementById('price-max').value)||9999;
-    let v=0;
-    getCards().forEach(c=>{
-      const ok=(!state.diseno||c.dataset.diseno===state.diseno)&&(!state.tamano||c.dataset.tamano===state.tamano)&&parseFloat(c.dataset.precio)>=state.priceMin&&parseFloat(c.dataset.precio)<=state.priceMax;
-      c.classList.toggle('hidden',!ok); if(ok) v++;
+  sortSel.addEventListener('change', () => {
+    const val = sortSel.value;
+    const cards = getCards();
+    cards.sort((a, b) => {
+      if (val === 'price-asc') return parseFloat(a.dataset.precio) - parseFloat(b.dataset.precio);
+      if (val === 'price-desc') return parseFloat(b.dataset.precio) - parseFloat(a.dataset.precio);
+      if (val === 'name-asc') return a.dataset.nombre.localeCompare(b.dataset.nombre, 'es');
+      return 0;
     });
-    document.getElementById('count-visible').textContent=v;
-    document.getElementById('count-total').textContent=getCards().length;
-    noResults.classList.toggle('visible',v===0);
-  }
-  function setupChips(id,key){ document.getElementById(id).querySelectorAll('.chip').forEach(ch=>ch.addEventListener('click',()=>{ document.getElementById(id).querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); ch.classList.add('active'); state[key]=ch.dataset.value; })); }
-  setupChips('filter-diseno','diseno'); setupChips('filter-tamano','tamano');
-  document.getElementById('btn-apply').addEventListener('click',applyFilters);
-  document.getElementById('btn-clear').addEventListener('click',()=>{ state.diseno='';state.tamano=''; document.getElementById('price-min').value=0; document.getElementById('price-max').value=200; ['filter-diseno','filter-tamano'].forEach(id=>document.getElementById(id).querySelectorAll('.chip').forEach((c,i)=>c.classList.toggle('active',i===0))); applyFilters(); });
-  document.getElementById('sort-select').addEventListener('change',function(){ const v=this.value; const cards=getCards(); cards.sort((a,b)=>v==='price-asc'?parseFloat(a.dataset.precio)-parseFloat(b.dataset.precio):v==='price-desc'?parseFloat(b.dataset.precio)-parseFloat(a.dataset.precio):v==='name-asc'?a.dataset.nombre.localeCompare(b.dataset.nombre,'es'):0); cards.forEach(c=>grid.appendChild(c)); });
+    cards.forEach(c => grid.appendChild(c));
+  });
+
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.querySelector('.product-quickview')?.addEventListener('click', e => {
+      e.stopPropagation();
+      openModal(card);
+    });
+    card.querySelector('.btn-add-cart')?.addEventListener('click', e => e.stopPropagation());
+    card.addEventListener('click', () => {
+      if (card.dataset.id) window.location.href = `/producto/${card.dataset.id}`;
+    });
+  });
+
   applyFilters();
 })();
 </script>

@@ -1,16 +1,30 @@
+from dotenv import load_dotenv
 import os
+
+# Cargar variables de entorno ANTES de cualquier otra cosa
+load_dotenv()
+
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from Server.server import agregar_usuario, obtener_perfil_completo, guardar_direccion_db, agregar_metodo_pago, obtener_usuario_por_correo, crear_tablas, insertar_productos_iniciales
+from Server.server import (
+    agregar_usuario, obtener_perfil_completo, guardar_direccion_db,
+    agregar_metodo_pago, obtener_usuario_por_correo,
+    crear_tablas, insertar_productos_iniciales,
+    obtener_productos_ropa, obtener_productos_tazas, obtener_productos_impresiones,
+    eliminar_metodo_pago_db, establecer_pago_predeterminado, establecer_direccion_predeterminada
+)
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_de_desarrollo_insegura') 
+app.secret_key = os.environ.get('SECRET_KEY', 'una_clave_de_desarrollo_insegura')
 bcrypt = Bcrypt(app)
 
-# Configurar base de datos al iniciar la aplicación
-with app.app_context():
+# Inicializar base de datos
+try:
     crear_tablas()
     insertar_productos_iniciales()
+    print("✅ Base de datos lista")
+except Exception as e:
+    print(f"⚠️ Error con la base de datos: {e}")
 
 def login_required(f):
     """Decorador para restringir el acceso si no hay sesión activa."""
@@ -18,14 +32,12 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'logged_in' not in session:
-            # Si no hay sesión, redirige al login
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
 
+# ==================== RUTAS PÚBLICAS ====================
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Se accede sin login
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -39,7 +51,6 @@ def login():
         email = request.form['email']
         password = request.form['password']
         
-        # Usamos la nueva función aquí también
         usuario = obtener_usuario_por_correo(email)
         
         if usuario:
@@ -64,18 +75,13 @@ def registrar():
         password = request.form.get('password')
         confirm_password = request.form.get('cpassword')
 
-        # 1. Validar contraseñas iguales
         if password != confirm_password:
             return render_template('registrar.html', error="Las contraseñas no coinciden.")
 
-        # 2. Verificar si el usuario ya existe
         if obtener_usuario_por_correo(email):
             return render_template('registrar.html', error="Este correo ya está registrado.")
 
-        # 3. Encriptar contraseña
         password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        # 4. Guardar en DB
         user_id = agregar_usuario(nombre, email, password_hash)
 
         if user_id:
@@ -85,42 +91,40 @@ def registrar():
 
     return render_template('registrar.html')
 
-@app.route('/ropa', methods=['GET'])
+# ==================== RUTAS DE PRODUCTOS ====================
+
+@app.route('/ropa')
 def ropa():
-    return render_template('ropa.html')
+    productos = obtener_productos_ropa()
+    return render_template('ropa.html', productos=productos)
 
-@app.route('/tazas', methods=['GET'])
+@app.route('/tazas')
 def tazas():
-    return render_template('tazas.html')
+    productos = obtener_productos_tazas()
+    return render_template('tazas.html', productos=productos)
 
-@app.route('/impresiones', methods=['GET'])
+@app.route('/impresiones')
 def impresiones():
-    return render_template('impresiones.html')
+    productos = obtener_productos_impresiones()
+    return render_template('impresiones.html', productos=productos)
 
 @app.route('/carrito', methods=['GET', 'POST'])
 def carrito():
     return render_template('carrito.html')
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@app.route('/producto/<int:producto_id>')
+def detalle_producto(producto_id):
+    # Por ahora redirige a la página correspondiente
+    return redirect(url_for('home'))
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Requiere login
-# @app.route('/cambiarContrasena', methods=['GET', 'PUT'])
-# @login_required
-# def cambiar_contrasena():
-#     return render_template('cambiarContrasena.html')
-
+# ==================== RUTAS DE PERFIL (requieren login) ====================
 
 @app.route('/perfil')
 @login_required
 def perfil():
-    # Ya no necesitas el 'from Server.server import...' aquí si ya lo importaste arriba
     u_id = session.get('user_id')
-    
-    # Obtenemos los datos desde server.py
     usuario, direcciones, pagos = obtener_perfil_completo(u_id)
     
-    # Si no se encuentra el usuario, podrías redirigir o mostrar un error
     if not usuario:
         return redirect(url_for('home'))
 
@@ -130,9 +134,8 @@ def perfil():
                            metodos_pago=pagos,
                            ordenes=[])
 
-# Rutas de pago ------------------------------------------------
-
 @app.route('/perfil/pago/nuevo', methods=['POST'])
+@login_required
 def nuevo_pago_perfil():
     if not session.get('logged_in'):
         return jsonify({'error': 'No autorizado'}), 401
@@ -147,7 +150,6 @@ def nuevo_pago_perfil():
     vencimiento = data.get('vencimiento')
     predeterminado = 1 if data.get('predeterminado') else 0
 
-    # USAMOS LA FUNCIÓN QUE YA SE IMPORTÓ AL INICIO DE APP.PY
     exito = agregar_metodo_pago(usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado)
 
     if exito:
@@ -155,14 +157,10 @@ def nuevo_pago_perfil():
     else:
         return jsonify({'status': 'error', 'message': 'No se pudo guardar en la base de datos'}), 500
 
-# La función borrar_pago ya la tienes, pero asegúrate que el nombre coincida
 @app.route('/perfil/pago/borrar/<int:id>', methods=['POST'])
 @login_required
 def borrar_pago(id):
     u_id = session.get('user_id')
-    # Importamos aquí mismo para asegurar que esté disponible
-    from Server.server import eliminar_metodo_pago_db
-    
     if eliminar_metodo_pago_db(id, u_id):
         return redirect(url_for('perfil'))
     return "Error al eliminar", 500
@@ -171,28 +169,21 @@ def borrar_pago(id):
 @login_required
 def set_pago_default(id):
     u_id = session.get('user_id')
-    from Server.server import establecer_pago_predeterminado
     if establecer_pago_predeterminado(u_id, id):
         return redirect(url_for('perfil'))
     return "Error al actualizar pago", 500
 
-# Rutas de direccion -------------------------------------------------------------------------
 @app.route('/perfil/direccion/default/<int:id>', methods=['POST'])
 @login_required
 def set_direccion_default(id):
     u_id = session.get('user_id')
-    from Server.server import establecer_direccion_predeterminada
     if establecer_direccion_predeterminada(u_id, id):
         return redirect(url_for('perfil'))
     return "Error al actualizar dirección", 500
 
-
 @app.route('/api/direccion/<int:id>', methods=['GET'])
 @login_required
 def api_get_direccion(id):
-    # Aquí llamarías a una función en server.py que haga: 
-    # SELECT * FROM Direccion WHERE direccion_id = id AND usuario_id = session['user_id']
-    # Por ahora devolvemos un ejemplo:
     return jsonify({"calle": "Calle Falsa 123", "ciudad": "Juárez", "cp": "32000", "pais": "México"})
 
 @app.route('/perfil/direccion/nueva', methods=['POST'])
@@ -201,8 +192,6 @@ def nueva_direccion_perfil():
     data = request.get_json()
     u_id = session.get('user_id')
     
-    # Concatenamos colonia y alcaldía para no perder información 
-    # ya que tu DB parece solo tener 'calle' y 'ciudad'
     calle_completa = f"{data.get('calle')} - Col. {data.get('colonia')}"
     ciudad_completa = f"{data.get('alcaldia')}, {data.get('ciudad')}"
 
@@ -213,7 +202,6 @@ def nueva_direccion_perfil():
         'pais': 'México'
     }
     
-    from Server.server import guardar_direccion_db
     exito = guardar_direccion_db(u_id, payload)
     
     if exito:
@@ -223,23 +211,17 @@ def nueva_direccion_perfil():
 @app.route('/perfil/direccion/borrar/<int:id>', methods=['POST'])
 @login_required
 def borrar_direccion(id):
-    u_id = session.get('user_id')
-    # Aquí llamarías a una función en server.py para hacer el DELETE
     return redirect(url_for('perfil'))
 
-# Ruta para EDITAR (PUT) si decides habilitarla luego
 @app.route('/perfil/direccion/<int:id>', methods=['PUT'])
 @login_required
 def editar_direccion_perfil(id):
     data = request.get_json()
     u_id = session.get('user_id')
-    from Server.server import guardar_direccion_db
     exito = guardar_direccion_db(u_id, data, id)
     if exito:
         return jsonify({"status": "success"}), 200
     return jsonify({"status": "error"}), 500
-
-# Administracion de cuentas -------------------------------------------------------------------------------------------------
 
 @app.route('/perfilAdmin', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
@@ -250,7 +232,8 @@ def perfil_admin():
 @login_required
 def checkout():
     return render_template('checkout.html')
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ==================== INICIO ====================
 
 if __name__ == "__main__":
     app.run(debug=True)

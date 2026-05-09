@@ -1,7 +1,8 @@
 import os
 import mysql.connector
-from dotenv import load_dotenv
+from datetime import datetime
 
+# Configuración de la base de datos - Toma los valores del .env
 db_config = {
     'user': os.environ.get('DB_USER'),
     'password': os.environ.get('DB_PASSWORD'),
@@ -10,12 +11,37 @@ db_config = {
     'port': 3306
 }
 
-# Funciones para crear tablas ---------------------------------------------------------------------------------------------------------------------------------------------------------------    
+def crear_base_datos_si_no_existe():
+    """Crea la base de datos si no existe"""
+    try:
+        # Conectar sin especificar base de datos
+        config_sin_db = {
+            'user': os.environ.get('DB_USER'),
+            'password': os.environ.get('DB_PASSWORD'),
+            'host': '127.0.0.1',
+            'port': 3306
+        }
+        cnx = mysql.connector.connect(**config_sin_db)
+        cursor = cnx.cursor()
+        
+        bd_name = os.environ.get('DB')
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {bd_name}")
+        print(f"Base de datos '{bd_name}' verificada/creada")
+        
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al crear la base de datos: {err}")
+        return False
 
+# ==================== FUNCIONES DE TABLAS ====================
 
 def crear_tablas():
     """Crea todas las tablas necesarias si no existen en la base de datos"""
     try:
+        if not crear_base_datos_si_no_existe():
+            return False
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
         
@@ -126,10 +152,22 @@ def crear_tablas():
         """)
         
         # Índices
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuario_correo ON Usuario(correo)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_producto_ropa ON Ropa(nombre)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_producto_tazas ON Tazas(nombre)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_impresiones_nombre ON Impresiones3D(nombre)")
+        try:
+            cursor.execute("CREATE INDEX idx_usuario_correo ON Usuario(correo)")
+        except:
+            pass
+        try:
+            cursor.execute("CREATE INDEX idx_producto_ropa ON Ropa(nombre)")
+        except:
+            pass
+        try:
+            cursor.execute("CREATE INDEX idx_producto_tazas ON Tazas(nombre)")
+        except:
+            pass
+        try:
+            cursor.execute("CREATE INDEX idx_impresiones_nombre ON Impresiones3D(nombre)")
+        except:
+            pass
         
         cnx.commit()
         cursor.close()
@@ -140,29 +178,26 @@ def crear_tablas():
         print(f"Error al crear tablas: {err}")
         return False
 
-# Funciones para insertar productos ---------------------------------------------------------------------------------------------------------------------------------------------------------------    
-
-
 def insertar_productos_iniciales():
-    """Inserta los productos de ropa, tazas e impresiones 3D solo si las tablas estan vacias"""
+    """Inserta productos solo si las tablas estan vacias"""
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
         
-        # Verificar si ya hay productos en Ropa
+        # Verificar Ropa
         cursor.execute("SELECT COUNT(*) FROM Ropa")
         count_ropa = cursor.fetchone()[0]
         
         if count_ropa == 0:
             productos_ropa = [
-                ('Pachycephalosaurus Hoodie - Blanco', 'Hoodie', 'S', 15, 39.99, 'static/imagenes/productos/Pachy-blanco-Hoodie.jpg', 'Pachy-blanco-Hoodie.jpg'),
-                ('Pachycephalosaurus T-shirt - Blanco', 'T-shirt', 'M', 10, 22.99, 'static/imagenes/productos/Pachy-blanco-Tshirt.jpg', 'Pachy-blanco-Tshirt.jpg'),
-                ('Pachycephalosaurus Sweatshirt - Negro', 'Sweatshirt', 'L', 20, 32.99, 'static/imagenes/productos/Pachy-negro-Sweatshirt.jpg', 'Pachy-negro-Sweatshirt.jpg'),
-                ('Therizinosaurus Sweatshirt - Blanco', 'Sweatshirt', 'S', 10, 32.99, 'static/imagenes/productos/Theriz-blanco-Sweatshirt.jpg', 'Theriz-blanco-Sweatshirt.jpg'),
-                ('Therizinosaurus T-shirt - Blanco', 'T-shirt', 'M', 12, 22.99, 'static/imagenes/productos/Theriz-blanco-Tshirt.jpg', 'Theriz-blanco-Tshirt.jpg'),
-                ('Tyrannosaurus Hoodie - Blanco', 'Hoodie', 'L', 21, 39.99, 'static/imagenes/productos/Trex-blanco-Hoodie.jpg', 'Trex-blanco-Hoodie.jpg'),
-                ('Tyrannosaurus Sweatshirt - Negro', 'Sweatshirt', 'M', 6, 32.99, 'static/imagenes/productos/Trex-negro-Sweatshirt.jpg', 'Trex-negro-Sweatshirt.jpg'),
-                ('Tyrannosaurus T-shirt - Negro', 'T-shirt', 'XL', 8, 22.99, 'static/imagenes/productos/Trex-negro-Tshirt.jpg', 'Trex-negro-Tshirt.jpg')
+                ('Pachycephalosaurus Hoodie - Blanco', 'Hoodie', 'S', 15, 39.99, 'imagenes/productos/Pachy-blanco-Hoodie.jpg', 'Pachy-blanco-Hoodie.jpg'),
+                ('Pachycephalosaurus T-shirt - Blanco', 'T-shirt', 'M', 10, 22.99, 'imagenes/productos/Pachy-blanco-Tshirt.jpg', 'Pachy-blanco-Tshirt.jpg'),
+                ('Pachycephalosaurus Sweatshirt - Negro', 'Sweatshirt', 'L', 20, 32.99, 'imagenes/productos/Pachy-negro-Sweatshirt.jpg', 'Pachy-negro-Sweatshirt.jpg'),
+                ('Therizinosaurus Sweatshirt - Blanco', 'Sweatshirt', 'S', 10, 32.99, 'imagenes/productos/Theriz-blanco-Sweatshirt.jpg', 'Theriz-blanco-Sweatshirt.jpg'),
+                ('Therizinosaurus T-shirt - Blanco', 'T-shirt', 'M', 12, 22.99, 'imagenes/productos/Theriz-blanco-Tshirt.jpg', 'Theriz-blanco-Tshirt.jpg'),
+                ('Tyrannosaurus Hoodie - Blanco', 'Hoodie', 'L', 21, 39.99, 'imagenes/productos/Trex-blanco-Hoodie.jpg', 'Trex-blanco-Hoodie.jpg'),
+                ('Tyrannosaurus Sweatshirt - Negro', 'Sweatshirt', 'M', 6, 32.99, 'imagenes/productos/Trex-negro-Sweatshirt.jpg', 'Trex-negro-Sweatshirt.jpg'),
+                ('Tyrannosaurus T-shirt - Negro', 'T-shirt', 'XL', 8, 22.99, 'imagenes/productos/Trex-negro-Tshirt.jpg', 'Trex-negro-Tshirt.jpg')
             ]
             
             query = """INSERT INTO Ropa (nombre, diseno, talla, cantidad_disponible, precio, imagen_ruta, imagen_nombre) 
@@ -170,16 +205,16 @@ def insertar_productos_iniciales():
             cursor.executemany(query, productos_ropa)
             print(f"Insertados {len(productos_ropa)} productos de ropa")
         
-        # Verificar si ya hay productos en Tazas
+        # Verificar Tazas
         cursor.execute("SELECT COUNT(*) FROM Tazas")
         count_tazas = cursor.fetchone()[0]
         
         if count_tazas == 0:
             productos_tazas = [
-                ('Pachycephalosaurus - Blanca', 'Taza', '11 OZ', 16, 19.99, 'static/imagenes/productos/Pachy-blanca-taza.jpg', 'Pachy-blanca-taza.jpg'),
-                ('Therizinosaurus - Blanca', 'Taza', '11 OZ', 8, 19.99, 'static/imagenes/productos/Theriz-blanca-taza.jpg', 'Theriz-blanca-taza.jpg'),
-                ('Tyrannosaurus - Blanca', 'Taza', '11 OZ', 21, 19.99, 'static/imagenes/productos/Trex-blanca-taza.jpg', 'Trex-blanca-taza.jpg'),
-                ('Tyrannosaurus - Negra', 'Taza', '11 OZ', 14, 19.99, 'static/imagenes/productos/Trex-negra-taza.jpg', 'Trex-negra-taza.jpg')
+                ('Pachycephalosaurus - Blanca', 'Taza', '11 OZ', 16, 19.99, 'imagenes/productos/Pachy-blanca-taza.jpg', 'Pachy-blanca-taza.jpg'),
+                ('Therizinosaurus - Blanca', 'Taza', '11 OZ', 8, 19.99, 'imagenes/productos/Theriz-blanca-taza.jpg', 'Theriz-blanca-taza.jpg'),
+                ('Tyrannosaurus - Blanca', 'Taza', '11 OZ', 21, 19.99, 'imagenes/productos/Trex-blanca-taza.jpg', 'Trex-blanca-taza.jpg'),
+                ('Tyrannosaurus - Negra', 'Taza', '11 OZ', 14, 19.99, 'imagenes/productos/Trex-negra-taza.jpg', 'Trex-negra-taza.jpg')
             ]
             
             query = """INSERT INTO Tazas (nombre, diseno, tamano, cantidad_disponible, precio, imagen_ruta, imagen_nombre) 
@@ -187,15 +222,15 @@ def insertar_productos_iniciales():
             cursor.executemany(query, productos_tazas)
             print(f"Insertados {len(productos_tazas)} productos de tazas")
         
-        # Verificar si ya hay productos en Impresiones3D
+        # Verificar Impresiones3D
         cursor.execute("SELECT COUNT(*) FROM Impresiones3D")
         count_impresiones = cursor.fetchone()[0]
         
         if count_impresiones == 0:
             productos_impresiones = [
-                ('Triceratops', 'Cartoon', '15cm', 25, 11.99, 'static/imagenes/productos/Triceratops-3d.jpg', 'Triceratops-3d.jpg'),
-                ('Pterodactyl', 'Figura', '10cm', 21, 9.99, 'static/imagenes/productos/Pterodactyl-3d.jpg', 'Pterodactyl-3d.jpg'),
-                ('Brachiosaurus', 'Llavero', '5cm', 15, 4.99, 'static/imagenes/productos/Brachiosaurus-3d.jpg', 'Brachiosaurus-3d.jpg')
+                ('Triceratops', 'Cartoon', '15cm', 25, 11.99, 'imagenes/productos/Triceratops-3d.jpg', 'Triceratops-3d.jpg'),
+                ('Pterodactyl', 'Figura', '10cm', 21, 9.99, 'imagenes/productos/Pterodactyl-3d.jpg', 'Pterodactyl-3d.jpg'),
+                ('Brachiosaurus', 'Llavero', '5cm', 15, 4.99, 'imagenes/productos/Brachiosaurus-3d.jpg', 'Brachiosaurus-3d.jpg')
             ]
             
             query = """INSERT INTO Impresiones3D (nombre, diseno, tamano, cantidad_disponible, precio, imagen_ruta, imagen_nombre) 
@@ -211,29 +246,27 @@ def insertar_productos_iniciales():
         print(f"Error al insertar productos: {err}")
         return False
 
+# ==================== FUNCIONES DE USUARIO ====================
+
 def obtener_perfil_completo(usuario_id):
+    """Obtiene toda la información de perfil de un usuario"""
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor(dictionary=True)
         
-        # 1. Probar Usuario
         cursor.execute("SELECT nombre, correo, tipo_usuario FROM Usuario WHERE usuario_id = %s", (usuario_id,))
         usuario = cursor.fetchone()
         
-        # 2. Probar Direccion (Aquí es el sospechoso #1)
         try:
             cursor.execute("SELECT * FROM Direccion WHERE usuario_id = %s", (usuario_id,))
             direcciones = cursor.fetchall()
-        except mysql.connector.Error as e:
-            print(f"DEBUG: El error está en la tabla DIRECCION: {e}")
+        except mysql.connector.Error:
             direcciones = []
 
-        # 3. Probar Metodos_pago (Aquí es el sospechoso #2)
         try:
             cursor.execute("SELECT * FROM Metodos_pago WHERE usuario_id = %s", (usuario_id,))
             pagos = cursor.fetchall()
-        except mysql.connector.Error as e:
-            print(f"DEBUG: El error está en la tabla METODOS_PAGO: {e}")
+        except mysql.connector.Error:
             pagos = []
         
         cursor.close()
@@ -244,31 +277,28 @@ def obtener_perfil_completo(usuario_id):
         return None, [], []
     
 def obtener_usuario_por_correo(correo):
+    """Busca un usuario por su correo electrónico"""
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor(dictionary=True)
-        # Buscamos por correo, no por ID
         query = "SELECT * FROM Usuario WHERE correo = %s"
         cursor.execute(query, (correo,))
         usuario = cursor.fetchone()
         cursor.close()
         cnx.close()
-        return usuario # Devolverá el dict del usuario o None
+        return usuario
     except mysql.connector.Error as err:
         print(f"Error al buscar correo: {err}")
         return None
 
-
-    
 def agregar_usuario(nombre, email, password_hash): 
+    """Registra un nuevo usuario en el sistema"""
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
-        # Nota: Usamos 'contrasena' y 'correo' como en tu SQL
         query = "INSERT INTO Usuario (nombre, correo, contrasena, tipo_usuario) VALUES (%s, %s, %s, 'cliente')"
         cursor.execute(query, (nombre, email, password_hash))
         
-        # Opcional: Crear el carrito automáticamente para el nuevo usuario
         user_id = cursor.lastrowid
         cursor.execute("INSERT INTO Carrito (usuario_id) VALUES (%s)", (user_id,))
         
@@ -279,74 +309,59 @@ def agregar_usuario(nombre, email, password_hash):
     except mysql.connector.Error as err:
         print("Error al registrar:", err)
         return None
-    
 
-    
-# Metodos de pago ---------------------------------------------------------------------------------------------------------------------------------------------------------------    
-def agregar_metodo_pago(usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado):
+# ==================== FUNCIONES DE PRODUCTOS ====================
+
+def obtener_productos_ropa():
+    """Obtiene todos los productos de ropa disponibles"""
     try:
         cnx = mysql.connector.connect(**db_config)
-        cursor = cnx.cursor()
-
-        # Si esta será la predeterminada, quitamos el check a las anteriores
-        if predeterminado:
-            cursor.execute("UPDATE Metodos_pago SET predeterminado = 0 WHERE usuario_id = %s", (usuario_id,))
-
-        query = """
-            INSERT INTO Metodos_pago (usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """
-        valores = (usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado)
-        
-        cursor.execute(query, valores)
-        cnx.commit()
-        
+        cursor = cnx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Ropa WHERE cantidad_disponible > 0")
+        productos = cursor.fetchall()
         cursor.close()
         cnx.close()
-        return True
+        return productos
     except mysql.connector.Error as err:
-        print(f"Error en DB al agregar pago: {err}")
-        return False
-    
-def eliminar_metodo_pago_db(metodo_id, usuario_id):
+        print(f"Error al obtener productos de ropa: {err}")
+        return []
+
+def obtener_productos_tazas():
+    """Obtiene todos los productos de tazas disponibles"""
     try:
         cnx = mysql.connector.connect(**db_config)
-        cursor = cnx.cursor()
-        # Aseguramos que el método pertenezca al usuario para que no borren tarjetas ajenas
-        query = "DELETE FROM Metodos_pago WHERE metodo_de_pago_id = %s AND usuario_id = %s"
-        cursor.execute(query, (metodo_id, usuario_id))
-        cnx.commit()
+        cursor = cnx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Tazas WHERE cantidad_disponible > 0")
+        productos = cursor.fetchall()
         cursor.close()
         cnx.close()
-        return True
+        return productos
     except mysql.connector.Error as err:
-        print(f"Error al eliminar pago: {err}")
-        return False
-    
-def establecer_pago_predeterminado(usuario_id, pago_id):
+        print(f"Error al obtener productos de tazas: {err}")
+        return []
+
+def obtener_productos_impresiones():
+    """Obtiene todos los productos de impresiones 3D disponibles"""
     try:
         cnx = mysql.connector.connect(**db_config)
-        cursor = cnx.cursor()
-        # Usamos los nombres exactos de tu tabla Metodos_pago
-        cursor.execute("UPDATE Metodos_pago SET predeterminado = 0 WHERE usuario_id = %s", (usuario_id,))
-        cursor.execute("UPDATE Metodos_pago SET predeterminado = 1 WHERE metodo_de_pago_id = %s AND usuario_id = %s", (pago_id, usuario_id))
-        cnx.commit()
+        cursor = cnx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Impresiones3D WHERE cantidad_disponible > 0")
+        productos = cursor.fetchall()
         cursor.close()
         cnx.close()
-        return True
+        return productos
     except mysql.connector.Error as err:
-        print(f"Error en DB: {err}")
-        return False
-    
+        print(f"Error al obtener productos de impresiones 3D: {err}")
+        return []
 
-# Metodos de direccion ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ==================== FUNCIONES DE DIRECCIONES ====================
+
 def establecer_direccion_predeterminada(usuario_id, direccion_id):
+    """Marca una dirección como la predeterminada para un usuario"""
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
-        # 1. Quitamos predeterminado a todas las del usuario
         cursor.execute("UPDATE Direccion SET predeterminada = 0 WHERE usuario_id = %s", (usuario_id,))
-        # 2. Ponemos predeterminado a la elegida
         cursor.execute("UPDATE Direccion SET predeterminada = 1 WHERE direccion_id = %s AND usuario_id = %s", (direccion_id, usuario_id))
         cnx.commit()
         cursor.close()
@@ -357,15 +372,15 @@ def establecer_direccion_predeterminada(usuario_id, direccion_id):
         return False
     
 def guardar_direccion_db(usuario_id, data, direccion_id=None):
+    """Guarda o actualiza una dirección para un usuario"""
     try:
         cnx = mysql.connector.connect(**db_config)
         cursor = cnx.cursor()
         
-        # Usamos .get() para evitar que el programa truene si falta una llave
         calle = data.get('calle')
         ciudad = data.get('ciudad')
         cp = data.get('cp')
-        pais = data.get('pais', 'México') # Valor por defecto
+        pais = data.get('pais', 'México')
 
         if direccion_id:
             query = "UPDATE Direccion SET calle=%s, ciudad=%s, codigo_postal=%s, pais=%s WHERE direccion_id=%s AND usuario_id=%s"
@@ -378,5 +393,62 @@ def guardar_direccion_db(usuario_id, data, direccion_id=None):
         cursor.close()
         cnx.close()
         return True
-    except mysql.connector.Error:
+    except mysql.connector.Error as err:
+        print(f"Error al guardar dirección: {err}")
+        return False
+
+# ==================== FUNCIONES DE METODOS DE PAGO ====================
+
+def agregar_metodo_pago(usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado):
+    """Registra un nuevo método de pago para un usuario"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+
+        if predeterminado:
+            cursor.execute("UPDATE Metodos_pago SET predeterminado = 0 WHERE usuario_id = %s", (usuario_id,))
+
+        query = """
+            INSERT INTO Metodos_pago (usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        valores = (usuario_id, tipo, titular, ultimos4, vencimiento, predeterminado)
+        
+        cursor.execute(query, valores)
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error en DB al agregar pago: {err}")
+        return False
+    
+def eliminar_metodo_pago_db(metodo_id, usuario_id):
+    """Elimina un método de pago de un usuario"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        query = "DELETE FROM Metodos_pago WHERE metodo_de_pago_id = %s AND usuario_id = %s"
+        cursor.execute(query, (metodo_id, usuario_id))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al eliminar pago: {err}")
+        return False
+    
+def establecer_pago_predeterminado(usuario_id, pago_id):
+    """Marca un método de pago como predeterminado"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        cursor.execute("UPDATE Metodos_pago SET predeterminado = 0 WHERE usuario_id = %s", (usuario_id,))
+        cursor.execute("UPDATE Metodos_pago SET predeterminado = 1 WHERE metodo_de_pago_id = %s AND usuario_id = %s", (pago_id, usuario_id))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error en DB: {err}")
         return False
