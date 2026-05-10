@@ -1,3 +1,4 @@
+<!-- navbar.html -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
 <nav class="navbar navbar-expand-lg pp-navbar">
@@ -37,15 +38,21 @@
             <img src="{{ url_for('static', filename='imagenes/carrito.svg') }}" alt="Carrito">
           </a>
         </div>
-        {% if session.get('logged_in') %}
-          <a class="pp-icon-btn" href="{{ url_for('perfil') }}" aria-label="Mi cuenta">
-            <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
-          </a>
-        {% else %}
-          <a class="pp-icon-btn" href="{{ url_for('login') }}" aria-label="Iniciar sesión">
-            <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Login">
-          </a>
-        {% endif %}
+          {% if session.get('logged_in') %}
+            {% if session.get('user_role') == 'admin' %}
+              <a class="pp-icon-btn" href="{{ url_for('perfil_admin') }}" aria-label="Mi cuenta">
+                <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
+              </a>
+            {% else %}
+              <a class="pp-icon-btn" href="{{ url_for('perfil') }}" aria-label="Mi cuenta">
+                <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
+              </a>
+            {% endif %}
+          {% else %}
+            <a class="pp-icon-btn" href="{{ url_for('login') }}" aria-label="Iniciar sesión">
+              <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Login">
+            </a>
+          {% endif %}
       </div>
     </div>
   </div>

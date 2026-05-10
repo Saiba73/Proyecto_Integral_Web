@@ -1,8 +1,7 @@
+-- Database example
 CREATE DATABASE paleoprints;
 
 USE paleoprints;
-
--- DROP DATABASE paleoprints;
 
 CREATE TABLE Usuario (
     usuario_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -123,3 +122,9 @@ SELECT * FROM Ropa;
 SELECT * FROM Tazas;
 SELECT * FROM Direccion;
 SELECT * FROM Usuario;
+
+ALTER TABLE Usuario MODIFY tipo_usuario ENUM('cliente', 'admin') DEFAULT 'cliente';
+
+UPDATE Usuario SET tipo_usuario = 'admin' WHERE usuario_id = 1;
+
+UPDATE Usuario SET tipo_usuario = 'admin' WHERE correo = 'admin2@ejemplo.com';

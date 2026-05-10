@@ -1,3 +1,4 @@
+#app.py
 from dotenv import load_dotenv
 import os
 
@@ -11,7 +12,9 @@ from Server.server import (
     agregar_metodo_pago, obtener_usuario_por_correo,
     crear_tablas, insertar_productos_iniciales,
     obtener_productos_ropa, obtener_productos_tazas, obtener_productos_impresiones,
-    eliminar_metodo_pago_db, establecer_pago_predeterminado, establecer_direccion_predeterminada
+    eliminar_metodo_pago_db, establecer_pago_predeterminado, establecer_direccion_predeterminada,
+    obtener_todos_productos,agregar_producto_db,actualizar_producto_db,eliminar_producto_db,obtener_todas_ordenes,
+
 )
 
 app = Flask(__name__, template_folder='templates')
@@ -35,6 +38,19 @@ def login_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
+
+def admin_required(f):
+    """Decorador que restringe el acceso solo a usuarios admin."""
+    from functools import wraps
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        if session.get('user_role') != 'admin':
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 # ==================== RUTAS PÚBLICAS ====================
 
@@ -122,6 +138,10 @@ def detalle_producto(producto_id):
 @app.route('/perfil')
 @login_required
 def perfil():
+    # Si es admin, redirigir a su panel
+    if session.get('user_role') == 'admin':
+        return redirect(url_for('perfil_admin'))
+    
     u_id = session.get('user_id')
     usuario, direcciones, pagos = obtener_perfil_completo(u_id)
     
@@ -223,15 +243,86 @@ def editar_direccion_perfil(id):
         return jsonify({"status": "success"}), 200
     return jsonify({"status": "error"}), 500
 
-@app.route('/perfilAdmin', methods=['GET', 'POST', 'PUT', 'DELETE'])
-@login_required
-def perfil_admin():
-    return render_template('perfilAdmin.html')
-
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
     return render_template('checkout.html')
+
+@app.route('/perfilAdmin')
+@admin_required
+def perfil_admin():
+    u_id = session.get('user_id')
+    usuario, _, _ = obtener_perfil_completo(u_id)
+ 
+    if not usuario:
+        return redirect(url_for('home'))
+ 
+    ropa, tazas, impresiones = obtener_todos_productos()
+    ordenes = obtener_todas_ordenes()
+ 
+    # Total del inventario (suma de precio × cantidad de todos los productos)
+    total = 0
+    for p in ropa:
+        total += p['precio'] * p['cantidad_disponible']
+    for p in tazas:
+        total += p['precio'] * p['cantidad_disponible']
+    for p in impresiones:
+        total += p['precio'] * p['cantidad_disponible']
+ 
+    return render_template(
+        'perfilAdmin.html',
+        usuario=usuario,
+        productos_ropa=ropa,
+        productos_tazas=tazas,
+        productos_impresiones=impresiones,
+        ordenes=ordenes,
+        total_inventario=total,
+    )
+ 
+ 
+# ── Crear producto ──
+@app.route('/admin/producto/nuevo', methods=['POST'])
+@admin_required
+def admin_nuevo_producto():
+    data = request.get_json()
+    ok = agregar_producto_db(
+        categoria   = data.get('categoria'),
+        nombre      = data.get('nombre'),
+        diseno      = data.get('diseno', ''),
+        tam         = data.get('tam', ''),
+        cantidad    = data.get('cantidad', 0),
+        precio      = data.get('precio', 0.0),
+        imagen_ruta = data.get('imagen_ruta', ''),
+    )
+    return (jsonify({'status': 'success'}), 200) if ok else (jsonify({'status': 'error'}), 500)
+ 
+ 
+# ── Editar producto ──
+@app.route('/admin/producto/editar/<string:categoria>/<int:producto_id>', methods=['PUT'])
+@admin_required
+def admin_editar_producto(categoria, producto_id):
+    data = request.get_json()
+    ok = actualizar_producto_db(
+        categoria   = categoria,
+        producto_id = producto_id,
+        nombre      = data.get('nombre'),
+        diseno      = data.get('diseno', ''),
+        tam         = data.get('tam', ''),
+        cantidad    = data.get('cantidad', 0),
+        precio      = data.get('precio', 0.0),
+        imagen_ruta = data.get('imagen_ruta', ''),
+    )
+    return (jsonify({'status': 'success'}), 200) if ok else (jsonify({'status': 'error'}), 500)
+ 
+ 
+# ── Borrar producto ──
+@app.route('/admin/producto/borrar/<string:categoria>/<int:producto_id>', methods=['DELETE'])
+@admin_required
+def admin_borrar_producto(categoria, producto_id):
+    ok = eliminar_producto_db(categoria, producto_id)
+    return (jsonify({'status': 'success'}), 200) if ok else (jsonify({'status': 'error'}), 500)
+
+
 
 # ==================== INICIO ====================
 

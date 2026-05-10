@@ -1,3 +1,4 @@
+#server.py
 import os
 import mysql.connector
 from datetime import datetime
@@ -34,6 +35,129 @@ def crear_base_datos_si_no_existe():
     except mysql.connector.Error as err:
         print(f"Error al crear la base de datos: {err}")
         return False
+
+# ==================== FUNCIONES DE ADMINISTRADOR ====================
+# Agregar estas funciones al final de tu server.py existente
+ 
+def obtener_todos_productos():
+    """Obtiene todos los productos de las tres categorías para el panel admin."""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+ 
+        cursor.execute("SELECT *, 'Ropa' AS categoria FROM Ropa")
+        ropa = cursor.fetchall()
+ 
+        cursor.execute("SELECT *, 'Tazas' AS categoria FROM Tazas")
+        tazas = cursor.fetchall()
+ 
+        cursor.execute("SELECT *, 'Impresiones3D' AS categoria FROM Impresiones3D")
+        impresiones = cursor.fetchall()
+ 
+        cursor.close()
+        cnx.close()
+        return ropa, tazas, impresiones
+    except mysql.connector.Error as err:
+        print(f"Error al obtener todos los productos: {err}")
+        return [], [], []
+ 
+ 
+def agregar_producto_db(categoria, nombre, diseno, tam, cantidad, precio, imagen_ruta):
+    """Inserta un nuevo producto en la tabla correspondiente."""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+ 
+        imagen_nombre = imagen_ruta.split('/')[-1] if imagen_ruta else ''
+ 
+        if categoria == 'Ropa':
+            q = """INSERT INTO Ropa (nombre, diseno, talla, cantidad_disponible, precio, imagen_ruta, imagen_nombre)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+        elif categoria == 'Tazas':
+            q = """INSERT INTO Tazas (nombre, diseno, tamano, cantidad_disponible, precio, imagen_ruta, imagen_nombre)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+        else:  # Impresiones3D
+            q = """INSERT INTO Impresiones3D (nombre, diseno, tamano, cantidad_disponible, precio, imagen_ruta, imagen_nombre)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+ 
+        cursor.execute(q, (nombre, diseno, tam, cantidad, precio, imagen_ruta, imagen_nombre))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al agregar producto ({categoria}): {err}")
+        return False
+ 
+ 
+def actualizar_producto_db(categoria, producto_id, nombre, diseno, tam, cantidad, precio, imagen_ruta):
+    """Actualiza un producto existente en la tabla correspondiente."""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+ 
+        imagen_nombre = imagen_ruta.split('/')[-1] if imagen_ruta else ''
+ 
+        if categoria == 'Ropa':
+            q = """UPDATE Ropa
+                   SET nombre=%s, diseno=%s, talla=%s, cantidad_disponible=%s,
+                       precio=%s, imagen_ruta=%s, imagen_nombre=%s
+                   WHERE producto_id=%s"""
+        elif categoria == 'Tazas':
+            q = """UPDATE Tazas
+                   SET nombre=%s, diseno=%s, tamano=%s, cantidad_disponible=%s,
+                       precio=%s, imagen_ruta=%s, imagen_nombre=%s
+                   WHERE producto_id=%s"""
+        else:  # Impresiones3D
+            q = """UPDATE Impresiones3D
+                   SET nombre=%s, diseno=%s, tamano=%s, cantidad_disponible=%s,
+                       precio=%s, imagen_ruta=%s, imagen_nombre=%s
+                   WHERE producto_id=%s"""
+ 
+        cursor.execute(q, (nombre, diseno, tam, cantidad, precio, imagen_ruta, imagen_nombre, producto_id))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al actualizar producto ({categoria}, id={producto_id}): {err}")
+        return False
+ 
+ 
+def eliminar_producto_db(categoria, producto_id):
+    """Elimina un producto de la tabla correspondiente."""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+ 
+        tabla = {'Ropa': 'Ropa', 'Tazas': 'Tazas', 'Impresiones3D': 'Impresiones3D'}.get(categoria)
+        if not tabla:
+            return False
+ 
+        cursor.execute(f"DELETE FROM {tabla} WHERE producto_id = %s", (producto_id,))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al eliminar producto ({categoria}, id={producto_id}): {err}")
+        return False
+ 
+ 
+def obtener_todas_ordenes():
+    """Obtiene todas las órdenes del sistema para el panel admin."""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Orden ORDER BY fecha_creada DESC")
+        ordenes = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+        return ordenes
+    except mysql.connector.Error as err:
+        print(f"Error al obtener órdenes: {err}")
+        return []
+
 
 # ==================== FUNCIONES DE TABLAS ====================
 

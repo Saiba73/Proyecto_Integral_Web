@@ -1,0 +1,536 @@
+<!-- perfilAdmin.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Admin — Paleo Prints{% endblock %}
+
+{% block content %}
+<style>
+  /* ── Variables de color (mismas que perfil.html) ── */
+  :root {
+    --pp-red:       #7b1c1c;
+    --pp-red-dark:  #5a1414;
+    --pp-red-light: rgba(123,28,28,.1);
+    --pp-border:    #c8a0a0;
+  }
+
+  /* ── Encabezado de usuario ── */
+  .pp-profile-header { text-align: center; margin-bottom: 1.5rem; }
+  .pp-profile-header h2 { font-weight: 700; margin-bottom: 0; }
+  .pp-profile-header p  { color: #555; margin: 0; }
+
+  /* ── Barra de controles ── */
+  .pp-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1.25rem;
+  }
+  .pp-filter-label { font-size: .88rem; font-weight: 600; color: #333; }
+  .pp-select {
+    border: 2px solid var(--pp-red);
+    border-radius: 6px;
+    padding: .28rem .6rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    background: #fff;
+  }
+  .pp-select:focus { outline: none; box-shadow: 0 0 0 .2rem rgba(123,28,28,.2); }
+
+  /* Separador flexible */
+  .pp-spacer { flex: 1; }
+
+  /* ── Botones generales ── */
+  .pp-btn {
+    border: 2px solid var(--pp-red);
+    background: #fff;
+    color: var(--pp-red);
+    border-radius: 6px;
+    padding: .28rem .8rem;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s, color .2s;
+  }
+  .pp-btn:hover  { background: var(--pp-red); color: #fff; }
+  .pp-btn.active { background: var(--pp-red); color: #fff; }
+  .pp-btn-solid  { background: var(--pp-red); color: #fff; }
+  .pp-btn-solid:hover { background: var(--pp-red-dark); }
+  .pp-btn-danger { border-color: #c0392b; background: #c0392b; color: #fff; font-size: .78rem; padding: .22rem .65rem; }
+  .pp-btn-danger:hover { background: #922b21; border-color: #922b21; color: #fff; }
+  .pp-btn-edit  { border-color: var(--pp-red); color: var(--pp-red); font-size: .78rem; padding: .22rem .65rem; }
+  .pp-btn-edit:hover { background: var(--pp-red); color: #fff; }
+
+  /* ── Vistas ── */
+  .pp-view { display: none; }
+  .pp-view.active { display: block; }
+
+  /* ── Tabla compartida ── */
+  .pp-table-wrapper {
+    border: 2px solid var(--pp-red);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: .75rem;
+  }
+  .pp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+  }
+  .pp-table thead tr {
+    background: #fff;
+    border-bottom: 2px solid var(--pp-red);
+  }
+  .pp-table thead th {
+    padding: .55rem .7rem;
+    font-weight: 700;
+    color: var(--pp-red);
+    border-right: 1px solid var(--pp-border);
+    white-space: nowrap;
+  }
+  .pp-table thead th:last-child { border-right: none; }
+  .pp-table tbody tr { border-bottom: 1px solid #f0dada; }
+  .pp-table tbody tr:last-child { border-bottom: none; }
+  .pp-table tbody tr:hover { background: var(--pp-red-light); }
+  .pp-table td {
+    padding: .45rem .7rem;
+    border-right: 1px solid #f0dada;
+    vertical-align: middle;
+    color: #333;
+  }
+  .pp-table td:last-child { border-right: none; }
+
+  /* ── Pie de tabla ── */
+  .pp-table-footer {
+    text-align: right;
+    padding: .5rem .9rem;
+    border-top: 2px solid var(--pp-red);
+    font-weight: 700;
+    font-size: .95rem;
+    background: #fff;
+  }
+
+  /* ── Badge de categoría ── */
+  .pp-badge {
+    display: inline-block;
+    padding: .18rem .55rem;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 700;
+    border: 1.5px solid var(--pp-red);
+    color: var(--pp-red);
+    background: #fff;
+  }
+
+  /* ── Estado de orden ── */
+  .pp-status {
+    display: inline-block;
+    padding: .18rem .55rem;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 700;
+  }
+  .pp-status-pendiente  { background: #fef3cd; color: #856404; border: 1.5px solid #ffd43b; }
+  .pp-status-enviado    { background: #d1ecf1; color: #0c5460; border: 1.5px solid #17a2b8; }
+  .pp-status-entregado  { background: #d4edda; color: #155724; border: 1.5px solid #28a745; }
+  .pp-status-cancelado  { background: #f8d7da; color: #721c24; border: 1.5px solid #dc3545; }
+
+  /* ── Sin datos ── */
+  .pp-empty { text-align: center; color: #999; padding: 1.5rem; font-size: .9rem; }
+
+  /* ── Modales ── */
+  .pp-modal .modal-header  { background: var(--pp-red); color: #fff; border-bottom: none; }
+  .pp-modal .modal-footer  { border-top: 1px solid #e0c9c9; }
+  .pp-modal .modal-content { border: 2px solid var(--pp-red); border-radius: 10px; overflow: hidden; }
+  .pp-input { border: 1.5px solid var(--pp-red); border-radius: 6px; font-size: .88rem; }
+  .pp-input:focus { border-color: var(--pp-red); box-shadow: 0 0 0 .2rem rgba(123,28,28,.2); }
+  .form-label  { font-size: .85rem; font-weight: 600; margin-bottom: .25rem; }
+  .pp-modal-error { color: var(--pp-red); font-size: .82rem; margin-top: .5rem; display: none; }
+
+  /* ── Campo oculto según categoría ── */
+  #rowTalla, #rowTamano { display: none; }
+
+  /* ── Acciones de celda ── */
+  .pp-cell-actions { display: flex; gap: .35rem; flex-wrap: nowrap; }
+</style>
+
+<!-- ── Encabezado ── -->
+<div class="pp-profile-header">
+  <h2>{{ usuario.nombre }}</h2>
+  <p>{{ usuario.correo }}</p>
+</div>
+
+<!-- ── Barra de controles ── -->
+<div class="pp-controls">
+  <span class="pp-filter-label">Filtrar :</span>
+  <select class="pp-select" id="filtroCategoria" onchange="aplicarFiltro()">
+    <option value="todo">Todo</option>
+    <option value="Ropa">Ropa</option>
+    <option value="Tazas">Tazas</option>
+    <option value="Impresiones3D">Impresiones 3D</option>
+  </select>
+  <button class="pp-btn" onclick="abrirNuevoProducto()">Agregar producto</button>
+  <div class="pp-spacer"></div>
+  <button class="pp-btn active" id="btnInventario" onclick="mostrarVista('inventario')">Ver inventario</button>
+  <button class="pp-btn"        id="btnVentas"     onclick="mostrarVista('ventas')">Ver ventas</button>
+</div>
+
+<!-- ════════════════ VISTA: INVENTARIO ════════════════ -->
+<div id="inventario" class="pp-view active">
+  <div class="pp-table-wrapper">
+    <table class="pp-table" id="tablaInventario">
+      <thead>
+        <tr>
+          <th>ID. prod.</th>
+          <th>Nombre</th>
+          <th>Diseño</th>
+          <th>Tam.</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Categoría</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyInventario">
+        {% set todos = [] %}
+        {% for p in productos_ropa %}
+          {% set _ = todos.append({'id': p.producto_id, 'nombre': p.nombre, 'diseno': p.diseno, 'tam': p.talla, 'cantidad': p.cantidad_disponible, 'precio': p.precio, 'cat': 'Ropa'}) %}
+        {% endfor %}
+        {% for p in productos_tazas %}
+          {% set _ = todos.append({'id': p.producto_id, 'nombre': p.nombre, 'diseno': p.diseno, 'tam': p.tamano, 'cantidad': p.cantidad_disponible, 'precio': p.precio, 'cat': 'Tazas'}) %}
+        {% endfor %}
+        {% for p in productos_impresiones %}
+          {% set _ = todos.append({'id': p.producto_id, 'nombre': p.nombre, 'diseno': p.diseno, 'tam': p.tamano, 'cantidad': p.cantidad_disponible, 'precio': p.precio, 'cat': 'Impresiones3D'}) %}
+        {% endfor %}
+
+        {% if todos %}
+          {% for p in todos %}
+          <tr data-cat="{{ p.cat }}">
+            <td>{{ p.id }}</td>
+            <td title="{{ p.nombre }}">{{ p.nombre[:18] }}{% if p.nombre|length > 18 %}…{% endif %}</td>
+            <td>{{ p.diseno or '—' }}</td>
+            <td>{{ p.tam or '—' }}</td>
+            <td>{{ p.cantidad }}</td>
+            <td>${{ "%.2f"|format(p.precio) }}</td>
+            <td><span class="pp-badge">{{ p.cat }}</span></td>
+            <td>
+              <div class="pp-cell-actions">
+                <button class="pp-btn pp-btn-danger"
+                        data-cat="{{ p.cat }}"
+                        data-id="{{ p.id }}"
+                        onclick="borrarProducto(this)">
+                    Borrar
+                </button>
+                <button class="pp-btn pp-btn-edit"
+                        data-cat="{{ p.cat }}"
+                        data-id="{{ p.id }}"
+                        data-nombre="{{ p.nombre | e }}"
+                        data-diseno="{{ (p.diseno or '') | e }}"
+                        data-tam="{{ (p.tam or '') | e }}"
+                        data-cantidad="{{ p.cantidad }}"
+                        data-precio="{{ p.precio }}"
+                        onclick="abrirEditarProducto(this)">
+                    Modificar
+                </button>
+            </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8" class="pp-empty">Sin productos en el inventario.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+    <div class="pp-table-footer">
+      Total: ${{ "%.0f"|format(total_inventario) }}
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ VISTA: VENTAS / ÓRDENES ════════════════ -->
+<div id="ventas" class="pp-view">
+  <div class="pp-table-wrapper">
+    <table class="pp-table">
+      <thead>
+        <tr>
+          <th>ID. orden</th>
+          <th>ID usuario</th>
+          <th>Fecha creada</th>
+          <th>Fecha envío</th>
+          <th>ID prod.</th>
+          <th>Cant. prod.</th>
+          <th>Pago total</th>
+          <th>Estatus</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if ordenes %}
+          {% for o in ordenes %}
+          <tr>
+            <td>{{ o.orden_id }}</td>
+            <td>{{ o.usuario_id }}</td>
+            <td>{{ o.fecha_creada.strftime('%d/%m/%y') if o.fecha_creada else '—' }}</td>
+            <td>{{ o.fecha_de_envio.strftime('%d/%m/%y') if o.fecha_de_envio else '—' }}</td>
+            <td title="{{ o.productos_id }}">{{ o.productos_id or '—' }}</td>
+            <td>{{ o.cantidad_por_producto or '—' }}</td>
+            <td>${{ "%.2f"|format(o.pago_total) }}</td>
+            <td>
+              <span class="pp-status pp-status-{{ o.estatus }}">{{ o.estatus | capitalize }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8" class="pp-empty">Sin órdenes registradas.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+    {% if ordenes %}
+    <div class="pp-table-footer">
+      Total recaudado: ${{ "%.2f"|format(ordenes | sum(attribute='pago_total')) }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: PRODUCTO (nuevo / editar) ════════════════ -->
+<div class="modal fade" id="modalProducto" tabindex="-1"
+     aria-labelledby="modalProductoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content pp-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalProductoLabel">Nuevo Producto</h5>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <!-- IDs ocultos para edición -->
+        <input type="hidden" id="prodId">
+        <input type="hidden" id="prodCatOriginal">
+
+        <!-- Categoría -->
+        <div class="mb-3">
+          <label class="form-label">Categoría</label>
+          <select id="prodCategoria" class="form-select pp-input" onchange="actualizarCamposTam()">
+            <option value="" disabled selected>Selecciona...</option>
+            <option value="Ropa">Ropa</option>
+            <option value="Tazas">Tazas</option>
+            <option value="Impresiones3D">Impresiones 3D</option>
+          </select>
+        </div>
+
+        <!-- Nombre -->
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" id="prodNombre" class="form-control pp-input"
+                 placeholder="Ej. Pachycephalosaurus Hoodie - Blanco">
+        </div>
+
+        <!-- Diseño -->
+        <div class="mb-3">
+          <label class="form-label">Diseño</label>
+          <input type="text" id="prodDiseno" class="form-control pp-input"
+                 placeholder="Ej. Hoodie, Taza, Figura">
+        </div>
+
+        <!-- Talla (solo Ropa) -->
+        <div class="mb-3" id="rowTalla">
+          <label class="form-label">Talla</label>
+          <select id="prodTalla" class="form-select pp-input">
+            <option value="">Selecciona...</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+          </select>
+        </div>
+
+        <!-- Tamaño (Tazas e Impresiones3D) -->
+        <div class="mb-3" id="rowTamano">
+          <label class="form-label">Tamaño</label>
+          <input type="text" id="prodTamano" class="form-control pp-input"
+                 placeholder="Ej. 11 OZ, 15cm">
+        </div>
+
+        <!-- Cantidad y Precio -->
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label class="form-label">Cantidad disponible</label>
+            <input type="number" id="prodCantidad" class="form-control pp-input"
+                   placeholder="0" min="0">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Precio ($)</label>
+            <input type="number" id="prodPrecio" class="form-control pp-input"
+                   placeholder="0.00" min="0" step="0.01">
+          </div>
+        </div>
+
+        <!-- Ruta de imagen -->
+        <div class="mb-3">
+          <label class="form-label">Ruta de imagen</label>
+          <input type="text" id="prodImagenRuta" class="form-control pp-input"
+                 placeholder="imagenes/productos/nombre-del-archivo.jpg">
+        </div>
+
+        <p class="pp-modal-error" id="prodError">Por favor completa todos los campos obligatorios.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="pp-btn" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pp-btn pp-btn-solid" onclick="guardarProducto()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MODAL: CONFIRMAR BORRAR ════════════════ -->
+<div class="modal fade" id="modalBorrar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content pp-modal">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar eliminación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="font-size:.9rem;">
+        ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="pp-btn" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pp-btn pp-btn-danger" onclick="confirmarBorrar()">Borrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ Scripts ════════════════ -->
+<script>
+  /* ── Cambio de vista (Inventario / Ventas) ── */
+  function mostrarVista(id) {
+    document.querySelectorAll('.pp-view').forEach(v => v.classList.remove('active'));
+    document.getElementById('btnInventario').classList.remove('active');
+    document.getElementById('btnVentas').classList.remove('active');
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id === 'inventario' ? 'btnInventario' : 'btnVentas').classList.add('active');
+  }
+
+  /* ── Filtro de categoría (solo en inventario) ── */
+  function aplicarFiltro() {
+    const cat = document.getElementById('filtroCategoria').value;
+    document.querySelectorAll('#tbodyInventario tr[data-cat]').forEach(tr => {
+      tr.style.display = (cat === 'todo' || tr.dataset.cat === cat) ? '' : 'none';
+    });
+  }
+
+  /* ── Mostrar Talla o Tamaño según categoría ── */
+  function actualizarCamposTam() {
+    const cat = document.getElementById('prodCategoria').value;
+    document.getElementById('rowTalla').style.display  = (cat === 'Ropa')          ? 'block' : 'none';
+    document.getElementById('rowTamano').style.display = (cat === 'Tazas' || cat === 'Impresiones3D') ? 'block' : 'none';
+  }
+
+  /* ── Abrir modal NUEVO producto ── */
+  function abrirNuevoProducto() {
+    document.getElementById('modalProductoLabel').textContent = 'Nuevo Producto';
+    document.getElementById('prodId').value            = '';
+    document.getElementById('prodCatOriginal').value   = '';
+    document.getElementById('prodCategoria').value     = '';
+    document.getElementById('prodNombre').value        = '';
+    document.getElementById('prodDiseno').value        = '';
+    document.getElementById('prodTalla').value         = '';
+    document.getElementById('prodTamano').value        = '';
+    document.getElementById('prodCantidad').value      = '';
+    document.getElementById('prodPrecio').value        = '';
+    document.getElementById('prodImagenRuta').value    = '';
+    document.getElementById('prodCategoria').disabled  = false;
+    document.getElementById('rowTalla').style.display  = 'none';
+    document.getElementById('rowTamano').style.display = 'none';
+    document.getElementById('prodError').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('modalProducto')).show();
+  }
+
+  /* ── Abrir modal EDITAR producto ── */
+  function abrirEditarProducto(btn) {
+  const cat      = btn.dataset.cat;
+  const id       = btn.dataset.id;
+  const nombre   = btn.dataset.nombre;
+  const diseno   = btn.dataset.diseno;
+  const tam      = btn.dataset.tam;
+  const cantidad = btn.dataset.cantidad;
+  const precio   = btn.dataset.precio;
+
+  document.getElementById('modalProductoLabel').textContent  = 'Modificar Producto';
+  document.getElementById('prodId').value                    = id;
+  document.getElementById('prodCatOriginal').value           = cat;
+  document.getElementById('prodCategoria').value             = cat;
+  document.getElementById('prodCategoria').disabled          = true;
+  document.getElementById('prodNombre').value                = nombre;
+  document.getElementById('prodDiseno').value                = diseno;
+  document.getElementById('prodCantidad').value              = cantidad;
+  document.getElementById('prodPrecio').value                = precio;
+  document.getElementById('prodError').style.display         = 'none';
+
+  actualizarCamposTam();
+
+  if (cat === 'Ropa') document.getElementById('prodTalla').value  = tam;
+  else                document.getElementById('prodTamano').value = tam;
+
+  new bootstrap.Modal(document.getElementById('modalProducto')).show();
+}
+
+  /* ── Guardar producto (POST o PUT) ── */
+  async function guardarProducto() {
+    const id  = document.getElementById('prodId').value;
+    const cat = document.getElementById('prodCatOriginal').value || document.getElementById('prodCategoria').value;
+
+    const nombre   = document.getElementById('prodNombre').value.trim();
+    const diseno   = document.getElementById('prodDiseno').value.trim();
+    const cantidad = document.getElementById('prodCantidad').value.trim();
+    const precio   = document.getElementById('prodPrecio').value.trim();
+    const imgRuta  = document.getElementById('prodImagenRuta').value.trim();
+
+    let tam = '';
+    if (cat === 'Ropa')   tam = document.getElementById('prodTalla').value.trim();
+    else                  tam = document.getElementById('prodTamano').value.trim();
+
+    if (!cat || !nombre || !cantidad || !precio) {
+      document.getElementById('prodError').style.display = 'block'; return;
+    }
+    document.getElementById('prodError').style.display = 'none';
+
+    const metodo = id ? 'PUT' : 'POST';
+    const url    = id
+      ? `/admin/producto/editar/${cat}/${id}`
+      : `/admin/producto/nuevo`;
+
+    const payload = { categoria: cat, nombre, diseno, tam, cantidad: parseInt(cantidad), precio: parseFloat(precio), imagen_ruta: imgRuta };
+
+    const res = await fetch(url, {
+      method:  metodo,
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (res.ok) { location.reload(); }
+    else { alert('Error al guardar el producto.'); }
+  }
+
+  /* ── Borrar producto (con modal de confirmación) ── */
+  let _borrarCat = '', _borrarId = 0;
+    function borrarProducto(btn) {
+    _borrarCat = btn.dataset.cat;
+    _borrarId  = btn.dataset.id;
+    new bootstrap.Modal(document.getElementById('modalBorrar')).show();
+    }
+
+  async function confirmarBorrar() {
+    const res = await fetch(`/admin/producto/borrar/${_borrarCat}/${_borrarId}`, { method: 'DELETE' });
+    if (res.ok) { location.reload(); }
+    else { alert('Error al eliminar el producto.'); }
+  }
+</script>
+{% endblock %}
