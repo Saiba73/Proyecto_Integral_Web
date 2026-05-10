@@ -13,7 +13,7 @@ from Server.server import (
     crear_tablas, insertar_productos_iniciales,
     obtener_productos_ropa, obtener_productos_tazas, obtener_productos_impresiones,
     eliminar_metodo_pago_db, establecer_pago_predeterminado, establecer_direccion_predeterminada,
-    obtener_todos_productos,agregar_producto_db,actualizar_producto_db,eliminar_producto_db,obtener_todas_ordenes,
+    obtener_todos_productos,agregar_producto_db,actualizar_producto_db,eliminar_producto_db,obtener_todas_ordenes,crear_admin_si_no_existe
 
 )
 
@@ -25,9 +25,10 @@ bcrypt = Bcrypt(app)
 try:
     crear_tablas()
     insertar_productos_iniciales()
-    print("✅ Base de datos lista")
+    crear_admin_si_no_existe()
+    print("Base de datos lista")
 except Exception as e:
-    print(f"⚠️ Error con la base de datos: {e}")
+    print(f"Error con la base de datos: {e}")
 
 def login_required(f):
     """Decorador para restringir el acceso si no hay sesión activa."""
@@ -128,10 +129,47 @@ def impresiones():
 def carrito():
     return render_template('carrito.html')
 
-@app.route('/producto/<int:producto_id>')
-def detalle_producto(producto_id):
-    # Por ahora redirige a la página correspondiente
-    return redirect(url_for('home'))
+@app.route('/api/carrito/agregar', methods=['POST'])
+@login_required
+def api_agregar_carrito():
+    from Server.server import agregar_al_carrito_db
+    
+    data = request.get_json()
+    usuario_id = session.get('user_id')
+    
+    exito = agregar_al_carrito_db(
+        usuario_id=usuario_id,
+        producto_id=data.get('producto_id'),
+        categoria=data.get('categoria'),
+        cantidad=data.get('cantidad', 1),
+        talla_tamano=data.get('talla'),
+        precio_unitario=data.get('precio')
+    )
+    
+    if exito:
+        return jsonify({'status': 'success', 'message': 'Producto agregado al carrito'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'Error al agregar'}), 500
+
+@app.route('/producto/<path:producto_id>')
+def producto_detalle(producto_id):
+    from Server.server import obtener_producto_por_id_con_prefijo, obtener_productos_relacionados
+    
+    producto = obtener_producto_por_id_con_prefijo(producto_id)
+    
+    if not producto:
+        return redirect(url_for('home'))
+    
+    relacionados = obtener_productos_relacionados(producto['categoria'], producto['producto_id'])
+    
+    # Determinar la categoría para el navbar
+    categoria_activa = producto['categoria']  # 'ropa', 'tazas' o 'impresiones'
+    
+    return render_template('producto_detalle.html', 
+                           producto=producto, 
+                           relacionados=relacionados,
+                           categoria_producto=producto['categoria'],
+                           categoria_activa=categoria_activa) 
 
 # ==================== RUTAS DE PERFIL (requieren login) ====================
 
@@ -279,6 +317,10 @@ def perfil_admin():
         total_inventario=total,
     )
  
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
  
 # ── Crear producto ──
 @app.route('/admin/producto/nuevo', methods=['POST'])

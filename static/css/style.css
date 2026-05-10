@@ -197,21 +197,17 @@
     color: var(--text-dark); margin-bottom: 0.65rem;
   }
  
-  .nav-link {
-    display: inline-block;
-    background: var(--jungle); color: #fff;
-    border-radius: 10px; padding: 0.5rem 1.6rem;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800; font-size: 0.85rem;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  }
-  .nav-link:hover {
-    background: var(--jungle-md); color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(27,67,50,0.25);
-  }
+.nav-link {
+  display: inline-block;
+  background: transparent;  /* ← Cambiado de var(--jungle) a transparent */
+  color: #fff;
+  border-radius: 10px; padding: 0.5rem 1.6rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 0.85rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
  
   /* Por qué elegirnos? */
   .section-why {
@@ -984,6 +980,588 @@
   text-decoration: none;
   text-align: center;
   display: block;
+}
+
+/* ========== ESTILOS PARA PÁGINA DE DETALLE DE PRODUCTO ========== */
+
+/* Breadcrumb */
+.breadcrumb-bar {
+  background: #fff;
+  border-bottom: 1px solid rgba(26,53,96,0.08);
+  padding: 0.65rem 0;
+}
+
+.breadcrumb-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.breadcrumb-inner a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumb-inner a:hover {
+  color: var(--navy);
+}
+
+.breadcrumb-inner .sep {
+  opacity: 0.4;
+}
+
+.breadcrumb-inner .current {
+  color: var(--text-dark);
+}
+
+/* Layout principal */
+.detail-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* Galería izquierda */
+.gallery-col {
+  position: sticky;
+  top: 80px;
+}
+
+.main-img-wrap {
+  background: #F0EFEA;
+  border-radius: 22px;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(26,53,96,0.07);
+  cursor: zoom-in;
+  position: relative;
+}
+
+.main-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 1.5rem;
+  transition: transform 0.4s ease;
+}
+
+.main-img-wrap:hover img {
+  transform: scale(1.06);
+}
+
+.zoom-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 100px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.main-img-wrap:hover .zoom-hint {
+  opacity: 1;
+}
+
+/* Thumbnails */
+.thumbs {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.thumb {
+  width: 68px;
+  height: 68px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: #F0EFEA;
+  transition: border-color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+
+.thumb.active {
+  border-color: var(--navy);
+}
+
+.thumb:hover {
+  transform: translateY(-2px);
+  border-color: rgba(26,53,96,0.3);
+}
+
+/* Info derecha */
+.info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.product-meta {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--jungle-md);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.product-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  color: var(--text-dark);
+}
+
+.product-precio {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: 0.02em;
+  color: var(--navy);
+}
+
+.product-precio .currency {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  vertical-align: super;
+}
+
+.info-divider {
+  height: 1px;
+  background: rgba(26,53,96,0.10);
+}
+
+/* Selector label */
+.selector-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selector-label .selected-val {
+  color: var(--text-dark);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.8rem;
+}
+
+/* Talla chips */
+.size-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.size-btn {
+  min-width: 48px;
+  padding: 0.45rem 0.75rem;
+  border: 2px solid rgba(26,53,96,0.18);
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--navy);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+
+.size-btn:hover {
+  border-color: var(--navy);
+  background: rgba(26,53,96,0.05);
+}
+
+.size-btn.active {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+.size-btn.agotada {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* Color options */
+.color-opts {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.color-opt {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.14);
+  transition: transform 0.18s, border-color 0.18s;
+}
+
+.color-opt:hover {
+  transform: scale(1.15);
+}
+
+.color-opt.active {
+  border-color: var(--gold);
+  transform: scale(1.15);
+}
+
+/* Cantidad */
+.qty-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 2px solid rgba(26,53,96,0.18);
+  border-radius: 12px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.qty-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--navy);
+  transition: background 0.18s;
+}
+
+.qty-btn:hover {
+  background: rgba(26,53,96,0.07);
+}
+
+.qty-val {
+  width: 44px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+/* Stock */
+.stock-line {
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stock-line.ok {
+  color: var(--jungle-md);
+}
+
+.stock-line.low {
+  color: var(--earth);
+}
+
+.stock-line svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+/* Botones CTA */
+.cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.btn-cart-main {
+  background: var(--jungle);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 0.9rem 1.5rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(27,67,50,0.2);
+}
+
+.btn-cart-main:hover {
+  background: var(--jungle-md);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(27,67,50,0.28);
+}
+
+.btn-cart-main svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.btn-wishlist {
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px solid rgba(26,53,96,0.15);
+  border-radius: 14px;
+  padding: 0.8rem 1.5rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+
+.btn-wishlist:hover {
+  border-color: var(--earth);
+  color: var(--earth);
+}
+
+.btn-wishlist svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* Garantía */
+.guarantee {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--jungle-md);
+}
+
+.guarantee svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--jungle-md);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  flex-shrink: 0;
+}
+
+/* Acordeón */
+.accordion-item {
+  border-bottom: 1px solid rgba(26,53,96,0.10);
+}
+
+.accordion-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0.85rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.accordion-btn:hover {
+  color: var(--navy);
+}
+
+.accordion-btn .acc-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+
+.accordion-btn[aria-expanded="true"] .acc-icon {
+  transform: rotate(45deg);
+}
+
+.accordion-content {
+  display: none;
+  padding-bottom: 0.85rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.accordion-content.open {
+  display: block;
+}
+
+/* Productos relacionados */
+.related-section {
+  background: #fff;
+  padding: 3.5rem 0;
+  border-top: 1px solid rgba(26,53,96,0.08);
+}
+
+.related-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.related-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+}
+
+.related-title span {
+  color: var(--jungle-md);
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1.2rem;
+}
+
+/* Mini tarjeta de producto relacionado */
+.mini-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(26,53,96,0.08);
+  background: var(--offwhite);
+  box-shadow: 0 2px 10px rgba(27,67,50,0.05);
+  transition: transform 0.3s cubic-bezier(.22,.68,0,1.15), box-shadow 0.3s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+
+.mini-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 36px rgba(27,67,50,0.13);
+}
+
+.mini-img {
+  background: #F0EFEA;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.6rem;
+  transition: transform 0.3s;
+}
+
+.mini-card:hover .mini-img img {
+  transform: scale(1.06);
+}
+
+.mini-info {
+  padding: 0.7rem 0.85rem 0.85rem;
+}
+
+.mini-name {
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--text-dark);
+  line-height: 1.3;
+  margin-bottom: 0.15rem;
+}
+
+.mini-type {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.mini-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  color: var(--navy);
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .gallery-col {
+    position: static;
+  }
 }
 
 /* Responsive */

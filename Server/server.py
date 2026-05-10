@@ -217,6 +217,20 @@ def crear_tablas():
                 FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id) ON DELETE CASCADE
             )
         """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS CarritoItem (
+                carrito_item_id INT PRIMARY KEY AUTO_INCREMENT,
+                carrito_id INT NOT NULL,
+                producto_id INT NOT NULL,
+                categoria VARCHAR(20) NOT NULL,
+                cantidad INT NOT NULL DEFAULT 1,
+                talla_tamano VARCHAR(20),
+                precio_unitario FLOAT NOT NULL,
+                fecha_agregado DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (carrito_id) REFERENCES Carrito(carrito_id) ON DELETE CASCADE
+            )
+        """)
         
         # Tabla Ropa
         cursor.execute("""
@@ -300,6 +314,35 @@ def crear_tablas():
         return True
     except mysql.connector.Error as err:
         print(f"Error al crear tablas: {err}")
+        return False
+
+def crear_admin_si_no_existe():
+    """Crea un usuario administrador por defecto si no existe ninguno"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        
+        # Verificar si existe algún admin
+        cursor.execute("SELECT COUNT(*) FROM Usuario WHERE tipo_usuario = 'admin'")
+        count_admin = cursor.fetchone()[0]
+        
+        if count_admin == 0:
+            # Crear admin por defecto (contraseña: admin123)
+            from flask_bcrypt import Bcrypt
+            bcrypt = Bcrypt()
+            password_hash = bcrypt.generate_password_hash('admin123').decode('utf-8')
+            
+            cursor.execute("""
+                INSERT INTO Usuario (nombre, correo, contrasena, tipo_usuario)
+                VALUES (%s, %s, %s, 'admin')
+            """, ('Administrador', 'admin@paleoprints.com', password_hash))
+            
+            cnx.commit()        
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al crear admin: {err}")
         return False
 
 def insertar_productos_iniciales():
@@ -477,6 +520,218 @@ def obtener_productos_impresiones():
     except mysql.connector.Error as err:
         print(f"Error al obtener productos de impresiones 3D: {err}")
         return []
+
+def obtener_producto_por_id_con_prefijo(producto_id_con_prefijo):
+    """
+    Recibe un ID con prefijo como 'ropa-1', 'tazas-3', 'impresiones-2'
+    y devuelve el producto de la tabla correspondiente
+    """
+    try:
+        # Separar el prefijo del ID numérico
+        partes = producto_id_con_prefijo.split('-')
+        if len(partes) != 2:
+            return None
+        
+        categoria = partes[0]  # 'ropa', 'tazas' o 'impresiones'
+        producto_id = int(partes[1])
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        # Determinar la tabla y el campo de medida según la categoría
+        if categoria == 'ropa':
+            tabla = 'Ropa'
+            campo_medida = 'talla'
+        elif categoria == 'tazas':
+            tabla = 'Tazas'
+            campo_medida = 'tamano'
+        elif categoria == 'impresiones':
+            tabla = 'Impresiones3D'
+            campo_medida = 'tamano'
+        else:
+            cursor.close()
+            cnx.close()
+            return None
+        
+        # Consultar el producto
+        query = f"SELECT *, '{categoria}' as categoria, {campo_medida} as medida FROM {tabla} WHERE producto_id = %s"
+        cursor.execute(query, (producto_id,))
+        producto = cursor.fetchone()
+        
+        cursor.close()
+        cnx.close()
+        return producto
+        
+    except mysql.connector.Error as err:
+        print(f"Error al buscar producto: {err}")
+        return None
+    except ValueError:
+        print(f"Error: ID inválido {producto_id_con_prefijo}")
+        return None
+
+def obtener_productos_relacionados(categoria, producto_id, limite=4):
+    """Obtiene productos relacionados de la misma categoría"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        if categoria == 'ropa':
+            tabla = 'Ropa'
+        elif categoria == 'tazas':
+            tabla = 'Tazas'
+        else:
+            tabla = 'Impresiones3D'
+        
+        query = f"SELECT * FROM {tabla} WHERE producto_id != %s AND cantidad_disponible > 0 LIMIT %s"
+        cursor.execute(query, (producto_id, limite))
+        relacionados = cursor.fetchall()
+        
+        cursor.close()
+        cnx.close()
+        return relacionados
+    except mysql.connector.Error as err:
+        print(f"Error al obtener productos relacionados: {err}")
+        return []
+
+# ==================== FUNCIONES DE CARRITO ====================
+
+def obtener_carrito_activo(usuario_id):
+    """Obtiene el carrito activo del usuario o crea uno nuevo"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        # Buscar carrito existente
+        cursor.execute("SELECT carrito_id FROM Carrito WHERE usuario_id = %s ORDER BY fecha_creacion DESC LIMIT 1", (usuario_id,))
+        carrito = cursor.fetchone()
+        
+        if not carrito:
+            # Crear nuevo carrito
+            cursor.execute("INSERT INTO Carrito (usuario_id) VALUES (%s)", (usuario_id,))
+            cnx.commit()
+            carrito_id = cursor.lastrowid
+        else:
+            carrito_id = carrito['carrito_id']
+        
+        cursor.close()
+        cnx.close()
+        return carrito_id
+    except mysql.connector.Error as err:
+        print(f"Error al obtener carrito: {err}")
+        return None
+
+def agregar_al_carrito_db(usuario_id, producto_id, categoria, cantidad, talla_tamano, precio_unitario):
+    """Agrega un producto al carrito del usuario"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return False
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        
+        # Verificar si el producto ya está en el carrito (misma categoría, producto y talla)
+        cursor.execute("""
+            SELECT carrito_item_id, cantidad FROM CarritoItem 
+            WHERE carrito_id = %s AND producto_id = %s AND categoria = %s AND talla_tamano = %s
+        """, (carrito_id, producto_id, categoria, talla_tamano))
+        
+        item = cursor.fetchone()
+        
+        if item:
+            # Actualizar cantidad
+            nueva_cantidad = item[1] + cantidad
+            cursor.execute("""
+                UPDATE CarritoItem SET cantidad = %s WHERE carrito_item_id = %s
+            """, (nueva_cantidad, item[0]))
+        else:
+            # Insertar nuevo item
+            cursor.execute("""
+                INSERT INTO CarritoItem (carrito_id, producto_id, categoria, cantidad, talla_tamano, precio_unitario)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (carrito_id, producto_id, categoria, cantidad, talla_tamano, precio_unitario))
+        
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al agregar al carrito: {err}")
+        return False
+
+def obtener_carrito_con_productos(usuario_id):
+    """Obtiene todos los productos del carrito del usuario"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return []
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT ci.*, 
+                   CASE 
+                       WHEN ci.categoria = 'ropa' THEN r.nombre
+                       WHEN ci.categoria = 'tazas' THEN t.nombre
+                       WHEN ci.categoria = 'impresiones' THEN i.nombre
+                   END as nombre_producto
+            FROM CarritoItem ci
+            LEFT JOIN Ropa r ON ci.categoria = 'ropa' AND ci.producto_id = r.producto_id
+            LEFT JOIN Tazas t ON ci.categoria = 'tazas' AND ci.producto_id = t.producto_id
+            LEFT JOIN Impresiones3D i ON ci.categoria = 'impresiones' AND ci.producto_id = i.producto_id
+            WHERE ci.carrito_id = %s
+        """, (carrito_id,))
+        
+        items = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+        return items
+    except mysql.connector.Error as err:
+        print(f"Error al obtener carrito: {err}")
+        return []
+
+def eliminar_item_carrito(usuario_id, carrito_item_id):
+    """Elimina un item específico del carrito"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return False
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        
+        cursor.execute("""
+            DELETE FROM CarritoItem 
+            WHERE carrito_item_id = %s AND carrito_id = %s
+        """, (carrito_item_id, carrito_id))
+        
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al eliminar item: {err}")
+        return False
+
+def vaciar_carrito(usuario_id):
+    """Vacía todo el carrito del usuario"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return False
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        
+        cursor.execute("DELETE FROM CarritoItem WHERE carrito_id = %s", (carrito_id,))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al vaciar carrito: {err}")
+        return False
 
 # ==================== FUNCIONES DE DIRECCIONES ====================
 

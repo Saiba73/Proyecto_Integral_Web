@@ -14,7 +14,11 @@
   <div class="shop-layout">
     <aside class="sidebar">
       <h2 class="sidebar-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="11" y1="18" x2="13" y2="18" />
+        </svg>
         Filtros
       </h2>
 
@@ -53,7 +57,8 @@
 
     <section class="products-area">
       <div class="products-topbar">
-        <p class="products-count">Mostrando <strong id="count-visible">0</strong> de <strong id="count-total">0</strong> impresiones</p>
+        <p class="products-count">Mostrando <strong id="count-visible">0</strong> de <strong id="count-total">0</strong>
+          impresiones</p>
         <select class="sort-select" id="sort-select">
           <option value="default">Ordenar por</option>
           <option value="price-asc">Precio: menor a mayor</option>
@@ -64,17 +69,18 @@
 
       <div class="products-grid" id="products-grid">
         {% for producto in productos %}
-        <div class="product-card" data-categoria="impresiones"
-             data-id="{{ producto.producto_id }}"
-             data-diseno="{{ producto.diseno }}"
-             data-tamano="{{ producto.tamano }}"
-             data-precio="{{ producto.precio }}"
-             data-nombre="{{ producto.nombre }}"
-             data-img="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}">
+        <div class="product-card" data-categoria="impresiones" data-id="impresiones-{{ producto.producto_id }}"
+          data-diseno="{{ producto.diseno }}" data-tamano="{{ producto.tamano }}" data-precio="{{ producto.precio }}"
+          data-nombre="{{ producto.nombre }}"
+          data-img="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}">
           <div class="product-img-wrap">
-            <img src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}" alt="{{ producto.nombre }}" onerror="this.style.display='none'">
+            <img src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}"
+              alt="{{ producto.nombre }}" onerror="this.style.display='none'">
             <span class="product-badge">Nuevo</span>
-            <button class="product-quickview"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"/></svg></button>
+            <button class="product-quickview"><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" />
+              </svg></button>
           </div>
           <div class="product-info">
             <p class="product-name">{{ producto.nombre }}</p>
@@ -82,17 +88,16 @@
             <span class="product-size-tag">{{ producto.tamano }}</span>
             <div class="product-footer">
               <p class="product-price"><span class="currency">$</span>{{ producto.precio }}</p>
-              <button class="btn-add-cart" onclick="event.stopPropagation()">
-                <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                Agregar
-              </button>
             </div>
           </div>
         </div>
         {% endfor %}
 
         <div class="no-results" id="no-results">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
           <p>No se encontraron impresiones con esos filtros.</p>
         </div>
       </div>
@@ -102,17 +107,29 @@
 
 <div class="qv-overlay" id="qv-overlay">
   <div class="qv-modal">
-    <button class="qv-close" id="qv-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <button class="qv-close" id="qv-close"><svg viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg></button>
     <div class="qv-body">
       <div class="qv-img-side"><img id="qv-img" src="" alt=""></div>
       <div class="qv-info-side">
         <p class="qv-tipo" id="qv-tipo">—</p>
         <h2 class="qv-nombre" id="qv-nombre">—</h2>
         <p class="qv-precio"><span class="currency">$</span><span id="qv-precio">—</span></p>
-        <div><p class="qv-label">Tamaño</p><span class="qv-talla-chip" id="qv-talla">—</span></div>
-        <p class="qv-stock ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>En stock</p>
+        <div>
+          <p class="qv-label">Tamaño</p><span class="qv-talla-chip" id="qv-talla">—</span>
+        </div>
+        <p class="qv-stock ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>En stock</p>
         <div class="qv-btn-group">
-          <button class="qv-btn-cart"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Agregar al carrito</button>
+          <button class="qv-btn-cart"><svg viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>Agregar al carrito</button>
           <a class="qv-btn-detail" id="qv-btn-detail" href="#">Ver detalle completo →</a>
         </div>
       </div>
@@ -121,109 +138,109 @@
 </div>
 
 <script>
-(function() {
-  const overlay = document.getElementById('qv-overlay');
-  const qvClose = document.getElementById('qv-close');
+  (function () {
+    const overlay = document.getElementById('qv-overlay');
+    const qvClose = document.getElementById('qv-close');
 
-  function openModal(card) {
-    const d = card.dataset;
-    document.getElementById('qv-img').src = d.img || '';
-    document.getElementById('qv-nombre').textContent = d.nombre || '—';
-    document.getElementById('qv-tipo').textContent = 'Impresión 3D · ' + (d.diseno || '—');
-    document.getElementById('qv-precio').textContent = d.precio || '—';
-    document.getElementById('qv-talla').textContent = d.tamano || '—';
-    document.getElementById('qv-btn-detail').href = `/producto/${d.id}`;
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
+    function openModal(card) {
+      const d = card.dataset;
+      document.getElementById('qv-img').src = d.img || '';
+      document.getElementById('qv-nombre').textContent = d.nombre || '—';
+      document.getElementById('qv-tipo').textContent = 'Impresión 3D · ' + (d.diseno || '—');
+      document.getElementById('qv-precio').textContent = d.precio || '—';
+      document.getElementById('qv-talla').textContent = d.tamano || '—';
+      document.getElementById('qv-btn-detail').href = `/producto/${d.id}`;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
 
-  function closeModal() {
-    overlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
 
-  qvClose.addEventListener('click', closeModal);
-  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    qvClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  const state = { diseno: '', tamano: '', priceMin: 0, priceMax: 9999 };
-  const grid = document.getElementById('products-grid');
-  const noResults = document.getElementById('no-results');
-  const countVis = document.getElementById('count-visible');
-  const countTot = document.getElementById('count-total');
-  const sortSel = document.getElementById('sort-select');
+    const state = { diseno: '', tamano: '', priceMin: 0, priceMax: 9999 };
+    const grid = document.getElementById('products-grid');
+    const noResults = document.getElementById('no-results');
+    const countVis = document.getElementById('count-visible');
+    const countTot = document.getElementById('count-total');
+    const sortSel = document.getElementById('sort-select');
 
-  function getCards() { return Array.from(grid.querySelectorAll('.product-card:not(#no-results)')); }
+    function getCards() { return Array.from(grid.querySelectorAll('.product-card:not(#no-results)')); }
 
-  function applyFilters() {
-    state.priceMin = parseFloat(document.getElementById('price-min').value) || 0;
-    state.priceMax = parseFloat(document.getElementById('price-max').value) || 9999;
-    const cards = getCards();
-    let visible = 0;
-    cards.forEach(card => {
-      const ok = (!state.diseno || card.dataset.diseno === state.diseno) &&
-                 (!state.tamano || card.dataset.tamano === state.tamano) &&
-                 parseFloat(card.dataset.precio) >= state.priceMin &&
-                 parseFloat(card.dataset.precio) <= state.priceMax;
-      card.classList.toggle('hidden', !ok);
-      if (ok) visible++;
+    function applyFilters() {
+      state.priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+      state.priceMax = parseFloat(document.getElementById('price-max').value) || 9999;
+      const cards = getCards();
+      let visible = 0;
+      cards.forEach(card => {
+        const ok = (!state.diseno || card.dataset.diseno === state.diseno) &&
+          (!state.tamano || card.dataset.tamano === state.tamano) &&
+          parseFloat(card.dataset.precio) >= state.priceMin &&
+          parseFloat(card.dataset.precio) <= state.priceMax;
+        card.classList.toggle('hidden', !ok);
+        if (ok) visible++;
+      });
+      countVis.textContent = visible;
+      countTot.textContent = cards.length;
+      noResults.classList.toggle('visible', visible === 0);
+    }
+
+    function setupChips(id, key) {
+      const group = document.getElementById(id);
+      if (!group) return;
+      group.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          state[key] = chip.dataset.value;
+        });
+      });
+    }
+
+    setupChips('filter-diseno', 'diseno');
+    setupChips('filter-tamano', 'tamano');
+
+    document.getElementById('btn-apply').addEventListener('click', applyFilters);
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      state.diseno = '';
+      state.tamano = '';
+      document.getElementById('price-min').value = 0;
+      document.getElementById('price-max').value = 50;
+      ['filter-diseno', 'filter-tamano'].forEach(id => {
+        document.getElementById(id).querySelectorAll('.chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+      });
+      applyFilters();
     });
-    countVis.textContent = visible;
-    countTot.textContent = cards.length;
-    noResults.classList.toggle('visible', visible === 0);
-  }
 
-  function setupChips(id, key) {
-    const group = document.getElementById(id);
-    if (!group) return;
-    group.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        state[key] = chip.dataset.value;
+    sortSel.addEventListener('change', () => {
+      const val = sortSel.value;
+      const cards = getCards();
+      cards.sort((a, b) => {
+        if (val === 'price-asc') return parseFloat(a.dataset.precio) - parseFloat(b.dataset.precio);
+        if (val === 'price-desc') return parseFloat(b.dataset.precio) - parseFloat(a.dataset.precio);
+        if (val === 'name-asc') return a.dataset.nombre.localeCompare(b.dataset.nombre, 'es');
+        return 0;
+      });
+      cards.forEach(c => grid.appendChild(c));
+    });
+
+    document.querySelectorAll('.product-card').forEach(card => {
+      card.querySelector('.product-quickview')?.addEventListener('click', e => {
+        e.stopPropagation();
+        openModal(card);
+      });
+      card.querySelector('.btn-add-cart')?.addEventListener('click', e => e.stopPropagation());
+      card.addEventListener('click', () => {
+        if (card.dataset.id) window.location.href = `/producto/${card.dataset.id}`;
       });
     });
-  }
 
-  setupChips('filter-diseno', 'diseno');
-  setupChips('filter-tamano', 'tamano');
-
-  document.getElementById('btn-apply').addEventListener('click', applyFilters);
-  document.getElementById('btn-clear').addEventListener('click', () => {
-    state.diseno = '';
-    state.tamano = '';
-    document.getElementById('price-min').value = 0;
-    document.getElementById('price-max').value = 50;
-    ['filter-diseno', 'filter-tamano'].forEach(id => {
-      document.getElementById(id).querySelectorAll('.chip').forEach((c, i) => c.classList.toggle('active', i === 0));
-    });
     applyFilters();
-  });
-
-  sortSel.addEventListener('change', () => {
-    const val = sortSel.value;
-    const cards = getCards();
-    cards.sort((a, b) => {
-      if (val === 'price-asc') return parseFloat(a.dataset.precio) - parseFloat(b.dataset.precio);
-      if (val === 'price-desc') return parseFloat(b.dataset.precio) - parseFloat(a.dataset.precio);
-      if (val === 'name-asc') return a.dataset.nombre.localeCompare(b.dataset.nombre, 'es');
-      return 0;
-    });
-    cards.forEach(c => grid.appendChild(c));
-  });
-
-  document.querySelectorAll('.product-card').forEach(card => {
-    card.querySelector('.product-quickview')?.addEventListener('click', e => {
-      e.stopPropagation();
-      openModal(card);
-    });
-    card.querySelector('.btn-add-cart')?.addEventListener('click', e => e.stopPropagation());
-    card.addEventListener('click', () => {
-      if (card.dataset.id) window.location.href = `/producto/${card.dataset.id}`;
-    });
-  });
-
-  applyFilters();
-})();
+  })();
 </script>
 {% endblock %}

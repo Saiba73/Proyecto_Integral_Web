@@ -7,8 +7,12 @@
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body class="
-  {% if request.endpoint in ['home', 'ropa', 'producto_detalle'] %}era-meso
+  {% if categoria_producto == 'ropa' %}era-meso
+  {% elif categoria_producto == 'tazas' %}era-ceno
+  {% elif categoria_producto == 'impresiones' %}era-paleo
+  {% elif request.endpoint in ['home', 'ropa'] %}era-meso
   {% elif request.endpoint == 'tazas' %}era-ceno
+  {% elif request.endpoint == 'impresiones' %}era-paleo
   {% else %}era-paleo{% endif %}
 ">
 

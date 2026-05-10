@@ -7,28 +7,27 @@
       <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints Logo">
       <span class="pp-brand-text">Paleo <span>Prints</span></span>
     </a>
-    <button class="navbar-toggler" type="button"
-            data-bs-toggle="collapse" data-bs-target="#ppNavbar"
-            aria-controls="ppNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#ppNavbar"
+      aria-controls="ppNavbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="ppNavbar">
       <ul class="navbar-nav mx-auto gap-1">
         <li class="nav-item">
           <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}"
-             href="{{ url_for('home') }}">Inicio</a>
+            href="{{ url_for('home') }}">Inicio</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}"
-             href="{{ url_for('ropa') }}">Ropa</a>
+          <a class="nav-link {% if request.endpoint in ['ropa', 'producto_detalle'] and categoria_activa == 'ropa' %}active{% endif %}"
+            href="{{ url_for('ropa') }}">Ropa</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'tazas' %}active{% endif %}"
-             href="{{ url_for('tazas') }}">Tazas</a>
+          <a class="nav-link {% if request.endpoint == 'tazas' or (request.endpoint == 'producto_detalle' and categoria_activa == 'tazas') %}active{% endif %}"
+            href="{{ url_for('tazas') }}">Tazas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if request.endpoint == 'impresiones' %}active{% endif %}"
-             href="{{ url_for('impresiones') }}">Impresiones</a>
+          <a class="nav-link {% if request.endpoint == 'impresiones' or (request.endpoint == 'producto_detalle' and categoria_activa == 'impresiones') %}active{% endif %}"
+            href="{{ url_for('impresiones') }}">Impresiones</a>
         </li>
       </ul>
       <div class="pp-nav-divider d-none d-lg-block"></div>
@@ -38,21 +37,25 @@
             <img src="{{ url_for('static', filename='imagenes/carrito.svg') }}" alt="Carrito">
           </a>
         </div>
-          {% if session.get('logged_in') %}
-            {% if session.get('user_role') == 'admin' %}
-              <a class="pp-icon-btn" href="{{ url_for('perfil_admin') }}" aria-label="Mi cuenta">
-                <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
-              </a>
-            {% else %}
-              <a class="pp-icon-btn" href="{{ url_for('perfil') }}" aria-label="Mi cuenta">
-                <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
-              </a>
-            {% endif %}
-          {% else %}
-            <a class="pp-icon-btn" href="{{ url_for('login') }}" aria-label="Iniciar sesión">
-              <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Login">
-            </a>
-          {% endif %}
+        <!-- Versión con texto en lugar de ícono (más simple) -->
+        {% if session.get('logged_in') %}
+        {% if session.get('user_role') == 'admin' %}
+        <a class="pp-icon-btn" href="{{ url_for('perfil_admin') }}" aria-label="Mi cuenta">
+          <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
+        </a>
+        {% else %}
+        <a class="pp-icon-btn" href="{{ url_for('perfil') }}" aria-label="Mi cuenta">
+          <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Perfil">
+        </a>
+        {% endif %}
+        <!-- Botón de cerrar sesión con texto -->
+        <a href="{{ url_for('logout') }}" class="pp-btn"
+          style="color: white; text-decoration: none; padding: 6px 12px;">Salir</a>
+        {% else %}
+        <a class="pp-icon-btn" href="{{ url_for('login') }}" aria-label="Iniciar sesión">
+          <img src="{{ url_for('static', filename='imagenes/usuario.svg') }}" alt="Login">
+        </a>
+        {% endif %}
       </div>
     </div>
   </div>
