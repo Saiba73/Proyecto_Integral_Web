@@ -45,7 +45,7 @@
               </div>
             </div>
             <p class="cat-name">Ropa</p>
-            <a class="nav-link {% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}"
+            <a class="{% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}"
              href="{{ url_for('ropa') }}" class="btn-explore">Explorar</a>
           </div>
         </div>
@@ -58,7 +58,7 @@
               </div>
             </div>
             <p class="cat-name">Tazas</p>
-            <a class="nav-link {% if request.endpoint == 'tazas' %}active{% endif %}"
+            <a class="{% if request.endpoint == 'tazas' %}active{% endif %}"
              href="{{ url_for('tazas') }}" class="btn-explore">Explorar</a>
           </div>
         </div>
@@ -71,7 +71,7 @@
               </div>
             </div>
             <p class="cat-name">Impresiones</p>
-            <a class="nav-link {% if request.endpoint == 'impresiones' %}active{% endif %}"
+            <a class="{% if request.endpoint == 'impresiones' %}active{% endif %}"
              href="{{ url_for('impresiones') }} class="btn-explore">Explorar</a>
           </div>
         </div>

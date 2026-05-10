@@ -59,6 +59,10 @@ def admin_required(f):
 def home():
     return render_template("index.html")
 
+@app.route("/nosotros")
+def nosotros():
+    return render_template("nosotros.html")
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if session.get('logged_in'):

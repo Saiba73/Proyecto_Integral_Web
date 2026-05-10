@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+{% block title %}Confirmar Compra - Paleo Prints{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --jungle:    #1B4332; --jungle-md: #2D6A4F;
+    --gold:      #C9A84C; --gold-lt:   #F0C040;
+    --navy:      #1A3560; --navy-md:   #243F72;
+    --earth:     #7A3B1E;
+    --cream:     #F5EDD6; --offwhite:  #FAF6EC;
+    --text-dark: #1C1A14; --text-muted:#7A6A55;
+    --border:    rgba(26,53,96,0.10);
+    --success:   #1B4332;
+  }
+
+  body { font-family:'Nunito',sans-serif; background:var(--offwhite); color:var(--text-dark); }
+
+  .page-wrapper {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: -1.5rem;
+    width: 100vw; overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .checkout-hero {
+    background: var(--navy); padding:2rem 0 2.5rem;
+    position:relative; overflow:hidden;
+  }
+  .checkout-hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse 60% 100% at 5% 110%, rgba(58,95,160,0.3) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 80% at 95% -10%, rgba(201,168,76,0.1) 0%, transparent 50%);
+    pointer-events:none;
+  }
+  .checkout-hero::after {
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:36px;
+    background:var(--offwhite); clip-path:polygon(0 100%,100% 100%,100% 30%,0 100%);
+  }
+  .checkout-hero-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+  .checkout-hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,5vw,3rem); color:#fff; letter-spacing:0.05em; line-height:1; margin-bottom:0.2rem; }
+  .checkout-hero h1 span { color:var(--gold-lt); }
+  .checkout-hero p { font-size:0.85rem; font-weight:600; color:rgba(255,255,255,0.55); }
+
+  /* ── Layout ── */
+  .checkout-layout {
+    max-width:1100px; margin:0 auto;
+    padding:2rem 1.5rem 2rem;
+    display:grid; grid-template-columns:1fr 360px;
+    gap:2rem; align-items:start;
+  }
+
+  /* ── Card base ── */
+  .card {
+    background:#fff; border-radius:18px;
+    border:1px solid var(--border);
+    box-shadow:0 2px 14px rgba(26,53,96,0.05);
+    overflow:hidden;
+  }
+
+  .card-header {
+    padding:1rem 1.3rem;
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:0.65rem;
+  }
+  .card-header-icon {
+    width:36px; height:36px; border-radius:10px;
+    background:rgba(26,53,96,0.07);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .card-header-icon svg { width:18px;height:18px;stroke:var(--navy);fill:none;stroke-width:1.8;stroke-linecap:round; }
+  .card-header-text {}
+  .card-header-title { font-weight:800; font-size:0.92rem; color:var(--text-dark); line-height:1.2; }
+  .card-header-sub   { font-size:0.76rem; font-weight:600; color:var(--text-muted); }
+
+  .card-toggle {
+    margin-left:auto; background:none; border:none; cursor:pointer;
+    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; color:var(--text-muted); transition:background 0.18s, transform 0.25s;
+  }
+  .card-toggle:hover { background:rgba(26,53,96,0.07); }
+  .card-toggle svg { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round; transition:transform 0.25s; }
+  .card-toggle.open svg { transform:rotate(180deg); }
+
+  .card-body { padding:1.3rem; display:none; }
+  .card-body.open { display:block; }
+
+  /* Acordeón principal */
+  .info-cards { display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.5rem; }
+
+  /* Formularios */
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem; }
+  .form-row.full { grid-template-columns:1fr; }
+  .form-group { display:flex; flex-direction:column; gap:0.3rem; }
+  .form-label { font-size:0.72rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
+  .form-input {
+    padding:0.55rem 0.75rem; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700; color:var(--text-dark);
+    outline:none; transition:border-color 0.2s, box-shadow 0.2s; background:#fff;
+  }
+  .form-input:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,53,96,0.08); }
+  .form-input::placeholder { color:rgba(26,53,96,0.3); font-weight:600; }
+
+  .form-select {
+    padding:0.55rem 0.75rem; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700; color:var(--text-dark);
+    outline:none; background:#fff; cursor:pointer; transition:border-color 0.2s;
+  }
+  .form-select:focus { border-color:var(--navy); }
+
+  /* Checkbox */
+  .check-row { display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; }
+  .check-row input[type=checkbox] { width:16px; height:16px; cursor:pointer; accent-color:var(--navy); }
+  .check-row label { font-size:0.82rem; font-weight:700; color:var(--text-muted); cursor:pointer; }
+
+  /* Métodos de pago */
+  .payment-opts { display:flex; flex-direction:column; gap:0.5rem; }
+  .payment-opt {
+    border:2px solid var(--border); border-radius:12px; padding:0.75rem 1rem;
+    display:flex; align-items:center; gap:0.75rem; cursor:pointer;
+    transition:border-color 0.2s, background 0.2s;
+  }
+  .payment-opt:hover { border-color:rgba(26,53,96,0.25); background:rgba(26,53,96,0.02); }
+  .payment-opt.selected { border-color:var(--navy); background:rgba(26,53,96,0.04); }
+  .payment-opt input[type=radio] { accent-color:var(--navy); width:16px; height:16px; cursor:pointer; }
+  .payment-opt-label { font-weight:800; font-size:0.88rem; color:var(--text-dark); }
+  .payment-opt-sub { font-size:0.74rem; font-weight:600; color:var(--text-muted); }
+  .payment-icon { margin-left:auto; font-size:1.1rem; }
+
+  /* Card fields (tarjeta) */
+  .card-fields { margin-top:0.9rem; padding-top:0.9rem; border-top:1px solid var(--border); display:none; }
+  .card-fields.visible { display:block; }
+
+  /* ── RESUMEN PEDIDO ── */
+  .order-summary { background:#fff; border-radius:18px; border:1px solid var(--border); box-shadow:0 4px 20px rgba(26,53,96,0.07); padding:1.3rem; position:sticky; top:82px; }
+  .order-title { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.06em; color:var(--text-dark); margin-bottom:1rem; padding-bottom:0.7rem; border-bottom:1px solid var(--border); }
+
+  .order-item { display:flex; gap:0.75rem; align-items:flex-start; margin-bottom:0.85rem; }
+  .order-item-img { width:52px; height:52px; background:#F0EFEA; border-radius:10px; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .order-item-img img { width:100%;height:100%;object-fit:contain;padding:0.3rem; }
+  .order-item-info { flex:1; }
+  .order-item-name { font-weight:800; font-size:0.82rem; color:var(--text-dark); line-height:1.3; }
+  .order-item-meta { font-size:0.72rem; font-weight:600; color:var(--text-muted); margin-top:0.1rem; }
+  .order-item-price { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; color:var(--text-dark); white-space:nowrap; margin-left:auto; }
+
+  .order-divider { height:1px; background:var(--border); margin:0.9rem 0; }
+
+  .order-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+  .order-row .label { font-size:0.83rem; font-weight:700; color:var(--text-muted); }
+  .order-row .value { font-size:0.86rem; font-weight:800; color:var(--text-dark); }
+
+  .order-total { display:flex; justify-content:space-between; align-items:baseline; margin-top:0.6rem; margin-bottom:1.3rem; }
+  .order-total .label { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.04em; color:var(--text-dark); }
+  .order-total .amount { font-family:'Bebas Neue',sans-serif; font-size:1.9rem; color:var(--navy); }
+  .order-total .amount .currency { font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
+
+  /* ── CTA Bottom ── */
+  .checkout-footer {
+    background:#fff; border-top:1px solid var(--border);
+    padding:1.25rem 0; margin-top:0;
+    position:sticky; bottom:0; z-index:100;
+    box-shadow:0 -4px 20px rgba(26,53,96,0.08);
+  }
+  .checkout-footer-inner {
+    max-width:1100px; margin:0 auto; padding:0 1.5rem;
+    display:flex; align-items:center; gap:1rem;
+  }
+  .footer-total { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:var(--navy); }
+  .footer-total .currency { font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
+  .footer-total-label { font-size:0.75rem; font-weight:700; color:var(--text-muted); line-height:1; }
+
+  .btn-confirm {
+    margin-left:auto; background:linear-gradient(135deg, var(--jungle), var(--jungle-md));
+    color:#fff; border:none; border-radius:14px; padding:0.85rem 2rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.95rem;
+    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    display:flex; align-items:center; gap:0.45rem;
+    box-shadow:0 4px 18px rgba(27,67,50,0.22);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-confirm:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(27,67,50,0.30); }
+  .btn-confirm svg { width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round; }
+
+  /* ── Responsive ── */
+  @media (max-width:860px) {
+    .checkout-layout { grid-template-columns:1fr; }
+    .order-summary { position:static; }
+    .form-row { grid-template-columns:1fr; }
+  }
+</style>
+
+<div class="page-wrapper">
+
+  <!-- Hero -->
+  <div class="checkout-hero">
+    <div class="checkout-hero-inner">
+      <h1>Confirmar <span>Compra</span></h1>
+      <p>Revisa tu información antes de finalizar</p>
+    </div>
+  </div>
+
+  <div class="checkout-layout">
+
+    <!-- ════════════
+         IZQUIERDA
+    ════════════ -->
+    <div>
+      <div class="info-cards">
+
+        <!-- 1. Dirección de envío -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="card-header-text">
+              <p class="card-header-title">Dirección de envío</p>
+              <p class="card-header-sub" id="sub-direccion">Ingresa tu dirección</p>
+            </div>
+            <button class="card-toggle open" onclick="toggleCard(this)">
+              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+          </div>
+          <div class="card-body open">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">País</label>
+                <select class="form-select" id="dir-pais" onchange="updateSubtitles()">
+                  <option value="">Seleccionar…</option>
+                  <option value="México" selected>México</option>
+                  <option value="Guatemala">Guatemala</option>
+                  <option value="Colombia">Colombia</option>
+                  <option value="Argentina">Argentina</option>
+                  <option value="Chile">Chile</option>
+                  <option value="Perú">Perú</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estado / Provincia</label>
+                <input class="form-input" id="dir-estado" type="text" placeholder="Ej: Chihuahua" oninput="updateSubtitles()">
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label class="form-label">Calle y número</label>
+                <input class="form-input" id="dir-calle" type="text" placeholder="Ej: Av. Juárez 1234" oninput="updateSubtitles()">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Ciudad</label>
+                <input class="form-input" id="dir-ciudad" type="text" placeholder="Ej: Ciudad Juárez" oninput="updateSubtitles()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Código postal</label>
+                <input class="form-input" id="dir-cp" type="text" placeholder="Ej: 32000" oninput="updateSubtitles()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Método de pago -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+            <div class="card-header-text">
+              <p class="card-header-title">Método de pago</p>
+              <p class="card-header-sub" id="sub-pago">Selecciona cómo pagar</p>
+            </div>
+            <button class="card-toggle" onclick="toggleCard(this)">
+              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="payment-opts" id="payment-opts">
+              <label class="payment-opt selected" onclick="selectPayment(this, 'Tarjeta de crédito / débito')">
+                <input type="radio" name="pago" value="tarjeta" checked>
+                <div>
+                  <p class="payment-opt-label">Tarjeta de crédito / débito</p>
+                  <p class="payment-opt-sub">Visa, Mastercard, AMEX</p>
+                </div>
+                <span class="payment-icon">💳</span>
+              </label>
+              <label class="payment-opt" onclick="selectPayment(this, 'PayPal')">
+                <input type="radio" name="pago" value="paypal">
+                <div>
+                  <p class="payment-opt-label">PayPal</p>
+                  <p class="payment-opt-sub">Paga con tu cuenta PayPal</p>
+                </div>
+                <span class="payment-icon">🅿️</span>
+              </label>
+              <label class="payment-opt" onclick="selectPayment(this, 'Transferencia bancaria')">
+                <input type="radio" name="pago" value="transferencia">
+                <div>
+                  <p class="payment-opt-label">Transferencia bancaria</p>
+                  <p class="payment-opt-sub">SPEI / depósito</p>
+                </div>
+                <span class="payment-icon">🏦</span>
+              </label>
+            </div>
+
+            <!-- Campos tarjeta -->
+            <div class="card-fields visible" id="card-fields">
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">Número de tarjeta</label>
+                  <input class="form-input" id="card-num" type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNum(this)">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Fecha de expiración</label>
+                  <input class="form-input" id="card-exp" type="text" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">CVV</label>
+                  <input class="form-input" id="card-cvv" type="password" placeholder="•••" maxlength="4">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Dirección de facturación -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div class="card-header-text">
+              <p class="card-header-title">Dirección de facturación</p>
+              <p class="card-header-sub" id="sub-factura">Igual que la de envío</p>
+            </div>
+            <button class="card-toggle" onclick="toggleCard(this)">
+              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="check-row" style="margin-bottom:0.75rem;">
+              <input type="checkbox" id="same-address" checked onchange="toggleBillingAddress(this)">
+              <label for="same-address">Igual que la dirección de envío</label>
+            </div>
+            <div id="billing-fields" style="display:none;">
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">Dirección de facturación</label>
+                  <input class="form-input" type="text" placeholder="Calle y número">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Comprando como -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="card-header-text">
+              <p class="card-header-title">Comprando como</p>
+              <p class="card-header-sub">{{ session.get('user_email', 'Usuario') }}</p>
+            </div>
+            <button class="card-toggle" onclick="toggleCard(this)">
+              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input class="form-input" id="user-nombre" type="text" placeholder="Tu nombre"
+                       value="{{ session.get('user_name', '') }}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Correo</label>
+                <input class="form-input" id="user-email" type="email"
+                       value="{{ session.get('user_email', '') }}" readonly style="opacity:0.6;">
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label class="form-label">Teléfono (opcional)</label>
+                <input class="form-input" type="tel" placeholder="Ej: +52 614 000 0000">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /info-cards -->
+    </div>
+
+    <!-- ════════════
+         DERECHA — Resumen
+    ════════════ -->
+    <aside class="order-summary">
+      <p class="order-title">Resumen del pedido</p>
+
+      <div id="order-items">
+        <!-- Llenado por JS -->
+      </div>
+
+      <div class="order-divider"></div>
+
+      <div class="order-row">
+        <span class="label">Subtotal</span>
+        <span class="value" id="order-subtotal">$0.00</span>
+      </div>
+      <div class="order-row">
+        <span class="label">Envío</span>
+        <span class="value" id="order-envio">$5.00</span>
+      </div>
+
+      <div class="order-divider"></div>
+
+      <div class="order-total">
+        <span class="label">Total</span>
+        <span class="amount"><span class="currency">$</span><span id="order-total-val">0.00</span></span>
+      </div>
+    </aside>
+
+  </div><!-- /checkout-layout -->
+
+  <!-- ════════════
+       FOOTER CTA
+  ════════════ -->
+  <div class="checkout-footer">
+    <div class="checkout-footer-inner">
+      <div>
+        <p class="footer-total-label">Total</p>
+        <p class="footer-total"><span class="currency">$</span><span id="footer-total">0.00</span></p>
+      </div>
+      <button class="btn-confirm" id="btn-confirm" onclick="confirmarCompra()">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        Confirmar compra
+      </button>
+    </div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<!-- Modal de éxito -->
+<div id="success-modal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(15,12,8,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border-radius:24px;max-width:440px;width:100%;padding:2.5rem;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,0.25);animation:qvIn 0.35s cubic-bezier(.22,.68,0,1.2) forwards;">
+    <div style="width:72px;height:72px;background:rgba(27,67,50,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--jungle)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.04em;color:var(--text-dark);margin-bottom:0.5rem;">¡Pedido confirmado!</h2>
+    <p style="font-size:0.9rem;color:var(--text-muted);font-weight:600;line-height:1.6;margin-bottom:1.5rem;">Tu orden ha sido recibida. Recibirás un correo de confirmación con los detalles de tu envío.</p>
+    <a href="{{ url_for('home') }}" style="display:inline-block;background:var(--jungle);color:#fff;border-radius:12px;padding:0.75rem 2rem;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;">Volver al inicio</a>
+  </div>
+</div>
+
+<style>
+@keyframes qvIn { from{opacity:0;transform:scale(0.9) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
+</style>
+
+<script>
+const CART_KEY = 'pp_carrito';
+const ENVIO_FIJO = 5.00;
+
+function getCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+  catch { return []; }
+}
+
+/* ── Render resumen ── */
+function renderOrderSummary() {
+  const cart = getCart();
+  const itemsEl = document.getElementById('order-items');
+  const subtotal = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const total    = subtotal + ENVIO_FIJO;
+
+  itemsEl.innerHTML = cart.map(item => `
+    <div class="order-item">
+      <div class="order-item-img">
+        <img src="${item.imagen||''}" alt="${item.nombre}" onerror="this.style.opacity='0.2'">
+      </div>
+      <div class="order-item-info">
+        <p class="order-item-name">${item.qty}× ${item.nombre}</p>
+        <p class="order-item-meta">
+          ${item.tipo ? item.tipo + ' &nbsp;·&nbsp; ' : ''}
+          ${item.talla ? 'Talla: ' + item.talla : ''}
+          ${item.color ? '&nbsp;·&nbsp; Color: ' + item.color : ''}
+        </p>
+      </div>
+      <p class="order-item-price">$${(item.precio * item.qty).toFixed(2)}</p>
+    </div>
+  `).join('');
+
+  document.getElementById('order-subtotal').textContent  = '$' + subtotal.toFixed(2);
+  document.getElementById('order-envio').textContent     = '$' + ENVIO_FIJO.toFixed(2);
+  document.getElementById('order-total-val').textContent = total.toFixed(2);
+  document.getElementById('footer-total').textContent    = total.toFixed(2);
+}
+
+/* ── Acordeón ── */
+function toggleCard(btn) {
+  const body = btn.closest('.card').querySelector('.card-body');
+  const open = body.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+/* ── Métodos de pago ── */
+function selectPayment(label, name) {
+  document.querySelectorAll('.payment-opt').forEach(o => o.classList.remove('selected'));
+  label.classList.add('selected');
+  document.getElementById('sub-pago').textContent = name;
+  const isTarjeta = label.querySelector('input').value === 'tarjeta';
+  document.getElementById('card-fields').classList.toggle('visible', isTarjeta);
+}
+
+/* ── Facturación ── */
+function toggleBillingAddress(cb) {
+  document.getElementById('billing-fields').style.display = cb.checked ? 'none' : 'block';
+  document.getElementById('sub-factura').textContent = cb.checked ? 'Igual que la de envío' : 'Dirección diferente';
+}
+
+/* ── Subtítulos dinámicos ── */
+function updateSubtitles() {
+  const calle  = document.getElementById('dir-calle').value.trim();
+  const ciudad = document.getElementById('dir-ciudad').value.trim();
+  const cp     = document.getElementById('dir-cp').value.trim();
+  const pais   = document.getElementById('dir-pais').value;
+  if (calle && ciudad) {
+    document.getElementById('sub-direccion').textContent =
+      `${calle}, ${ciudad}${cp ? ', ' + cp : ''}${pais ? ' · ' + pais : ''}`;
+  }
+}
+
+/* ── Formateadores ── */
+function formatCardNum(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.replace(/(\d{4})(?=\d)/g,'$1 ');
+}
+function formatExpiry(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
+  input.value = v;
+}
+
+/* ── Confirmar ── */
+function confirmarCompra() {
+  const calle  = document.getElementById('dir-calle').value.trim();
+  const ciudad = document.getElementById('dir-ciudad').value.trim();
+  if (!calle || !ciudad) {
+    alert('Por favor completa la dirección de envío.');
+    return;
+  }
+  const cart = getCart();
+  if (cart.length === 0) {
+    alert('Tu carrito está vacío.');
+    return;
+  }
+  // Aquí conectarías con Flask vía fetch al endpoint /checkout POST
+  // Por ahora mostramos el modal de éxito y limpiamos el carrito
+  localStorage.removeItem(CART_KEY);
+  const modal = document.getElementById('success-modal');
+  modal.style.display = 'flex';
+}
+
+renderOrderSummary();
+</script>
+{% endblock %}

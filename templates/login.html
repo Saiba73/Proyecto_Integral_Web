@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}Iniciar Sesión - Paleo Prints{% endblock %}
-
 {% block content %}
 <style>
     /* Estilos específicos para la página de login */
@@ -15,7 +13,7 @@
     /* Fondo de pantalla completa con textura */
     .login-body-wrapper {
         background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-                          url("{{ url_for('static', filename='imagenes/fondo-fosiles.jpg') }}");
+                          url("{{ url_for('static', filename='imagenes/Background_Index.jpeg') }}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;

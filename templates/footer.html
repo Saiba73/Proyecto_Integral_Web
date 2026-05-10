@@ -1,0 +1,362 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+ 
+  :root {
+    --jungle:   #1B4332;
+    --gold:     #C9A84C;
+    --gold-lt:  #F0C040;
+    --navy:     #1A3560;
+    --earth:    #7A3B1E;
+    --obsidian: #0F0E0B;
+    --coal:     #1A1916;
+    --ash:      #2A2825;
+    --bone:     #F5EDD6;
+    --text-dim: rgba(255,255,255,0.45);
+    --text-mid: rgba(255,255,255,0.70);
+  }
+ 
+  /* ════════════════════════════════
+     FOOTER
+  ════════════════════════════════ */
+  .pp-footer {
+    background: var(--obsidian);
+    color: var(--text-mid);
+    font-family: 'Nunito', sans-serif;
+    margin-top: 0;
+  }
+ 
+  /* Franja superior decorativa — las 3 eras */
+  .footer-era-bar {
+    height: 3px;
+    background: linear-gradient(90deg,
+      var(--navy)   0%   33.3%,
+      var(--jungle) 33.3% 66.6%,
+      var(--earth)  66.6% 100%);
+  }
+ 
+  /* Cuerpo principal */
+  .footer-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 2.5rem;
+    display: grid;
+    grid-template-columns: 260px 1fr 1fr 1fr;
+    gap: 3rem;
+  }
+ 
+  /* ── Columna Brand ── */
+  .footer-brand {}
+ 
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+  .footer-logo img {
+    width: 40px; height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1.5px solid rgba(201,168,76,0.3);
+    background: rgba(255,255,255,0.04);
+    padding: 3px;
+  }
+  .footer-logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    color: #fff;
+    line-height: 1;
+  }
+  .footer-logo-text span { color: var(--gold-lt); }
+ 
+  .footer-tagline {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    line-height: 1.65;
+    margin-bottom: 1.4rem;
+  }
+ 
+  /* Redes sociales */
+  .footer-social {
+    display: flex;
+    gap: 0.55rem;
+  }
+  .social-btn {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--ash);
+    border: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .social-btn:hover {
+    background: rgba(201,168,76,0.15);
+    border-color: rgba(201,168,76,0.35);
+    transform: translateY(-3px);
+  }
+  .social-btn svg {
+    width: 18px; height: 18px;
+    fill: var(--text-mid);
+    transition: fill 0.2s;
+  }
+  .social-btn:hover svg { fill: var(--gold-lt); }
+ 
+  /* ── Columnas de links ── */
+  .footer-col {}
+ 
+  .footer-col-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.88rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+ 
+  .footer-links {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .footer-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.2s, gap 0.2s;
+  }
+  .footer-links a:hover {
+    color: #fff;
+    gap: 0.5rem;
+  }
+  .footer-links a::before {
+    content: '›';
+    color: var(--gold);
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .footer-links a:hover::before { opacity: 1; }
+ 
+  /* Badge "Nuevo" en Nosotros */
+  .link-badge {
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--jungle);
+    color: #fff;
+    padding: 0.1rem 0.4rem;
+    border-radius: 100px;
+    margin-left: 0.25rem;
+    vertical-align: middle;
+  }
+ 
+  /* ── Eras strip decorativa ── */
+  .footer-eras {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem 2rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .era-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--ash);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 100px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .era-pill-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+ 
+  /* ── Divider ── */
+  .footer-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin: 0;
+  }
+ 
+  /* ── Bottom bar ── */
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .footer-copy {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+  .footer-copy span { color: var(--gold); }
+ 
+  .footer-legal {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .footer-legal a {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-legal a:hover { color: #fff; }
+ 
+  /* ── Responsive ── */
+  @media (max-width: 960px) {
+    .footer-main { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .footer-brand { grid-column: 1 / -1; }
+    .footer-eras  { flex-wrap: wrap; }
+  }
+  @media (max-width: 560px) {
+    .footer-main { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+    .footer-eras { display: none; }
+  }
+</style>
+ 
+<footer class="pp-footer">
+ 
+  <!-- Barra de eras en la parte superior -->
+  <div class="footer-era-bar"></div>
+ 
+  <!-- Cuerpo -->
+  <div class="footer-main">
+ 
+    <!-- Brand -->
+    <div class="footer-brand">
+      <a class="footer-logo" href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints">
+        <span class="footer-logo-text">Paleo <span>Prints</span></span>
+      </a>
+      <p class="footer-tagline">
+        Ropa, tazas e impresiones inspiradas<br>
+        en millones de años de historia natural.<br>
+        Hecho por fans, para fans. 🦕
+      </p>
+      <div class="footer-social">
+ 
+        <!-- TikTok -->
+        <a class="social-btn" href="#" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+          </svg>
+        </a>
+ 
+        <!-- Instagram -->
+        <a class="social-btn" href="#" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+        </a>
+ 
+        <!-- Facebook -->
+        <a class="social-btn" href="#" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </a>
+ 
+      </div>
+    </div>
+ 
+    <!-- Tienda -->
+    <div class="footer-col">
+      <p class="footer-col-title">Tienda</p>
+      <ul class="footer-links">
+        <li><a href="{{ url_for('ropa') }}">Ropa</a></li>
+        <li><a href="{{ url_for('tazas') }}">Tazas</a></li>
+        <li><a href="{{ url_for('impresiones') }}">Impresiones 3D</a></li>
+        <li><a href="#">Novedades</a></li>
+        <li><a href="#">Más vendidos</a></li>
+      </ul>
+    </div>
+ 
+    <!-- Ayuda -->
+    <div class="footer-col">
+      <p class="footer-col-title">Ayuda</p>
+      <ul class="footer-links">
+        <li><a href="#">Soporte</a></li>
+        <li><a href="#">Rastrear pedido</a></li>
+        <li><a href="#">Política de devoluciones</a></li>
+        <li><a href="#">Preguntas frecuentes</a></li>
+        <li><a href="#">Contáctanos</a></li>
+      </ul>
+    </div>
+ 
+    <!-- Nosotros -->
+    <div class="footer-col">
+      <p class="footer-col-title">Nosotros</p>
+      <ul class="footer-links">
+        <li>
+          <a href="{{ url_for('nosotros') }}">
+            Nuestra historia
+            <span class="link-badge">Nuevo</span>
+          </a>
+        </li>
+        <li><a href="{{ url_for('nosotros') }}#mision">Misión y valores</a></li>
+        <!--li><a href="{{ url_for('nosotros') }}#equipo">El equipo</a></li>-->
+        <li><a href="{{ url_for('nosotros') }}#ciencia">Compromiso científico</a></li>
+        <li><a href="#">Blog paleontológico</a></li>
+      </ul>
+    </div>
+ 
+  </div><!-- /footer-main -->
+ 
+  <!-- Pills de eras -->
+  <div class="footer-eras">
+    <div class="era-pill">
+      <div class="era-pill-dot" style="background:#1A3560;"></div>
+      <span style="color:rgba(255,255,255,0.5);">Paleozoico</span>
+    </div>
+    <div class="era-pill">
+      <div class="era-pill-dot" style="background:#1B4332;"></div>
+      <span style="color:rgba(255,255,255,0.5);">Mesozoico</span>
+    </div>
+    <div class="era-pill">
+      <div class="era-pill-dot" style="background:#7A3B1E;"></div>
+      <span style="color:rgba(255,255,255,0.5);">Cenozoico</span>
+    </div>
+    <span style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.2);margin-left:auto;align-self:center;">Diseñado en México 🇲🇽</span>
+  </div>
+ 
+  <hr class="footer-divider">
+ 
+  <!-- Bottom -->
+  <div class="footer-bottom">
+    <p class="footer-copy">
+      © 2025 <span>Paleo Prints</span>. Todos los derechos reservados.
+    </p>
+    <div class="footer-legal">
+      <a href="#">Privacidad</a>
+      <a href="#">Términos de uso</a>
+      <a href="#">Cookies</a>
+    </div>
+  </div>
+ 
+</footer>

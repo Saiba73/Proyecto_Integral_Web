@@ -1,0 +1,420 @@
+
+{% extends "base.html" %}
+{% block title %}Mi Carrito - Paleo Prints{% endblock %}
+ 
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+ 
+  :root {
+    --jungle:    #1B4332; --jungle-md: #2D6A4F;
+    --gold:      #C9A84C; --gold-lt:   #F0C040;
+    --navy:      #1A3560; --navy-md:   #243F72;
+    --earth:     #7A3B1E;
+    --cream:     #F5EDD6; --offwhite:  #FAF6EC;
+    --text-dark: #1C1A14; --text-muted:#7A6A55;
+    --border:    rgba(26,53,96,0.10);
+  }
+ 
+  body { font-family:'Nunito',sans-serif; background:var(--offwhite); color:var(--text-dark); }
+ 
+  .page-wrapper {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: -1.5rem;
+    width: 100vw; overflow-x: hidden;
+  }
+ 
+  /* ── Hero strip ── */
+  .cart-hero {
+    background: var(--navy);
+    padding: 2rem 0 2.5rem;
+    position: relative; overflow: hidden;
+  }
+  .cart-hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse 60% 100% at 5% 110%, rgba(58,95,160,0.3) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 80% at 95% -10%, rgba(201,168,76,0.1) 0%, transparent 50%);
+    pointer-events:none;
+  }
+  .cart-hero::after {
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:36px;
+    background:var(--offwhite); clip-path:polygon(0 100%,100% 100%,100% 30%,0 100%);
+  }
+  .cart-hero-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+  .cart-hero h1 {
+    font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,5vw,3rem);
+    color:#fff; letter-spacing:0.05em; line-height:1; margin-bottom:0.2rem;
+  }
+  .cart-hero h1 span { color:var(--gold-lt); }
+  .cart-hero p { font-size:0.85rem; font-weight:600; color:rgba(255,255,255,0.55); }
+ 
+  /* ── Layout ── */
+  .cart-layout {
+    max-width:1100px; margin:0 auto;
+    padding:2rem 1.5rem 4rem;
+    display:grid; grid-template-columns:1fr 360px;
+    gap:2rem; align-items:start;
+  }
+ 
+  /* ── Sección izquierda ── */
+  .cart-items-col {}
+ 
+  .cart-section-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.08em;
+    color:var(--text-muted); text-transform:uppercase; margin-bottom:1rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .cart-section-title svg { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round; }
+ 
+  /* ── Item del carrito ── */
+  .cart-item {
+    background:#fff; border-radius:18px;
+    border:1px solid var(--border);
+    box-shadow:0 2px 12px rgba(26,53,96,0.05);
+    padding:1.2rem;
+    display:grid; grid-template-columns:100px 1fr auto;
+    gap:1.2rem; align-items:center;
+    margin-bottom:0.9rem;
+    transition:box-shadow 0.25s;
+  }
+  .cart-item:hover { box-shadow:0 6px 24px rgba(26,53,96,0.10); }
+ 
+  .cart-item-img {
+    width:100px; height:100px;
+    background:#F0EFEA; border-radius:14px;
+    overflow:hidden; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cart-item-img img { width:100%; height:100%; object-fit:contain; padding:0.5rem; }
+ 
+  .cart-item-info {}
+  .cart-item-name {
+    font-weight:800; font-size:0.95rem; color:var(--text-dark);
+    margin-bottom:0.15rem; line-height:1.3;
+  }
+  .cart-item-type { font-size:0.78rem; font-weight:600; color:var(--text-muted); margin-bottom:0.5rem; }
+  .cart-item-meta {
+    font-size:0.78rem; font-weight:700; color:var(--text-muted);
+    display:flex; gap:0.75rem; flex-wrap:wrap;
+  }
+  .cart-item-meta span { display:flex; align-items:center; gap:0.2rem; }
+ 
+  /* Qty + delete */
+  .cart-item-actions { display:flex; flex-direction:column; align-items:flex-end; gap:0.75rem; }
+ 
+  .cart-item-price {
+    font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--text-dark);
+    white-space:nowrap;
+  }
+  .cart-item-price .currency { font-family:'Nunito',sans-serif; font-size:0.75rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
+ 
+  .qty-row { display:flex; align-items:center; gap:0; border:1.5px solid var(--border); border-radius:10px; overflow:hidden; }
+  .qty-btn { width:34px; height:34px; border:none; background:transparent; font-size:1rem; font-weight:800; cursor:pointer; color:var(--navy); transition:background 0.18s; display:flex; align-items:center; justify-content:center; }
+  .qty-btn:hover { background:rgba(26,53,96,0.07); }
+  .qty-display { width:36px; text-align:center; font-weight:800; font-size:0.9rem; color:var(--text-dark); border:none; outline:none; background:transparent; }
+ 
+  .btn-remove { background:none; border:none; cursor:pointer; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem; font-size:0.75rem; font-weight:700; padding:0.25rem 0.4rem; border-radius:6px; transition:color 0.18s, background 0.18s; }
+  .btn-remove:hover { color:#c0392b; background:rgba(192,57,43,0.07); }
+  .btn-remove svg { width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round; }
+ 
+  /* Carrito vacío */
+  .cart-empty {
+    background:#fff; border-radius:18px; border:1px solid var(--border);
+    text-align:center; padding:4rem 2rem;
+    display:none;
+  }
+  .cart-empty.visible { display:block; }
+  .cart-empty svg { width:64px;height:64px;stroke:rgba(26,53,96,0.18);fill:none;stroke-width:1.5;margin-bottom:1rem; }
+  .cart-empty h3 { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:0.05em; color:var(--text-dark); margin-bottom:0.4rem; }
+  .cart-empty p { font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; }
+  .btn-go-shop { display:inline-block; background:var(--jungle); color:#fff; border-radius:12px; padding:0.7rem 1.8rem; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.88rem; letter-spacing:0.05em; text-transform:uppercase; text-decoration:none; transition:background 0.2s,transform 0.18s; }
+  .btn-go-shop:hover { background:var(--jungle-md); color:#fff; transform:translateY(-2px); }
+ 
+  /* ── Resumen (sidebar derecho) ── */
+  .cart-summary {
+    background:#fff; border-radius:20px;
+    border:1px solid var(--border);
+    box-shadow:0 4px 20px rgba(26,53,96,0.07);
+    padding:1.5rem;
+    position:sticky; top:82px;
+  }
+ 
+  .summary-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.06em;
+    color:var(--text-dark); margin-bottom:1.2rem;
+    padding-bottom:0.75rem; border-bottom:1px solid var(--border);
+  }
+ 
+  .summary-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem; }
+  .summary-row .label { font-size:0.85rem; font-weight:700; color:var(--text-muted); }
+  .summary-row .value { font-size:0.88rem; font-weight:800; color:var(--text-dark); }
+  .summary-row .value.muted { color:var(--text-muted); font-weight:600; font-size:0.8rem; }
+ 
+  .summary-divider { height:1px; background:var(--border); margin:0.9rem 0; }
+ 
+  .summary-total { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.25rem; }
+  .summary-total .label { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.06em; color:var(--text-dark); }
+  .summary-total .amount { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--navy); letter-spacing:0.02em; }
+  .summary-total .amount .currency { font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; color:var(--text-muted); vertical-align:super; }
+ 
+  .summary-note { font-size:0.75rem; color:var(--text-muted); font-weight:600; line-height:1.5; margin-bottom:1.2rem; }
+ 
+  .btn-checkout {
+    display:block; width:100%;
+    background:linear-gradient(135deg, var(--jungle), var(--jungle-md));
+    color:#fff; border:none; border-radius:14px; padding:0.9rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:1rem;
+    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    text-align:center; text-decoration:none;
+    box-shadow:0 4px 18px rgba(27,67,50,0.22);
+    transition:transform 0.2s, box-shadow 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:0.5rem;
+  }
+  .btn-checkout:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(27,67,50,0.30); color:#fff; }
+  .btn-checkout svg { width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round; }
+  .btn-checkout:disabled { background:#ccc; cursor:not-allowed; transform:none; box-shadow:none; }
+ 
+  .btn-continue { display:block; text-align:center; margin-top:0.75rem; font-size:0.82rem; font-weight:700; color:var(--text-muted); text-decoration:none; transition:color 0.18s; }
+  .btn-continue:hover { color:var(--navy); }
+ 
+  /* Seguridad badge */
+  .security-badges { display:flex; align-items:center; justify-content:center; gap:0.5rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }
+  .security-badges span { font-size:0.7rem; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:0.25rem; }
+  .security-badges svg { width:13px;height:13px;stroke:var(--jungle-md);fill:none;stroke-width:2;stroke-linecap:round; }
+ 
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .cart-layout { grid-template-columns:1fr; }
+    .cart-summary { position:static; }
+  }
+  @media (max-width:560px) {
+    .cart-item { grid-template-columns:80px 1fr; }
+    .cart-item-actions { flex-direction:row; align-items:center; grid-column:1/-1; justify-content:space-between; }
+  }
+</style>
+ 
+<div class="page-wrapper">
+ 
+  <!-- Hero -->
+  <div class="cart-hero">
+    <div class="cart-hero-inner">
+      <h1>Mi <span>Carrito</span></h1>
+      <p id="hero-subtitle">Cargando productos…</p>
+    </div>
+  </div>
+ 
+  <div class="cart-layout">
+ 
+    <!-- ═══ ITEMS ═══ -->
+    <div class="cart-items-col">
+      <p class="cart-section-title">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Productos
+      </p>
+ 
+      <div id="cart-list">
+        <!-- Items se renderizan por JS -->
+      </div>
+ 
+      <!-- Vacío -->
+      <div class="cart-empty" id="cart-empty">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.63l1.63-9.37H6"/></svg>
+        <h3>Tu carrito está vacío</h3>
+        <p>Aún no has agregado ningún producto. ¡Explora nuestra colección!</p>
+        <a href="{{ url_for('ropa') }}" class="btn-go-shop">Ver productos</a>
+      </div>
+    </div>
+ 
+    <!-- ═══ RESUMEN ═══ -->
+    <aside class="cart-summary">
+      <p class="summary-title">Resumen del pedido</p>
+ 
+      <div id="summary-items">
+        <!-- Ítems del resumen -->
+      </div>
+ 
+      <div class="summary-divider"></div>
+ 
+      <div class="summary-row">
+        <span class="label">Subtotal</span>
+        <span class="value" id="summary-subtotal">$0.00</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Envío</span>
+        <span class="value muted">Se calcula al finalizar</span>
+      </div>
+ 
+      <div class="summary-divider"></div>
+ 
+      <div class="summary-total">
+        <span class="label">Total estimado</span>
+        <span class="amount" id="summary-total"><span class="currency">$</span>0.00</span>
+      </div>
+ 
+      <p class="summary-note">El envío y los impuestos se calculan al finalizar la compra.</p>
+ 
+      <a href="{{ url_for('checkout') }}" class="btn-checkout" id="btn-checkout">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Confirmar compra
+      </a>
+      <a href="{{ url_for('ropa') }}" class="btn-continue">← Seguir comprando</a>
+ 
+      <div class="security-badges">
+        <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Pago seguro</span>
+        <span>·</span>
+        <span><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Envío a México</span>
+      </div>
+    </aside>
+ 
+  </div>
+</div>
+ 
+<script>
+/* ════════════════════════════════════════════
+   CARRITO — almacenado en localStorage
+   Estructura: [{id, nombre, tipo, talla, color, precio, imagen, qty}]
+════════════════════════════════════════════ */
+const CART_KEY = 'pp_carrito';
+ 
+function getCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+  catch { return []; }
+}
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+ 
+function formatPrice(n) {
+  return '$' + parseFloat(n).toFixed(2);
+}
+ 
+function renderCart() {
+  const cart  = getCart();
+  const list  = document.getElementById('cart-list');
+  const empty = document.getElementById('cart-empty');
+  const btnCO = document.getElementById('btn-checkout');
+  const hero  = document.getElementById('hero-subtitle');
+ 
+  list.innerHTML = '';
+ 
+  if (cart.length === 0) {
+    empty.classList.add('visible');
+    btnCO.style.pointerEvents = 'none';
+    btnCO.style.opacity = '0.4';
+    hero.textContent = 'No tienes productos en tu carrito';
+    document.getElementById('summary-subtotal').textContent = '$0.00';
+    document.getElementById('summary-total').innerHTML = '<span class="currency">$</span>0.00';
+    document.getElementById('summary-items').innerHTML = '';
+    return;
+  }
+ 
+  empty.classList.remove('visible');
+  btnCO.style.pointerEvents = '';
+  btnCO.style.opacity = '';
+ 
+  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  hero.textContent = `${totalItems} producto${totalItems !== 1 ? 's' : ''} en tu carrito`;
+ 
+  // Items principales
+  cart.forEach((item, idx) => {
+    const colorDot = item.color === 'Negro'
+      ? '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#1C1A18;border:1px solid #ccc;"></span>'
+      : '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F0EDE0;border:1px solid #ccc;"></span>';
+ 
+    const el = document.createElement('div');
+    el.className = 'cart-item';
+    el.dataset.idx = idx;
+    el.innerHTML = `
+      <div class="cart-item-img">
+        <img src="${item.imagen || ''}" alt="${item.nombre}"
+             onerror="this.style.opacity='0.2'">
+      </div>
+      <div class="cart-item-info">
+        <p class="cart-item-name">${item.nombre}</p>
+        <p class="cart-item-type">${item.tipo || ''}</p>
+        <div class="cart-item-meta">
+          ${item.talla ? `<span>Talla: <strong>${item.talla}</strong></span>` : ''}
+          ${item.color ? `<span>${colorDot} <strong>${item.color}</strong></span>` : ''}
+        </div>
+      </div>
+      <div class="cart-item-actions">
+        <p class="cart-item-price"><span class="currency">$</span>${(item.precio * item.qty).toFixed(2)}</p>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+          <span class="qty-display">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+        </div>
+        <button class="btn-remove" onclick="removeItem(${idx})">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Eliminar
+        </button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+ 
+  // Resumen lateral
+  const summaryEl = document.getElementById('summary-items');
+  summaryEl.innerHTML = cart.map(i => `
+    <div class="summary-row" style="margin-bottom:0.5rem;align-items:flex-start;">
+      <span class="label" style="max-width:200px;line-height:1.3;">${i.qty}× ${i.nombre}</span>
+      <span class="value">${formatPrice(i.precio * i.qty)}</span>
+    </div>
+  `).join('') + '<div class="summary-divider"></div>';
+ 
+  document.getElementById('summary-subtotal').textContent = formatPrice(total);
+  document.getElementById('summary-total').innerHTML =
+    `<span class="currency">$</span>${total.toFixed(2)}`;
+}
+ 
+function changeQty(idx, delta) {
+  const cart = getCart();
+  cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+  saveCart(cart);
+  renderCart();
+}
+ 
+function removeItem(idx) {
+  const cart = getCart();
+  cart.splice(idx, 1);
+  saveCart(cart);
+  renderCart();
+}
+ 
+/* Función global para agregar desde otras páginas */
+window.agregarAlCarrito = function(producto) {
+  const cart = getCart();
+  const existing = cart.find(i =>
+    i.id === producto.id && i.talla === producto.talla && i.color === producto.color
+  );
+  if (existing) {
+    existing.qty += (producto.qty || 1);
+  } else {
+    cart.push({ ...producto, qty: producto.qty || 1 });
+  }
+  saveCart(cart);
+  // Toast de confirmación
+  showToast(`✓ ${producto.nombre} agregado al carrito`);
+};
+ 
+function showToast(msg) {
+  let toast = document.getElementById('pp-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'pp-toast';
+    toast.style.cssText = `position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--jungle);color:#fff;padding:0.75rem 1.5rem;border-radius:100px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.88rem;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;transition:transform 0.3s cubic-bezier(.22,.68,0,1.2);white-space:nowrap;`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.style.transform = 'translateX(-50%) translateY(100px)';
+  }, 2800);
+}
+ 
+renderCart();
+</script>
+{% endblock %}
