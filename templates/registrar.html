@@ -12,7 +12,7 @@
 
     .login-body-wrapper {
         background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-                          url("{{ url_for('static', filename='imagenes/fosil.jpg') }}");
+                          url("{{ url_for('static', filename='imagenes/Background_SignUp.png') }}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -62,6 +62,11 @@
         margin-top: 10px;
     }
 
+    .btn-registro:hover {
+        background-color: #14284b;
+        color: white;
+    }
+
     .login-footer { background-color: #333; padding: 20px; text-align: center; }
     .login-footer p { color: white; font-size: 0.85rem; margin-bottom: 10px; }
     .btn-to-login {
@@ -72,6 +77,11 @@
         text-decoration: none;
         display: inline-block;
         font-size: 0.9rem;
+    }
+    .btn-to-login:hover {
+        background-color: #0d241f;
+        color: white;
+        transition: .5s;
     }
 </style>
 

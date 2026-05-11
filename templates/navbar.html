@@ -4,8 +4,7 @@
 <nav class="navbar navbar-expand-lg pp-navbar">
   <div class="container-fluid">
     <a class="navbar-brand" href="{{ url_for('home') }}">
-      <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints Logo">
-      <span class="pp-brand-text">Paleo <span>Prints</span></span>
+      <img src="{{ url_for('static', filename='imagenes/LogotipoSVG.svg') }}" alt="Paleo Prints Logo">
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#ppNavbar"
       aria-controls="ppNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,7 +17,7 @@
             href="{{ url_for('home') }}">Inicio</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if request.endpoint in ['ropa', 'producto_detalle'] and categoria_activa == 'ropa' %}active{% endif %}"
+          <a class="nav-link {% if request.endpoint == 'ropa' or (request.endpoint == 'producto_detalle' and categoria_activa == 'ropa') %}active{% endif %}"
             href="{{ url_for('ropa') }}">Ropa</a>
         </li>
         <li class="nav-item">

@@ -41,12 +41,14 @@
           <div class="cat-card reveal d1">
             <div class="cat-img-wrap cat-ropa">
               <div class="cat-icon-wrap">
-                <img src="../static/imagenes/Ropa.png" width="400px" height="200px">
+                <img src="../static/imagenes/Ropa.png" width="400px" height="250px">
               </div>
             </div>
             <p class="cat-name">Ropa</p>
-            <a class="{% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}"
-             href="{{ url_for('ropa') }}" class="btn-explore">Explorar</a>
+            <a href="{{ url_for('ropa') }}" 
+              class="btn-explore-ropa {% if request.endpoint in ['ropa', 'producto_detalle'] %}active{% endif %}">
+              Explorar
+            </a>
           </div>
         </div>
  
@@ -58,8 +60,10 @@
               </div>
             </div>
             <p class="cat-name">Tazas</p>
-            <a class="{% if request.endpoint == 'tazas' %}active{% endif %}"
-             href="{{ url_for('tazas') }}" class="btn-explore">Explorar</a>
+            <a href="{{ url_for('tazas') }}" 
+              class="btn-explore-tazas {% if request.endpoint == 'tazas' %}active{% endif %}">
+              Explorar
+            </a>
           </div>
         </div>
  
@@ -67,12 +71,14 @@
           <div class="cat-card reveal d3">
             <div class="cat-img-wrap cat-prints">
               <div class="cat-icon-wrap">
-                <img src="../static/imagenes/Impresiones.png" width="400px" height="200px">
+                <img src="../static/imagenes/Impresiones.png" width="400px" height="250px">
               </div>
             </div>
             <p class="cat-name">Impresiones</p>
-            <a class="{% if request.endpoint == 'impresiones' %}active{% endif %}"
-             href="{{ url_for('impresiones') }} class="btn-explore">Explorar</a>
+            <a href="{{ url_for('impresiones') }}" 
+              class="btn-explore-imp {% if request.endpoint == 'impresiones' %}active{% endif %}">
+              Explorar
+            </a>
           </div>
         </div>
  

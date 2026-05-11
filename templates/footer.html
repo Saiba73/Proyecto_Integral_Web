@@ -15,9 +15,7 @@
     --text-mid: rgba(255,255,255,0.70);
   }
  
-  /* ════════════════════════════════
-     FOOTER
-  ════════════════════════════════ */
+  /* FOOTER */
   .pp-footer {
     background: var(--obsidian);
     color: var(--text-mid);
@@ -44,32 +42,29 @@
     gap: 3rem;
   }
  
-  /* ── Columna Brand ── */
-  .footer-brand {}
- 
+    /* ── Columna Brand ── */
   .footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
+    display: inline-flex;
     text-decoration: none;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
   }
+
+  /* Footer Logo Estilizado */
   .footer-logo img {
-    width: 40px; height: 40px;
-    object-fit: contain;
-    border-radius: 8px;
-    border: 1.5px solid rgba(201,168,76,0.3);
-    background: rgba(255,255,255,0.04);
-    padding: 3px;
+    width: 85px;
+    height: 70px;
+    background: transparent; /* Quitamos el fondo para que luzca el SVG */
+    border: none; /* Sin bordes para un look más limpio */
+    padding: 0;
+    transition: filter 0.3s ease, transform 0.3s ease;
+    /* Si el logo es oscuro, podemos darle un brillo sutil */
+    filter: drop-shadow(0 0 8px rgba(201, 168, 76, 0.2));
   }
-  .footer-logo-text {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.3rem;
-    letter-spacing: 0.1em;
-    color: #fff;
-    line-height: 1;
+
+  .footer-logo:hover img {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(240, 192, 64, 0.5));
   }
-  .footer-logo-text span { color: var(--gold-lt); }
  
   .footer-tagline {
     font-size: 0.82rem;
@@ -106,8 +101,6 @@
   .social-btn:hover svg { fill: var(--gold-lt); }
  
   /* ── Columnas de links ── */
-  .footer-col {}
- 
   .footer-col-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 0.88rem;
@@ -251,13 +244,12 @@
     <!-- Brand -->
     <div class="footer-brand">
       <a class="footer-logo" href="{{ url_for('home') }}">
-        <img src="{{ url_for('static', filename='imagenes/logo.jpg') }}" alt="Paleo Prints">
-        <span class="footer-logo-text">Paleo <span>Prints</span></span>
+        <img src="{{ url_for('static', filename='imagenes/ImagotipoSVG.svg') }}" alt="Paleo Prints">
       </a>
       <p class="footer-tagline">
         Ropa, tazas e impresiones inspiradas<br>
         en millones de años de historia natural.<br>
-        Hecho por fans, para fans. 🦕
+        Hecho por fans, para fans. 
       </p>
       <div class="footer-social">
  
