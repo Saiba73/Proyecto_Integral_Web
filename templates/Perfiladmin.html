@@ -1,536 +1,627 @@
-<!-- perfilAdmin.html -->
-
 {% extends 'base.html' %}
-
 {% block title %}Admin — Paleo Prints{% endblock %}
 
 {% block content %}
 <style>
-  /* ── Variables de color (mismas que perfil.html) ── */
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+
   :root {
-    --pp-red:       #7b1c1c;
-    --pp-red-dark:  #5a1414;
-    --pp-red-light: rgba(123,28,28,.1);
-    --pp-border:    #c8a0a0;
+    --jungle:    #1B4332; --jungle-md: #2D6A4F; --jungle-lt: #52B788;
+    --gold:      #C9A84C; --gold-lt:   #F0C040;
+    --navy:      #1A3560; --navy-md:   #243F72;
+    --earth:     #7A3B1E; --earth-md:  #9C4A28;
+    --offwhite:  #FAF6EC; --cream:     #F5EDD6;
+    --text-dark: #1C1A14; --text-muted:#7A6A55;
+    --border:    rgba(26,53,96,0.10);
+    --danger:    #C0392B;
   }
 
-  /* ── Encabezado de usuario ── */
-  .pp-profile-header { text-align: center; margin-bottom: 1.5rem; }
-  .pp-profile-header h2 { font-weight: 700; margin-bottom: 0; }
-  .pp-profile-header p  { color: #555; margin: 0; }
+  body { font-family:'Nunito',sans-serif; background:var(--offwhite); color:var(--text-dark); }
+
+  .page-wrapper {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    margin-top: -1.5rem;
+    width: 100vw; overflow-x: hidden;
+  }
+
+  /* ── Hero strip ── */
+  .admin-hero {
+    background: var(--navy);
+    padding: 2rem 0 2.8rem;
+    position: relative; overflow: hidden;
+  }
+  .admin-hero::before {
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 50% 100% at 0% 100%, rgba(58,95,160,0.4) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 80% at 100% 0%,  rgba(201,168,76,0.08) 0%, transparent 50%);
+    pointer-events:none;
+  }
+  .admin-hero::after {
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:36px;
+    background:var(--offwhite);
+    clip-path:polygon(0 100%,100% 100%,100% 20%,0 100%);
+  }
+  .admin-hero-inner {
+    position:relative; z-index:1;
+    max-width:1200px; margin:0 auto; padding:0 1.5rem;
+    display:flex; align-items:center; gap:1.5rem;
+  }
+  .admin-avatar {
+    width:60px; height:60px; border-radius:16px;
+    background:rgba(240,192,64,0.15);
+    border:2px solid rgba(240,192,64,0.3);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .admin-avatar svg { width:30px;height:30px;stroke:var(--gold-lt);fill:none;stroke-width:1.6;stroke-linecap:round; }
+  .admin-hero h1 {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(1.6rem,4vw,2.4rem); color:#fff;
+    letter-spacing:0.05em; line-height:1; margin-bottom:0.15rem;
+  }
+  .admin-hero h1 span { color:var(--gold-lt); }
+  .admin-hero p { font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.5); margin:0; }
+
+  /* ── Layout ── */
+  .admin-layout {
+    max-width:1200px; margin:0 auto;
+    padding:2rem 1.5rem 4rem;
+  }
 
   /* ── Barra de controles ── */
-  .pp-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: .5rem;
-    margin-bottom: 1.25rem;
+  .admin-controls {
+    display:flex; flex-wrap:wrap; align-items:center;
+    gap:0.6rem; margin-bottom:1.5rem;
+    background:#fff; border-radius:16px;
+    border:1px solid var(--border);
+    box-shadow:0 2px 12px rgba(26,53,96,0.05);
+    padding:0.9rem 1.2rem;
   }
-  .pp-filter-label { font-size: .88rem; font-weight: 600; color: #333; }
-  .pp-select {
-    border: 2px solid var(--pp-red);
-    border-radius: 6px;
-    padding: .28rem .6rem;
-    font-size: .85rem;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
-    background: #fff;
-  }
-  .pp-select:focus { outline: none; box-shadow: 0 0 0 .2rem rgba(123,28,28,.2); }
 
-  /* Separador flexible */
-  .pp-spacer { flex: 1; }
-
-  /* ── Botones generales ── */
-  .pp-btn {
-    border: 2px solid var(--pp-red);
-    background: #fff;
-    color: var(--pp-red);
-    border-radius: 6px;
-    padding: .28rem .8rem;
-    font-size: .82rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background .2s, color .2s;
+  .ctrl-label {
+    font-size:0.72rem; font-weight:800; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-muted);
   }
-  .pp-btn:hover  { background: var(--pp-red); color: #fff; }
-  .pp-btn.active { background: var(--pp-red); color: #fff; }
-  .pp-btn-solid  { background: var(--pp-red); color: #fff; }
-  .pp-btn-solid:hover { background: var(--pp-red-dark); }
-  .pp-btn-danger { border-color: #c0392b; background: #c0392b; color: #fff; font-size: .78rem; padding: .22rem .65rem; }
-  .pp-btn-danger:hover { background: #922b21; border-color: #922b21; color: #fff; }
-  .pp-btn-edit  { border-color: var(--pp-red); color: var(--pp-red); font-size: .78rem; padding: .22rem .65rem; }
-  .pp-btn-edit:hover { background: var(--pp-red); color: #fff; }
+
+  .ctrl-select {
+    border:1.5px solid var(--border); border-radius:9px;
+    padding:0.38rem 0.75rem; font-family:'Nunito',sans-serif;
+    font-size:0.82rem; font-weight:700; color:var(--text-dark);
+    background:#fff; cursor:pointer; outline:none;
+    transition:border-color 0.2s;
+  }
+  .ctrl-select:focus { border-color:var(--navy); }
+
+  .ctrl-spacer { flex:1; }
+
+  /* Vista toggle */
+  .view-toggle {
+    display:flex; background:rgba(26,53,96,0.07);
+    border-radius:10px; padding:3px; gap:0;
+  }
+  .view-btn {
+    border:none; background:transparent;
+    border-radius:8px; padding:0.38rem 1rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.8rem;
+    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    color:var(--text-muted); transition:all 0.2s;
+  }
+  .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 6px rgba(26,53,96,0.12); }
+
+  /* Botón agregar */
+  .btn-admin-add {
+    background:var(--jungle); color:#fff; border:none;
+    border-radius:9px; padding:0.42rem 1rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.82rem;
+    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    display:flex; align-items:center; gap:0.35rem;
+    transition:background 0.2s, transform 0.18s;
+  }
+  .btn-admin-add:hover { background:var(--jungle-md); transform:translateY(-1px); }
+  .btn-admin-add svg { width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round; }
 
   /* ── Vistas ── */
-  .pp-view { display: none; }
-  .pp-view.active { display: block; }
+  .admin-view { display:none; }
+  .admin-view.active { display:block; }
 
-  /* ── Tabla compartida ── */
-  .pp-table-wrapper {
-    border: 2px solid var(--pp-red);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: .75rem;
+  /* ── Tabla ── */
+  .table-card {
+    background:#fff; border-radius:18px;
+    border:1px solid var(--border);
+    box-shadow:0 2px 16px rgba(26,53,96,0.05);
+    overflow:hidden; margin-bottom:1rem;
   }
-  .pp-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: .85rem;
+
+  .table-card-header {
+    padding:1rem 1.3rem;
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:0.5rem;
   }
-  .pp-table thead tr {
-    background: #fff;
-    border-bottom: 2px solid var(--pp-red);
+  .table-card-header svg { width:18px;height:18px;stroke:var(--navy);fill:none;stroke-width:1.8;stroke-linecap:round; }
+  .table-card-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1rem;
+    letter-spacing:0.08em; color:var(--navy);
   }
+  .table-card-count {
+    margin-left:auto; font-size:0.72rem; font-weight:800;
+    letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+
+  .pp-table { width:100%; border-collapse:collapse; font-size:0.84rem; }
+  .pp-table thead tr { border-bottom:1px solid var(--border); }
   .pp-table thead th {
-    padding: .55rem .7rem;
-    font-weight: 700;
-    color: var(--pp-red);
-    border-right: 1px solid var(--pp-border);
-    white-space: nowrap;
+    padding:0.6rem 0.85rem; font-weight:800;
+    color:var(--text-muted); font-size:0.72rem;
+    letter-spacing:0.1em; text-transform:uppercase;
+    white-space:nowrap; text-align:left;
   }
-  .pp-table thead th:last-child { border-right: none; }
-  .pp-table tbody tr { border-bottom: 1px solid #f0dada; }
-  .pp-table tbody tr:last-child { border-bottom: none; }
-  .pp-table tbody tr:hover { background: var(--pp-red-light); }
+  .pp-table tbody tr { border-bottom:1px solid rgba(26,53,96,0.05); transition:background 0.15s; }
+  .pp-table tbody tr:last-child { border-bottom:none; }
+  .pp-table tbody tr:hover { background:rgba(26,53,96,0.03); }
   .pp-table td {
-    padding: .45rem .7rem;
-    border-right: 1px solid #f0dada;
-    vertical-align: middle;
-    color: #333;
+    padding:0.55rem 0.85rem; vertical-align:middle; color:var(--text-dark);
   }
-  .pp-table td:last-child { border-right: none; }
+
+  /* ── Badges ── */
+  .badge-cat {
+    display:inline-block; padding:0.18rem 0.6rem;
+    border-radius:100px; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.08em; text-transform:uppercase;
+  }
+  .badge-cat.ropa        { background:rgba(27,67,50,0.12);  color:var(--jungle); }
+  .badge-cat.tazas       { background:rgba(122,59,30,0.12); color:var(--earth); }
+  .badge-cat.impresiones { background:rgba(26,53,96,0.12);  color:var(--navy); }
+
+  .badge-status {
+    display:inline-block; padding:0.18rem 0.6rem;
+    border-radius:100px; font-size:0.7rem; font-weight:800;
+  }
+  .badge-status.pendiente  { background:#fef3cd; color:#856404; }
+  .badge-status.enviado    { background:#d1ecf1; color:#0c5460; }
+  .badge-status.entregado  { background:#d4edda; color:#155724; }
+  .badge-status.cancelado  { background:#f8d7da; color:#721c24; }
+
+  /* ── Acciones en tabla ── */
+  .tbl-actions { display:flex; gap:0.35rem; }
+  .btn-tbl {
+    border:none; border-radius:7px; padding:0.3rem 0.65rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.72rem;
+    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    transition:all 0.18s;
+  }
+  .btn-tbl-edit   { background:rgba(26,53,96,0.08); color:var(--navy); }
+  .btn-tbl-edit:hover   { background:var(--navy); color:#fff; }
+  .btn-tbl-delete { background:rgba(192,57,43,0.09); color:var(--danger); }
+  .btn-tbl-delete:hover { background:var(--danger); color:#fff; }
 
   /* ── Pie de tabla ── */
-  .pp-table-footer {
-    text-align: right;
-    padding: .5rem .9rem;
-    border-top: 2px solid var(--pp-red);
-    font-weight: 700;
-    font-size: .95rem;
-    background: #fff;
+  .table-footer {
+    padding:0.7rem 1.2rem;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    background:rgba(26,53,96,0.02);
   }
+  .table-footer-label { font-size:0.75rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
+  .table-footer-value { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; color:var(--navy); letter-spacing:0.04em; }
 
-  /* ── Badge de categoría ── */
-  .pp-badge {
-    display: inline-block;
-    padding: .18rem .55rem;
-    border-radius: 20px;
-    font-size: .75rem;
-    font-weight: 700;
-    border: 1.5px solid var(--pp-red);
-    color: var(--pp-red);
-    background: #fff;
-  }
-
-  /* ── Estado de orden ── */
-  .pp-status {
-    display: inline-block;
-    padding: .18rem .55rem;
-    border-radius: 20px;
-    font-size: .75rem;
-    font-weight: 700;
-  }
-  .pp-status-pendiente  { background: #fef3cd; color: #856404; border: 1.5px solid #ffd43b; }
-  .pp-status-enviado    { background: #d1ecf1; color: #0c5460; border: 1.5px solid #17a2b8; }
-  .pp-status-entregado  { background: #d4edda; color: #155724; border: 1.5px solid #28a745; }
-  .pp-status-cancelado  { background: #f8d7da; color: #721c24; border: 1.5px solid #dc3545; }
-
-  /* ── Sin datos ── */
-  .pp-empty { text-align: center; color: #999; padding: 1.5rem; font-size: .9rem; }
+  /* ── Empty ── */
+  .tbl-empty { text-align:center; padding:2.5rem 1rem; color:var(--text-muted); font-size:0.88rem; font-weight:700; }
 
   /* ── Modales ── */
-  .pp-modal .modal-header  { background: var(--pp-red); color: #fff; border-bottom: none; }
-  .pp-modal .modal-footer  { border-top: 1px solid #e0c9c9; }
-  .pp-modal .modal-content { border: 2px solid var(--pp-red); border-radius: 10px; overflow: hidden; }
-  .pp-input { border: 1.5px solid var(--pp-red); border-radius: 6px; font-size: .88rem; }
-  .pp-input:focus { border-color: var(--pp-red); box-shadow: 0 0 0 .2rem rgba(123,28,28,.2); }
-  .form-label  { font-size: .85rem; font-weight: 600; margin-bottom: .25rem; }
-  .pp-modal-error { color: var(--pp-red); font-size: .82rem; margin-top: .5rem; display: none; }
+  .pp-modal .modal-content {
+    border:none; border-radius:20px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.18); overflow:hidden;
+  }
+  .pp-modal .modal-header {
+    background: var(--navy); color:#fff; border-bottom:none;
+    padding:1.1rem 1.4rem;
+  }
+  .pp-modal .modal-title { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.06em; }
+  .pp-modal .btn-close-white { filter:invert(1) brightness(2); }
+  .pp-modal .modal-body { padding:1.4rem; }
+  .pp-modal .modal-footer { border-top:1px solid var(--border); padding:1rem 1.4rem; }
 
-  /* ── Campo oculto según categoría ── */
-  #rowTalla, #rowTamano { display: none; }
+  .pp-form-label {
+    font-size:0.72rem; font-weight:800; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:0.3rem; display:block;
+  }
+  .pp-form-input {
+    width:100%; padding:0.55rem 0.75rem;
+    border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700;
+    color:var(--text-dark); outline:none; transition:border-color 0.2s, box-shadow 0.2s;
+    background:#fff;
+  }
+  .pp-form-input:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,53,96,0.08); }
+  .pp-form-select { appearance:auto; cursor:pointer; }
 
-  /* ── Acciones de celda ── */
-  .pp-cell-actions { display: flex; gap: .35rem; flex-wrap: nowrap; }
+  .pp-modal-error { color:var(--danger); font-size:0.8rem; font-weight:700; margin-top:0.5rem; display:none; }
+
+  .btn-modal-cancel {
+    background:transparent; color:var(--text-muted);
+    border:1.5px solid var(--border); border-radius:10px; padding:0.55rem 1.2rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem;
+    cursor:pointer; transition:all 0.18s;
+  }
+  .btn-modal-cancel:hover { border-color:var(--navy); color:var(--navy); }
+
+  .btn-modal-save {
+    background:var(--jungle); color:#fff; border:none;
+    border-radius:10px; padding:0.55rem 1.4rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem;
+    cursor:pointer; transition:background 0.18s;
+  }
+  .btn-modal-save:hover { background:var(--jungle-md); }
+
+  .btn-modal-delete {
+    background:var(--danger); color:#fff; border:none;
+    border-radius:10px; padding:0.55rem 1.4rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem;
+    cursor:pointer; transition:background 0.18s;
+  }
+  .btn-modal-delete:hover { background:#a93226; }
+
+  /* Campo oculto por categoría */
+  #rowTalla, #rowTamano { display:none; }
+
+  @media (max-width:768px) {
+    .admin-controls { flex-direction:column; align-items:flex-start; }
+    .ctrl-spacer { display:none; }
+    .pp-table { font-size:0.78rem; }
+  }
 </style>
 
-<!-- ── Encabezado ── -->
-<div class="pp-profile-header">
-  <h2>{{ usuario.nombre }}</h2>
-  <p>{{ usuario.correo }}</p>
-</div>
+<div class="page-wrapper">
 
-<!-- ── Barra de controles ── -->
-<div class="pp-controls">
-  <span class="pp-filter-label">Filtrar :</span>
-  <select class="pp-select" id="filtroCategoria" onchange="aplicarFiltro()">
-    <option value="todo">Todo</option>
-    <option value="Ropa">Ropa</option>
-    <option value="Tazas">Tazas</option>
-    <option value="Impresiones3D">Impresiones 3D</option>
-  </select>
-  <button class="pp-btn" onclick="abrirNuevoProducto()">Agregar producto</button>
-  <div class="pp-spacer"></div>
-  <button class="pp-btn active" id="btnInventario" onclick="mostrarVista('inventario')">Ver inventario</button>
-  <button class="pp-btn"        id="btnVentas"     onclick="mostrarVista('ventas')">Ver ventas</button>
-</div>
-
-<!-- ════════════════ VISTA: INVENTARIO ════════════════ -->
-<div id="inventario" class="pp-view active">
-  <div class="pp-table-wrapper">
-    <table class="pp-table" id="tablaInventario">
-      <thead>
-        <tr>
-          <th>ID. prod.</th>
-          <th>Nombre</th>
-          <th>Diseño</th>
-          <th>Tam.</th>
-          <th>Cantidad</th>
-          <th>Precio</th>
-          <th>Categoría</th>
-          <th>Opciones</th>
-        </tr>
-      </thead>
-      <tbody id="tbodyInventario">
-        {% set todos = [] %}
-        {% for p in productos_ropa %}
-          {% set _ = todos.append({'id': p.producto_id, 'nombre': p.nombre, 'diseno': p.diseno, 'tam': p.talla, 'cantidad': p.cantidad_disponible, 'precio': p.precio, 'cat': 'Ropa'}) %}
-        {% endfor %}
-        {% for p in productos_tazas %}
-          {% set _ = todos.append({'id': p.producto_id, 'nombre': p.nombre, 'diseno': p.diseno, 'tam': p.tamano, 'cantidad': p.cantidad_disponible, 'precio': p.precio, 'cat': 'Tazas'}) %}
-        {% endfor %}
-        {% for p in productos_impresiones %}
-          {% set _ = todos.append({'id': p.producto_id, 'nombre': p.nombre, 'diseno': p.diseno, 'tam': p.tamano, 'cantidad': p.cantidad_disponible, 'precio': p.precio, 'cat': 'Impresiones3D'}) %}
-        {% endfor %}
-
-        {% if todos %}
-          {% for p in todos %}
-          <tr data-cat="{{ p.cat }}">
-            <td>{{ p.id }}</td>
-            <td title="{{ p.nombre }}">{{ p.nombre[:18] }}{% if p.nombre|length > 18 %}…{% endif %}</td>
-            <td>{{ p.diseno or '—' }}</td>
-            <td>{{ p.tam or '—' }}</td>
-            <td>{{ p.cantidad }}</td>
-            <td>${{ "%.2f"|format(p.precio) }}</td>
-            <td><span class="pp-badge">{{ p.cat }}</span></td>
-            <td>
-              <div class="pp-cell-actions">
-                <button class="pp-btn pp-btn-danger"
-                        data-cat="{{ p.cat }}"
-                        data-id="{{ p.id }}"
-                        onclick="borrarProducto(this)">
-                    Borrar
-                </button>
-                <button class="pp-btn pp-btn-edit"
-                        data-cat="{{ p.cat }}"
-                        data-id="{{ p.id }}"
-                        data-nombre="{{ p.nombre | e }}"
-                        data-diseno="{{ (p.diseno or '') | e }}"
-                        data-tam="{{ (p.tam or '') | e }}"
-                        data-cantidad="{{ p.cantidad }}"
-                        data-precio="{{ p.precio }}"
-                        onclick="abrirEditarProducto(this)">
-                    Modificar
-                </button>
-            </div>
-            </td>
-          </tr>
-          {% endfor %}
-        {% else %}
-          <tr><td colspan="8" class="pp-empty">Sin productos en el inventario.</td></tr>
-        {% endif %}
-      </tbody>
-    </table>
-    <div class="pp-table-footer">
-      Total: ${{ "%.0f"|format(total_inventario) }}
+  <!-- HERO -->
+  <div class="admin-hero">
+    <div class="admin-hero-inner">
+      <div class="admin-avatar">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      </div>
+      <div>
+        <h1>Panel <span>Admin</span></h1>
+        <p>{{ usuario.nombre }} · {{ usuario.correo }}</p>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ════════════════ VISTA: VENTAS / ÓRDENES ════════════════ -->
-<div id="ventas" class="pp-view">
-  <div class="pp-table-wrapper">
-    <table class="pp-table">
-      <thead>
-        <tr>
-          <th>ID. orden</th>
-          <th>ID usuario</th>
-          <th>Fecha creada</th>
-          <th>Fecha envío</th>
-          <th>ID prod.</th>
-          <th>Cant. prod.</th>
-          <th>Pago total</th>
-          <th>Estatus</th>
-        </tr>
-      </thead>
-      <tbody>
+  <div class="admin-layout">
+
+    <!-- CONTROLES -->
+    <div class="admin-controls">
+      <span class="ctrl-label">Filtrar:</span>
+      <select class="ctrl-select" id="filtroCategoria" onchange="aplicarFiltro()">
+        <option value="todo">Todo</option>
+        <option value="Ropa">Ropa</option>
+        <option value="Tazas">Tazas</option>
+        <option value="Impresiones3D">Impresiones 3D</option>
+      </select>
+
+      <button class="btn-admin-add" onclick="abrirNuevoProducto()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar producto
+      </button>
+
+      <div class="ctrl-spacer"></div>
+
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnInventario" onclick="mostrarVista('inventario')">Inventario</button>
+        <button class="view-btn"        id="btnVentas"     onclick="mostrarVista('ventas')">Ventas</button>
+      </div>
+    </div>
+
+    <!-- ══════ INVENTARIO ══════ -->
+    <div id="inventario" class="admin-view active">
+      <div class="table-card">
+        <div class="table-card-header">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <span class="table-card-title">Inventario de productos</span>
+          <span class="table-card-count" id="inv-count">— productos</span>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="pp-table" id="tablaInventario">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Diseño</th>
+                <th>Talla / Tam.</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Categoría</th>
+                <th>Opciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyInventario">
+              {% set todos = [] %}
+              {% for p in productos_ropa %}
+                {% set _ = todos.append({'id':p.producto_id,'nombre':p.nombre,'diseno':p.diseno,'tam':p.talla,'cantidad':p.cantidad_disponible,'precio':p.precio,'cat':'Ropa'}) %}
+              {% endfor %}
+              {% for p in productos_tazas %}
+                {% set _ = todos.append({'id':p.producto_id,'nombre':p.nombre,'diseno':p.diseno,'tam':p.tamano,'cantidad':p.cantidad_disponible,'precio':p.precio,'cat':'Tazas'}) %}
+              {% endfor %}
+              {% for p in productos_impresiones %}
+                {% set _ = todos.append({'id':p.producto_id,'nombre':p.nombre,'diseno':p.diseno,'tam':p.tamano,'cantidad':p.cantidad_disponible,'precio':p.precio,'cat':'Impresiones3D'}) %}
+              {% endfor %}
+
+              {% if todos %}
+                {% for p in todos %}
+                <tr data-cat="{{ p.cat }}">
+                  <td style="color:var(--text-muted);font-weight:800;">#{{ p.id }}</td>
+                  <td style="font-weight:800;" title="{{ p.nombre }}">{{ p.nombre[:22] }}{% if p.nombre|length > 22 %}…{% endif %}</td>
+                  <td style="color:var(--text-muted);">{{ p.diseno or '—' }}</td>
+                  <td>{{ p.tam or '—' }}</td>
+                  <td>
+                    <span>
+                      {{ p.cantidad }}
+                    </span>
+                  </td>
+                  <td style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.04em;">${{ "%.2f"|format(p.precio) }}</td>
+                  <td>
+                    <span class="badge-cat {% if p.cat=='Ropa' %}ropa{% elif p.cat=='Tazas' %}tazas{% else %}impresiones{% endif %}">
+                      {{ p.cat }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="tbl-actions">
+                      <button class="btn-tbl btn-tbl-edit"
+                              data-cat="{{ p.cat }}" data-id="{{ p.id }}"
+                              data-nombre="{{ p.nombre|e }}" data-diseno="{{ (p.diseno or '')|e }}"
+                              data-tam="{{ (p.tam or '')|e }}" data-cantidad="{{ p.cantidad }}"
+                              data-precio="{{ p.precio }}"
+                              onclick="abrirEditarProducto(this)">Editar</button>
+                      <button class="btn-tbl btn-tbl-delete"
+                              data-cat="{{ p.cat }}" data-id="{{ p.id }}"
+                              onclick="borrarProducto(this)">Borrar</button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="8" class="tbl-empty">Sin productos en el inventario.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <span class="table-footer-label">Valor total del inventario</span>
+          <span class="table-footer-value">${{ "%.2f"|format(total_inventario) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ VENTAS ══════ -->
+    <div id="ventas" class="admin-view">
+      <div class="table-card">
+        <div class="table-card-header">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          <span class="table-card-title">Órdenes y ventas</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="pp-table">
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Usuario</th>
+                <th>Creada</th>
+                <th>Envío</th>
+                <th>Productos</th>
+                <th>Cantidades</th>
+                <th>Total</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if ordenes %}
+                {% for o in ordenes %}
+                <tr>
+                  <td style="font-weight:800;color:var(--navy);">#{{ o.orden_id }}</td>
+                  <td style="color:var(--text-muted);">{{ o.usuario_id }}</td>
+                  <td>{{ o.fecha_creada.strftime('%d/%m/%y') if o.fecha_creada else '—' }}</td>
+                  <td>{{ o.fecha_de_envio.strftime('%d/%m/%y') if o.fecha_de_envio else '—' }}</td>
+                  <td title="{{ o.productos_id }}" style="color:var(--text-muted);">{{ o.productos_id or '—' }}</td>
+                  <td>{{ o.cantidad_por_producto or '—' }}</td>
+                  <td style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.04em;">${{ "%.2f"|format(o.pago_total) }}</td>
+                  <td><span class="badge-status {{ o.estatus }}">{{ o.estatus|capitalize }}</span></td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="8" class="tbl-empty">Sin órdenes registradas.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
         {% if ordenes %}
-          {% for o in ordenes %}
-          <tr>
-            <td>{{ o.orden_id }}</td>
-            <td>{{ o.usuario_id }}</td>
-            <td>{{ o.fecha_creada.strftime('%d/%m/%y') if o.fecha_creada else '—' }}</td>
-            <td>{{ o.fecha_de_envio.strftime('%d/%m/%y') if o.fecha_de_envio else '—' }}</td>
-            <td title="{{ o.productos_id }}">{{ o.productos_id or '—' }}</td>
-            <td>{{ o.cantidad_por_producto or '—' }}</td>
-            <td>${{ "%.2f"|format(o.pago_total) }}</td>
-            <td>
-              <span class="pp-status pp-status-{{ o.estatus }}">{{ o.estatus | capitalize }}</span>
-            </td>
-          </tr>
-          {% endfor %}
-        {% else %}
-          <tr><td colspan="8" class="pp-empty">Sin órdenes registradas.</td></tr>
+        <div class="table-footer">
+          <span class="table-footer-label">Total recaudado</span>
+          <span class="table-footer-value">${{ "%.2f"|format(ordenes|sum(attribute='pago_total')) }}</span>
+        </div>
         {% endif %}
-      </tbody>
-    </table>
-    {% if ordenes %}
-    <div class="pp-table-footer">
-      Total recaudado: ${{ "%.2f"|format(ordenes | sum(attribute='pago_total')) }}
+      </div>
     </div>
-    {% endif %}
-  </div>
-</div>
 
-<!-- ════════════════ MODAL: PRODUCTO (nuevo / editar) ════════════════ -->
-<div class="modal fade" id="modalProducto" tabindex="-1"
-     aria-labelledby="modalProductoLabel" aria-hidden="true">
+  </div><!-- /admin-layout -->
+</div><!-- /page-wrapper -->
+
+<!-- ══════ MODAL: PRODUCTO ══════ -->
+<div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content pp-modal">
       <div class="modal-header">
         <h5 class="modal-title" id="modalProductoLabel">Nuevo Producto</h5>
-        <button type="button" class="btn-close btn-close-white"
-                data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <!-- IDs ocultos para edición -->
         <input type="hidden" id="prodId">
         <input type="hidden" id="prodCatOriginal">
 
-        <!-- Categoría -->
         <div class="mb-3">
-          <label class="form-label">Categoría</label>
-          <select id="prodCategoria" class="form-select pp-input" onchange="actualizarCamposTam()">
-            <option value="" disabled selected>Selecciona...</option>
+          <label class="pp-form-label">Categoría</label>
+          <select id="prodCategoria" class="pp-form-input pp-form-select" onchange="actualizarCamposTam()">
+            <option value="" disabled selected>Selecciona…</option>
             <option value="Ropa">Ropa</option>
             <option value="Tazas">Tazas</option>
             <option value="Impresiones3D">Impresiones 3D</option>
           </select>
         </div>
-
-        <!-- Nombre -->
         <div class="mb-3">
-          <label class="form-label">Nombre</label>
-          <input type="text" id="prodNombre" class="form-control pp-input"
-                 placeholder="Ej. Pachycephalosaurus Hoodie - Blanco">
+          <label class="pp-form-label">Nombre</label>
+          <input type="text" id="prodNombre" class="pp-form-input" placeholder="Ej. Pachycephalosaurus Hoodie - Blanco">
         </div>
-
-        <!-- Diseño -->
         <div class="mb-3">
-          <label class="form-label">Diseño</label>
-          <input type="text" id="prodDiseno" class="form-control pp-input"
-                 placeholder="Ej. Hoodie, Taza, Figura">
+          <label class="pp-form-label">Diseño</label>
+          <input type="text" id="prodDiseno" class="pp-form-input" placeholder="Ej. Hoodie, Taza, Figura">
         </div>
-
-        <!-- Talla (solo Ropa) -->
         <div class="mb-3" id="rowTalla">
-          <label class="form-label">Talla</label>
-          <select id="prodTalla" class="form-select pp-input">
-            <option value="">Selecciona...</option>
-            <option value="XS">XS</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-            <option value="XXL">XXL</option>
+          <label class="pp-form-label">Talla</label>
+          <select id="prodTalla" class="pp-form-input pp-form-select">
+            <option value="">Selecciona…</option>
+            <option>XS</option><option>S</option><option>M</option>
+            <option>L</option><option>XL</option><option>XXL</option>
           </select>
         </div>
-
-        <!-- Tamaño (Tazas e Impresiones3D) -->
         <div class="mb-3" id="rowTamano">
-          <label class="form-label">Tamaño</label>
-          <input type="text" id="prodTamano" class="form-control pp-input"
-                 placeholder="Ej. 11 OZ, 15cm">
+          <label class="pp-form-label">Tamaño</label>
+          <input type="text" id="prodTamano" class="pp-form-input" placeholder="Ej. 11 OZ, 15 cm">
         </div>
-
-        <!-- Cantidad y Precio -->
-        <div class="row g-3 mb-3">
-          <div class="col-6">
-            <label class="form-label">Cantidad disponible</label>
-            <input type="number" id="prodCantidad" class="form-control pp-input"
-                   placeholder="0" min="0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;" class="mb-3">
+          <div>
+            <label class="pp-form-label">Cantidad</label>
+            <input type="number" id="prodCantidad" class="pp-form-input" placeholder="0" min="0">
           </div>
-          <div class="col-6">
-            <label class="form-label">Precio ($)</label>
-            <input type="number" id="prodPrecio" class="form-control pp-input"
-                   placeholder="0.00" min="0" step="0.01">
+          <div>
+            <label class="pp-form-label">Precio ($)</label>
+            <input type="number" id="prodPrecio" class="pp-form-input" placeholder="0.00" min="0" step="0.01">
           </div>
         </div>
-
-        <!-- Ruta de imagen -->
         <div class="mb-3">
-          <label class="form-label">Ruta de imagen</label>
-          <input type="text" id="prodImagenRuta" class="form-control pp-input"
-                 placeholder="imagenes/productos/nombre-del-archivo.jpg">
+          <label class="pp-form-label">Ruta de imagen</label>
+          <input type="text" id="prodImagenRuta" class="pp-form-input" placeholder="imagenes/productos/archivo.jpg">
         </div>
-
-        <p class="pp-modal-error" id="prodError">Por favor completa todos los campos obligatorios.</p>
+        <p class="pp-modal-error" id="prodError">Completa todos los campos obligatorios.</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="pp-btn" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pp-btn pp-btn-solid" onclick="guardarProducto()">Guardar</button>
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn-modal-save" onclick="guardarProducto()">Guardar</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════ MODAL: CONFIRMAR BORRAR ════════════════ -->
+<!-- ══════ MODAL: CONFIRMAR BORRAR ══════ -->
 <div class="modal fade" id="modalBorrar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content pp-modal">
-      <div class="modal-header">
+      <div class="modal-header" style="background:var(--danger);">
         <h5 class="modal-title">Confirmar eliminación</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" style="font-size:.9rem;">
+      <div class="modal-body" style="font-size:0.88rem;line-height:1.6;color:var(--text-muted);">
         ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
       </div>
       <div class="modal-footer">
-        <button type="button" class="pp-btn" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pp-btn pp-btn-danger" onclick="confirmarBorrar()">Borrar</button>
+        <button class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn-modal-delete" onclick="confirmarBorrar()">Sí, borrar</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════ Scripts ════════════════ -->
 <script>
-  /* ── Cambio de vista (Inventario / Ventas) ── */
+  /* ── Contador de filas visibles ── */
+  function actualizarContador() {
+    const total = document.querySelectorAll('#tbodyInventario tr[data-cat]:not([style*="none"])').length;
+    document.getElementById('inv-count').textContent = `${total} producto${total !== 1 ? 's' : ''}`;
+  }
+
+  /* ── Vista ── */
   function mostrarVista(id) {
-    document.querySelectorAll('.pp-view').forEach(v => v.classList.remove('active'));
-    document.getElementById('btnInventario').classList.remove('active');
-    document.getElementById('btnVentas').classList.remove('active');
+    document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.getElementById(id === 'inventario' ? 'btnInventario' : 'btnVentas').classList.add('active');
   }
 
-  /* ── Filtro de categoría (solo en inventario) ── */
+  /* ── Filtro ── */
   function aplicarFiltro() {
     const cat = document.getElementById('filtroCategoria').value;
     document.querySelectorAll('#tbodyInventario tr[data-cat]').forEach(tr => {
       tr.style.display = (cat === 'todo' || tr.dataset.cat === cat) ? '' : 'none';
     });
+    actualizarContador();
   }
 
-  /* ── Mostrar Talla o Tamaño según categoría ── */
+  /* ── Campos dinámicos ── */
   function actualizarCamposTam() {
     const cat = document.getElementById('prodCategoria').value;
-    document.getElementById('rowTalla').style.display  = (cat === 'Ropa')          ? 'block' : 'none';
+    document.getElementById('rowTalla').style.display  = cat === 'Ropa' ? 'block' : 'none';
     document.getElementById('rowTamano').style.display = (cat === 'Tazas' || cat === 'Impresiones3D') ? 'block' : 'none';
   }
 
-  /* ── Abrir modal NUEVO producto ── */
+  /* ── Nuevo producto ── */
   function abrirNuevoProducto() {
     document.getElementById('modalProductoLabel').textContent = 'Nuevo Producto';
-    document.getElementById('prodId').value            = '';
-    document.getElementById('prodCatOriginal').value   = '';
-    document.getElementById('prodCategoria').value     = '';
-    document.getElementById('prodNombre').value        = '';
-    document.getElementById('prodDiseno').value        = '';
-    document.getElementById('prodTalla').value         = '';
-    document.getElementById('prodTamano').value        = '';
-    document.getElementById('prodCantidad').value      = '';
-    document.getElementById('prodPrecio').value        = '';
-    document.getElementById('prodImagenRuta').value    = '';
-    document.getElementById('prodCategoria').disabled  = false;
-    document.getElementById('rowTalla').style.display  = 'none';
+    ['prodId','prodCatOriginal','prodNombre','prodDiseno','prodTalla','prodTamano','prodCantidad','prodPrecio','prodImagenRuta'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('prodCategoria').value = '';
+    document.getElementById('prodCategoria').disabled = false;
+    document.getElementById('rowTalla').style.display = 'none';
     document.getElementById('rowTamano').style.display = 'none';
     document.getElementById('prodError').style.display = 'none';
     new bootstrap.Modal(document.getElementById('modalProducto')).show();
   }
 
-  /* ── Abrir modal EDITAR producto ── */
+  /* ── Editar producto ── */
   function abrirEditarProducto(btn) {
-  const cat      = btn.dataset.cat;
-  const id       = btn.dataset.id;
-  const nombre   = btn.dataset.nombre;
-  const diseno   = btn.dataset.diseno;
-  const tam      = btn.dataset.tam;
-  const cantidad = btn.dataset.cantidad;
-  const precio   = btn.dataset.precio;
+    const d = btn.dataset;
+    document.getElementById('modalProductoLabel').textContent = 'Editar Producto';
+    document.getElementById('prodId').value = d.id;
+    document.getElementById('prodCatOriginal').value = d.cat;
+    document.getElementById('prodCategoria').value = d.cat;
+    document.getElementById('prodCategoria').disabled = true;
+    document.getElementById('prodNombre').value = d.nombre;
+    document.getElementById('prodDiseno').value = d.diseno;
+    document.getElementById('prodCantidad').value = d.cantidad;
+    document.getElementById('prodPrecio').value = d.precio;
+    document.getElementById('prodError').style.display = 'none';
+    actualizarCamposTam();
+    if (d.cat === 'Ropa') document.getElementById('prodTalla').value = d.tam;
+    else document.getElementById('prodTamano').value = d.tam;
+    new bootstrap.Modal(document.getElementById('modalProducto')).show();
+  }
 
-  document.getElementById('modalProductoLabel').textContent  = 'Modificar Producto';
-  document.getElementById('prodId').value                    = id;
-  document.getElementById('prodCatOriginal').value           = cat;
-  document.getElementById('prodCategoria').value             = cat;
-  document.getElementById('prodCategoria').disabled          = true;
-  document.getElementById('prodNombre').value                = nombre;
-  document.getElementById('prodDiseno').value                = diseno;
-  document.getElementById('prodCantidad').value              = cantidad;
-  document.getElementById('prodPrecio').value                = precio;
-  document.getElementById('prodError').style.display         = 'none';
-
-  actualizarCamposTam();
-
-  if (cat === 'Ropa') document.getElementById('prodTalla').value  = tam;
-  else                document.getElementById('prodTamano').value = tam;
-
-  new bootstrap.Modal(document.getElementById('modalProducto')).show();
-}
-
-  /* ── Guardar producto (POST o PUT) ── */
+  /* ── Guardar ── */
   async function guardarProducto() {
     const id  = document.getElementById('prodId').value;
     const cat = document.getElementById('prodCatOriginal').value || document.getElementById('prodCategoria').value;
-
     const nombre   = document.getElementById('prodNombre').value.trim();
     const diseno   = document.getElementById('prodDiseno').value.trim();
     const cantidad = document.getElementById('prodCantidad').value.trim();
     const precio   = document.getElementById('prodPrecio').value.trim();
     const imgRuta  = document.getElementById('prodImagenRuta').value.trim();
-
-    let tam = '';
-    if (cat === 'Ropa')   tam = document.getElementById('prodTalla').value.trim();
-    else                  tam = document.getElementById('prodTamano').value.trim();
-
-    if (!cat || !nombre || !cantidad || !precio) {
-      document.getElementById('prodError').style.display = 'block'; return;
-    }
+    let tam = cat === 'Ropa' ? document.getElementById('prodTalla').value.trim() : document.getElementById('prodTamano').value.trim();
+    if (!cat || !nombre || !cantidad || !precio) { document.getElementById('prodError').style.display = 'block'; return; }
     document.getElementById('prodError').style.display = 'none';
-
-    const metodo = id ? 'PUT' : 'POST';
-    const url    = id
-      ? `/admin/producto/editar/${cat}/${id}`
-      : `/admin/producto/nuevo`;
-
-    const payload = { categoria: cat, nombre, diseno, tam, cantidad: parseInt(cantidad), precio: parseFloat(precio), imagen_ruta: imgRuta };
-
-    const res = await fetch(url, {
-      method:  metodo,
+    const res = await fetch(id ? `/admin/producto/editar/${cat}/${id}` : '/admin/producto/nuevo', {
+      method: id ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
+      body: JSON.stringify({ categoria: cat, nombre, diseno, tam, cantidad: parseInt(cantidad), precio: parseFloat(precio), imagen_ruta: imgRuta }),
     });
-
-    if (res.ok) { location.reload(); }
-    else { alert('Error al guardar el producto.'); }
+    if (res.ok) location.reload(); else alert('Error al guardar el producto.');
   }
 
-  /* ── Borrar producto (con modal de confirmación) ── */
+  /* ── Borrar ── */
   let _borrarCat = '', _borrarId = 0;
-    function borrarProducto(btn) {
-    _borrarCat = btn.dataset.cat;
-    _borrarId  = btn.dataset.id;
-    new bootstrap.Modal(document.getElementById('modalBorrar')).show();
-    }
-
+  function borrarProducto(btn) { _borrarCat = btn.dataset.cat; _borrarId = btn.dataset.id; new bootstrap.Modal(document.getElementById('modalBorrar')).show(); }
   async function confirmarBorrar() {
     const res = await fetch(`/admin/producto/borrar/${_borrarCat}/${_borrarId}`, { method: 'DELETE' });
-    if (res.ok) { location.reload(); }
-    else { alert('Error al eliminar el producto.'); }
+    if (res.ok) location.reload(); else alert('Error al eliminar el producto.');
   }
+
+  actualizarContador();
 </script>
 {% endblock %}
