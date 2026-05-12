@@ -8,7 +8,7 @@
   :root {
     --jungle:    #1B4332; --jungle-md: #2D6A4F; --jungle-lt: #52B788;
     --gold:      #C9A84C; --gold-lt:   #F0C040;
-    --navy:      #1A3560;
+    --navy:      #1A3560; --navy-md: #1a4b9b; 
     --earth:     #7A3B1E; --earth-lt:  #C4693A;
     --cream:     #F5EDD6; --offwhite:  #FAF6EC;
     --text-dark: #1C1A14; --text-muted:#7A6A55;
@@ -24,38 +24,53 @@
     width: 100vw; overflow-x: hidden;
   }
 
-  /* ════════════════════
-     HERO — oscuro dramático
-  ════════════════════ */
+  /* ════════════════════════════════
+     HERO — imagen de fondo + overlay
+  ════════════════════════════════ */
   .about-hero {
-    background: var(--obsidian);
-    min-height: 520px;
+    min-height: 560px;
     display: flex; align-items: center; justify-content: center;
     text-align: center;
     position: relative; overflow: hidden;
-    padding: 5rem 1.5rem 6rem;
+    padding: 6rem 1.5rem 7rem;
   }
 
-  /* Gradientes de las 3 eras */
-  .about-hero::before {
-    content: '';
+  /* Imagen de fond */
+  .hero-bg {
+    position: absolute; inset: 0;
+    background-image: url("{{ url_for('static', filename='imagenes/Nosotros.jpeg') }}");
+    background-size: cover;
+    background-position: center 40%; 
+    filter: blur(3px);
+    transform: scale(1.05); 
+  }
+
+  /* Overlay negro con opacidad */
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.68);
+  }
+
+  /* Gradientes de eras encima del overlay */
+  .hero-glow {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 60% 70% at 10% 120%, rgba(26,53,96,0.5)  0%, transparent 55%),
-      radial-gradient(ellipse 50% 80% at 50%  50%, rgba(27,67,50,0.3)  0%, transparent 60%),
-      radial-gradient(ellipse 60% 70% at 90% 120%, rgba(122,59,30,0.5) 0%, transparent 55%);
+      radial-gradient(ellipse 50% 60% at 5%  120%, rgba(26,53,96,0.45)  0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 95% 120%, rgba(122,59,30,0.45) 0%, transparent 55%);
     pointer-events: none;
   }
 
-  /* Línea dorada diagonal decorativa */
   .about-hero::after {
     content: '';
     position: absolute; bottom: -1px; left: 0; right: 0; height: 52px;
     background: var(--offwhite);
     clip-path: polygon(0 100%, 100% 100%, 100% 10%, 0 100%);
+    z-index: 3;
   }
 
-  .hero-content { position: relative; z-index: 2; max-width: 700px; }
+  .hero-content {
+    position: relative; z-index: 2; max-width: 700px;
+  }
 
   .hero-pretitle {
     font-size: 0.72rem; font-weight: 800; letter-spacing: 0.22em;
@@ -64,7 +79,7 @@
   }
   .hero-pretitle::before, .hero-pretitle::after {
     content: ''; flex: 1; max-width: 60px; height: 1px;
-    background: rgba(240,192,64,0.35);
+    background: rgba(240,192,64,0.4);
   }
 
   .hero-title {
@@ -78,7 +93,7 @@
   .hero-body {
     font-family: 'Lora', serif;
     font-style: italic; font-size: 1.05rem;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.72);
     line-height: 1.75; max-width: 520px; margin: 0 auto;
   }
 
@@ -112,13 +127,9 @@
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 5rem; align-items: center;
   }
-
   .origen-text .section-eyebrow { color: var(--jungle-md); }
   .origen-text .section-heading { color: var(--text-dark); }
 
-  .origen-visual {
-    position: relative;
-  }
   .origen-card {
     background: linear-gradient(145deg, var(--jungle), #0d2e1f);
     border-radius: 24px; padding: 3rem 2rem;
@@ -130,15 +141,30 @@
     background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(82,183,136,0.15) 0%, transparent 60%);
     pointer-events: none;
   }
-  .origen-card-emoji { font-size: 4rem; display: block; margin-bottom: 1rem; }
+
+  /* Ícono central de la card origen */
+  .origen-card-icon {
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.2rem;
+    width: 72px; height: 72px;
+    background: rgba(240,192,64,0.12);
+    border: 2px solid rgba(240,192,64,0.25);
+    border-radius: 50%;
+  }
+  .origen-card-icon svg {
+    width: 36px; height: 36px;
+    stroke: var(--gold-lt); fill: none;
+    stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  }
+
   .origen-card-text {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.5rem; letter-spacing: 0.06em;
     color: #fff; line-height: 1.2;
+    position: relative; z-index: 1;
   }
   .origen-card-text span { color: var(--gold-lt); }
 
-  /* Stat badges */
   .stat-badge {
     position: absolute;
     background: rgba(255,255,255,0.95);
@@ -159,15 +185,14 @@
   .stat-2 { top: -12px; right: -20px; }
 
   /* ════════════════════
-     MISIÓN — fondo jungle
+     MISIÓN
   ════════════════════ */
   #mision.section { background: var(--jungle); position: relative; overflow: hidden; }
   #mision.section::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background:
       radial-gradient(ellipse 70% 60% at 90% 110%, rgba(82,183,136,0.15) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 70% at 5% 0%,   rgba(201,168,76,0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 50% 70% at 5%   0%, rgba(201,168,76,0.08) 0%, transparent 50%);
     pointer-events: none;
   }
   #mision .section-eyebrow { color: var(--gold-lt); }
@@ -186,45 +211,28 @@
     transition: background 0.3s, transform 0.3s;
   }
   .value-card:hover { background: rgba(255,255,255,0.11); transform: translateY(-4px); }
-  .value-icon {
-    font-size: 2rem; margin-bottom: 0.9rem; display: block;
+
+  /* Icono en las value cards */
+  .value-icon-wrap {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: rgba(240,192,64,0.12);
+    border: 1.5px solid rgba(240,192,64,0.2);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
   }
+  .value-icon-wrap svg {
+    width: 24px; height: 24px;
+    stroke: var(--gold-lt); fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+
   .value-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.1rem; letter-spacing: 0.05em;
     color: #fff; margin-bottom: 0.5rem;
   }
   .value-text { font-size: 0.84rem; color: rgba(255,255,255,0.58); line-height: 1.65; }
-
-  /* ════════════════════
-     EQUIPO
-  ════════════════════ */
-  #equipo.section { background: #fff; }
-  #equipo .section-eyebrow { color: var(--navy); }
-  #equipo .section-heading { color: var(--text-dark); }
-
-  .team-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem; margin-top: 3rem;
-  }
-  .team-card {
-    text-align: center; padding: 1.75rem 1rem;
-    border-radius: 20px; border: 1px solid rgba(26,53,96,0.09);
-    background: var(--offwhite);
-    transition: box-shadow 0.3s, transform 0.3s;
-  }
-  .team-card:hover { box-shadow: 0 12px 36px rgba(26,53,96,0.11); transform: translateY(-4px); }
-  .team-avatar {
-    width: 80px; height: 80px; border-radius: 50%;
-    margin: 0 auto 1rem;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2rem;
-    border: 3px solid rgba(201,168,76,0.25);
-  }
-  .team-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.05em; color: var(--text-dark); margin-bottom: 0.2rem; }
-  .team-role { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.6rem; }
-  .team-bio  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
 
   /* ════════════════════
      COMPROMISO CIENTÍFICO
@@ -247,10 +255,15 @@
   }
   .science-item:hover { box-shadow: 0 6px 20px rgba(122,59,30,0.12); }
   .science-item-icon {
-    width: 42px; height: 42px; border-radius: 12px;
+    width: 44px; height: 44px; border-radius: 12px;
     background: rgba(122,59,30,0.09);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; flex-shrink: 0;
+    flex-shrink: 0;
+  }
+  .science-item-icon svg {
+    width: 22px; height: 22px;
+    stroke: var(--earth); fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
   }
   .science-item-title { font-weight: 800; font-size: 0.9rem; color: var(--text-dark); margin-bottom: 0.2rem; }
   .science-item-text  { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
@@ -264,20 +277,45 @@
     content: '"';
     position: absolute; top: -0.5rem; left: 1rem;
     font-family: 'Lora', serif;
-    font-size: 10rem; color: rgba(255,255,255,0.08);
+    font-size: 10rem; color: rgba(255,255,255,0.07);
     line-height: 1; pointer-events: none;
   }
   .science-quote-text {
     font-family: 'Lora', serif;
     font-style: italic; font-size: 1.1rem;
     color: rgba(255,255,255,0.85); line-height: 1.75;
-    position: relative; z-index: 1;
-    margin-bottom: 1.25rem;
+    position: relative; z-index: 1; margin-bottom: 1.25rem;
   }
   .science-quote-author {
     font-size: 0.78rem; font-weight: 800; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--gold-lt);
     position: relative; z-index: 1;
+    margin-bottom: 1.5rem;
+  }
+  .science-quote-btn {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: rgba(240,192,64,0.15);
+    border: 1.5px solid rgba(240,192,64,0.4);
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 0.82rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--gold-lt);
+    text-decoration: none;
+    position: relative; z-index: 1;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .science-quote-btn:hover {
+    background: rgba(240,192,64,0.25);
+    border-color: rgba(240,192,64,0.7);
+    color: var(--gold-lt);
+    transform: translateY(-2px);
+  }
+  .science-quote-btn svg {
+    width: 15px; height: 15px;
+    stroke: var(--gold-lt); fill: none;
+    stroke-width: 2; stroke-linecap: round;
   }
 
   /* ════════════════════
@@ -288,35 +326,50 @@
     padding: 5rem 0; text-align: center; position: relative; overflow: hidden;
   }
   .section-cta::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background:
       radial-gradient(ellipse 60% 80% at 20% 50%, rgba(26,53,96,0.4) 0%, transparent 55%),
       radial-gradient(ellipse 60% 80% at 80% 50%, rgba(122,59,30,0.4) 0%, transparent 55%);
     pointer-events: none;
   }
-  .cta-inner { position: relative; z-index: 1; }
-  .cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem,5vw,3.2rem); color: #fff; letter-spacing: 0.04em; margin-bottom: 0.75rem; }
+  .cta-inner  { position: relative; z-index: 1; }
+  .cta-title  { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,5vw,3.2rem); color:#fff; letter-spacing:0.04em; margin-bottom:0.75rem; }
   .cta-title span { color: var(--gold-lt); }
-  .cta-sub { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.55); margin-bottom: 2rem; }
-  .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .cta-sub    { font-size:0.95rem; font-weight:600; color:rgba(255,255,255,0.55); margin-bottom:2rem; }
+  .cta-btns   { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+  /* CTA buttons — una por era */
   .btn-cta-primary {
-    background: linear-gradient(135deg, var(--gold), var(--gold-lt));
-    color: var(--obsidian); border: none; border-radius: 12px;
+    background: var(--jungle);
+    color: #fff; border: none; border-radius: 12px;
     padding: 0.8rem 2rem; font-family: 'Nunito', sans-serif;
     font-weight: 800; font-size: 0.92rem; letter-spacing: 0.05em; text-transform: uppercase;
-    text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 18px rgba(201,168,76,0.35);
+    text-decoration: none;
+    box-shadow: 0 4px 18px rgba(27,67,50,0.35);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   }
-  .btn-cta-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(201,168,76,0.5); color: var(--obsidian); }
+  .btn-cta-primary:hover { background: var(--jungle-md); color: #fff; transform: translateY(-3px); box-shadow: 0 8px 28px rgba(27,67,50,0.5); }
+
   .btn-cta-secondary {
-    background: rgba(255,255,255,0.07);
-    color: #fff; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px;
+    background: var(--earth);
+    color: #fff; border: none; border-radius: 12px;
     padding: 0.8rem 2rem; font-family: 'Nunito', sans-serif;
     font-weight: 800; font-size: 0.92rem; letter-spacing: 0.05em; text-transform: uppercase;
-    text-decoration: none; transition: background 0.2s, border-color 0.2s;
+    text-decoration: none;
+    box-shadow: 0 4px 18px rgba(122,59,30,0.35);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   }
-  .btn-cta-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #fff; }
+  .btn-cta-secondary:hover { background: var(--earth-lt); color: #fff; transform: translateY(-3px); box-shadow: 0 8px 28px rgba(122,59,30,0.5); }
+
+  .btn-cta-tertiary {
+    background: var(--navy);
+    color: #fff; border: none; border-radius: 12px;
+    padding: 0.8rem 2rem; font-family: 'Nunito', sans-serif;
+    font-weight: 800; font-size: 0.92rem; letter-spacing: 0.05em; text-transform: uppercase;
+    text-decoration: none;
+    box-shadow: 0 4px 18px rgba(26,53,96,0.35);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .btn-cta-tertiary:hover { background: var(--navy-md); color: #fff; transform: translateY(-3px); box-shadow: 0 8px 28px rgba(26,53,96,0.5); }
 
   /* ── Animaciones ── */
   .reveal { opacity:0; transform:translateY(28px); animation:revealUp 0.65s ease forwards; }
@@ -338,6 +391,13 @@
 
   <!-- ════════ HERO ════════ -->
   <section class="about-hero">
+    <!-- Imagen de fondo — pon tu foto en static/imagenes/nosotros-hero.jpg -->
+    <div class="hero-bg"></div>
+    <!-- Overlay oscuro -->
+    <div class="hero-overlay"></div>
+    <!-- Glow de eras encima -->
+    <div class="hero-glow"></div>
+
     <div class="hero-content">
       <p class="hero-pretitle reveal d1">Conoce nuestra historia</p>
       <h1 class="hero-title reveal d2">La <span class="gold">ciencia</span><br>como pasión</h1>
@@ -364,12 +424,15 @@
           <p class="section-body">
             Así que decidimos crearlo nosotros mismos. Con artistas reales, investigación
             científica de verdad y el corazón de fans que somos. Sin IA generativa, sin
-            atajos, sin comprometerr la precisión histórica.
+            atajos, sin comprometer la precisión histórica.
           </p>
         </div>
-        <div class="origen-visual">
+        <div class="origen-visual" style="position:relative;">
           <div class="origen-card">
-            <span class="origen-card-emoji">🦕</span>
+            <!-- Ícono: fósil / capas geológicas (Lucide: layers) -->
+            <div class="origen-card-icon">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
             <p class="origen-card-text">
               Millones de años<br>de historia,<br>
               <span>una marca</span>
@@ -399,117 +462,123 @@
       </p>
 
       <div class="values-grid">
+
+        <!-- Arte sin IA — icono: pen-tool -->
         <div class="value-card">
-          <span class="value-icon">🎨</span>
+          <div class="value-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          </div>
           <p class="value-title">Arte sin IA</p>
           <p class="value-text">Cada diseño es creado por artistas humanos. Nunca usamos inteligencia artificial generativa. El talento es real.</p>
         </div>
+
+        <!-- Precisión científica — icono: microscope / search -->
         <div class="value-card">
-          <span class="value-icon">🔬</span>
+          <div class="value-icon-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
           <p class="value-title">Precisión científica</p>
           <p class="value-text">Nos basamos en investigación paleontológica actualizada. Nuestras ilustraciones reflejan el conocimiento actual de la ciencia.</p>
         </div>
+
+        <!-- Latinoamérica — icono: map-pin / globe -->
         <div class="value-card">
-          <span class="value-icon">🌎</span>
+          <div class="value-icon-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
           <p class="value-title">Hecho para Latinoamérica</p>
           <p class="value-text">Precios accesibles, envíos dentro del continente y un equipo que entiende nuestra región y su comunidad científica.</p>
         </div>
+
+        <!-- Fans genuinos — icono: heart -->
         <div class="value-card">
-          <span class="value-icon">🦖</span>
+          <div class="value-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
           <p class="value-title">Fans genuinos</p>
           <p class="value-text">No somos una empresa corporativa. Somos fans de la paleontología que hacen productos para otros fans como nosotros.</p>
         </div>
+
+        <!-- Comunidad — icono: users -->
         <div class="value-card">
-          <span class="value-icon">🤝</span>
+          <div class="value-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
           <p class="value-title">Comunidad primero</p>
           <p class="value-text">Apoyamos a divulgadores, museos y ferias de ciencia. La comunidad paleontológica es nuestra familia.</p>
         </div>
+
+        <!-- Calidad — icono: shield-check -->
         <div class="value-card">
-          <span class="value-icon">✅</span>
+          <div class="value-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          </div>
           <p class="value-title">Calidad sin compromiso</p>
           <p class="value-text">Prendas, tazas e impresiones de alta calidad. Si no lo usaríamos nosotros, no lo vendemos.</p>
         </div>
+
       </div>
     </div>
   </section>
 
-  <!-- ════════ EQUIPO ════════ 
-  <section class="section" id="equipo">
-    <div class="section-inner">
-      <p class="section-eyebrow" style="color:var(--navy);">Las personas detrás</p>
-      <h2 class="section-heading">El equipo</h2>
-      <p class="section-body">Un grupo pequeño con una pasión enorme por la historia natural y el diseño.</p>
-
-      <div class="team-grid">
-        <div class="team-card">
-          <div class="team-avatar" style="background:rgba(27,67,50,0.1);">🦴</div>
-          <p class="team-name">Fundador</p>
-          <p class="team-role">Dirección & Visión</p>
-          <p class="team-bio">Apasionado de la paleontología desde los 4 años. Convirtió su colección de libros de dinosaurios en una marca.</p>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar" style="background:rgba(26,53,96,0.1);">🎨</div>
-          <p class="team-name">Artista principal</p>
-          <p class="team-role">Diseño & Ilustración</p>
-          <p class="team-bio">Ilustradora científica con formación en biología. Cada línea que dibuja está respaldada por investigación real.</p>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar" style="background:rgba(122,59,30,0.1);">🔭</div>
-          <p class="team-name">Asesor científico</p>
-          <p class="team-role">Investigación & Precisión</p>
-          <p class="team-bio">Estudiante de paleontología que revisa cada diseño para garantizar que la ciencia sea lo más precisa posible.</p>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar" style="background:rgba(201,168,76,0.15);">🛠️</div>
-          <p class="team-name">Desarrollo web</p>
-          <p class="team-role">Tecnología & E-commerce</p>
-          <p class="team-bio">Construyó la plataforma que haces posible que llegues hasta aquí. Fanático de los trilobites en su tiempo libre.</p>
-        </div>
-      </div>
-    </div>
-  </section>
--->
-  <!-- ════════ CIENCIA ════════ -->
+  <!-- ════════ COMPROMISO CIENTÍFICO ════════ -->
   <section class="section" id="ciencia">
     <div class="section-inner">
       <p class="section-eyebrow">Por qué importa</p>
       <h2 class="section-heading">Compromiso científico</h2>
       <div class="science-grid">
         <div class="science-list">
+
+          <!-- Investigación — icono: book-open -->
           <div class="science-item">
-            <div class="science-item-icon">📚</div>
+            <div class="science-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            </div>
             <div>
               <p class="science-item-title">Investigación bibliográfica</p>
               <p class="science-item-text">Cada especie que ilustramos parte de papers científicos actuales y la literatura paleontológica más reciente.</p>
             </div>
           </div>
+
+          <!-- Morfología — icono: git-branch (ramificación evolutiva) -->
           <div class="science-item">
-            <div class="science-item-icon">🦷</div>
+            <div class="science-item-icon">
+              <svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>
+            </div>
             <div>
               <p class="science-item-title">Morfología correcta</p>
               <p class="science-item-text">Nada de dinosaurios sin plumas cuando la ciencia indica que los tenían. Seguimos la evidencia fósil disponible.</p>
             </div>
           </div>
+
+          <!-- Paleoambiente — icono: wind / leaf -->
           <div class="science-item">
-            <div class="science-item-icon">🌿</div>
+            <div class="science-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 2-8 2s-2 0-3 2c-1 1.5-.5 4.5 2 5 1 .36 2 .14 2-.5v-2h-2v-2h4v2c0 2-2 3-4 3-1.5 0-2.82-.59-3.82-1.5"/></svg>
+            </div>
             <div>
               <p class="science-item-title">Contexto paleoambiental</p>
-              <p class="science-item-text">Los fondos y entornos de nuestras ilustraciones reflejan los ecosistemas reales de cada período geológico.</p>
+              <p class="science-item-text">Los fondos y entornos reflejan los ecosistemas reales de cada período geológico representado.</p>
             </div>
           </div>
+
+          <!-- Actualizaciones — icono: refresh-cw -->
           <div class="science-item">
-            <div class="science-item-icon">🔄</div>
+            <div class="science-item-icon">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            </div>
             <div>
               <p class="science-item-title">Actualizaciones constantes</p>
-              <p class="science-item-text">Cuando la ciencia avanza, nuestros diseños también. La paleontología evoluciona y nosotros evolucionamos con ella.</p>
+              <p class="science-item-text">Cuando la ciencia avanza, nuestros diseños también. La paleontología evoluciona y nosotros con ella.</p>
             </div>
           </div>
+
         </div>
 
         <div class="science-quote">
           <p class="science-quote-text">
-            "La paleontología no es solo excavar huesos. Es reconstruir mundos e historias
-            enteras que existieron hace millones de años. Cada fósil es una historia
+            "La paleontología no es solo excavar huesos. Es reconstruir mundos e hisotrias
+            enteras que existieron hace millones de años. Cada fósil es una carta, una historia
             del pasado distante esperando ser leída."
           </p>
           <p class="science-quote-author">— Equipo Paleo Prints</p>
@@ -524,8 +593,9 @@
       <h2 class="cta-title">¿Listo para llevar la <span>prehistoria</span> contigo?</h2>
       <p class="cta-sub">Explora nuestra colección y encuentra la pieza perfecta para el fan de la paleontología que llevas dentro.</p>
       <div class="cta-btns">
-        <a href="{{ url_for('ropa') }}" class="btn-cta-primary">Ver ropa</a>
-        <a href="{{ url_for('tazas') }}" class="btn-cta-secondary">Ver tazas</a>
+        <a href="{{ url_for('ropa') }}"        class="btn-cta-primary">Ver ropa</a>
+        <a href="{{ url_for('tazas') }}"       class="btn-cta-secondary">Ver tazas</a>
+        <a href="{{ url_for('impresiones') }}" class="btn-cta-tertiary">Ver impresiones</a>
       </div>
     </div>
   </section>
