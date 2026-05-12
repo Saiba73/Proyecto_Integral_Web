@@ -1,3 +1,4 @@
+<!-- producto_detalle.html -->
 {% extends "base.html" %}
 {% block title %}{{ producto.nombre }} - Paleo Prints{% endblock %}
 
@@ -27,10 +28,12 @@
     <!-- GALERÍA -->
     <div class="gallery-col">
       <div class="main-img-wrap" id="main-img-wrap">
-        <img id="main-img" src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}"
+        <img id="main-img"
+          src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}"
           alt="{{ producto.nombre }}" onerror="this.src=''">
         <span class="zoom-hint">🔍 Ampliar</span>
       </div>
+
       <div class="thumbs" id="thumbs">
         <div class="thumb active"
           data-src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}">
@@ -38,21 +41,175 @@
             alt="{{ producto.nombre }}" onerror="this.src=''">
         </div>
       </div>
-    </div>
+
+      <!-- Three.js CDN — cargado ANTES del visor para que estén disponibles -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+      {% if producto.categoria == 'impresiones' %}
+      <div id="visor3d-wrap" style="
+        margin-top: 1rem;
+        border: 2px solid var(--pp-red, #7b1c1c);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        background: #1a1a1a;
+        height: 320px;
+      ">
+        <canvas id="canvas3d" style="width:100%;height:100%;display:block;"></canvas>
+
+        <div id="visor3d-hint" style="
+          position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+          background:rgba(0,0,0,0.55); color:#fff; font-size:0.75rem;
+          padding:4px 12px; border-radius:20px; pointer-events:none;
+          font-family: sans-serif;
+        ">🖱 Arrastra para rotar · Scroll para zoom</div>
+
+        <div id="visor3d-loading" style="
+          position:absolute; inset:0; display:flex; align-items:center;
+          justify-content:center; color:#ccc; font-size:0.85rem;
+          font-family: sans-serif; flex-direction:column; gap:0.5rem;
+        ">
+          <div style="
+            width:36px; height:36px; border:3px solid #555;
+            border-top-color:#7b1c1c; border-radius:50%;
+            animation: spin3d 0.8s linear infinite;
+          "></div>
+          Cargando modelo 3D…
+        </div>
+
+        <div id="visor3d-error" style="
+          display:none; position:absolute; inset:0; align-items:center;
+          justify-content:center; color:#c0392b; font-size:0.85rem;
+          font-family:sans-serif; text-align:center; padding:1rem;
+        ">
+          ⚠️ No se encontró el modelo 3D para este producto.
+        </div>
+      </div>
+
+      <style>
+        @keyframes spin3d { to { transform: rotate(360deg); } }
+      </style>
+
+      <script>
+      (function () {
+        const productoId = {{ producto.producto_id }};
+        const modelUrl   = "{{ url_for('static', filename='3d/') }}" + productoId + ".glb";
+
+        const canvas   = document.getElementById('canvas3d');
+        const loading  = document.getElementById('visor3d-loading');
+        const errorDiv = document.getElementById('visor3d-error');
+        const wrap     = document.getElementById('visor3d-wrap');
+
+        // ── Renderer ──
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.shadowMap.enabled = true;
+
+        function resize() {
+          const w = wrap.clientWidth, h = wrap.clientHeight;
+          renderer.setSize(w, h, false);
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+        }
+
+        // ── Scene / Camera / Lights ──
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a);
+
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+        camera.position.set(0, 1, 3);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambient);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 10, 7);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        const fillLight = new THREE.DirectionalLight(0xffeedd, 0.4);
+        fillLight.position.set(-5, 2, -5);
+        scene.add(fillLight);
+
+        // ── OrbitControls ──
+        const controls = new THREE.OrbitControls(camera, canvas);
+        controls.enableDamping   = true;
+        controls.dampingFactor   = 0.08;
+        controls.minDistance     = 0.5;
+        controls.maxDistance     = 20;
+        controls.autoRotate      = true;
+        controls.autoRotateSpeed = 1.5;
+
+        // Detener auto-rotate al interactuar
+        canvas.addEventListener('pointerdown', () => { controls.autoRotate = false; });
+
+        // ── Cargar GLB ──
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+          modelUrl,
+          function (gltf) {
+            loading.style.display = 'none';
+
+            const model = gltf.scene;
+
+            // Centrar y escalar para que quepa en pantalla
+            const box    = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size   = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale  = 2 / maxDim;
+
+            model.scale.setScalar(scale);
+            model.position.sub(center.multiplyScalar(scale));
+
+            scene.add(model);
+
+            // Ajustar cámara al modelo
+            camera.position.set(0, size.y * scale * 0.5, maxDim * scale * 2);
+            controls.target.set(0, 0, 0);
+            controls.update();
+          },
+          undefined,
+          function () {
+            loading.style.display = 'none';
+            errorDiv.style.display = 'flex';
+          }
+        );
+
+        // ── Loop de renderizado ──
+        resize();
+        window.addEventListener('resize', resize);
+
+        (function animate() {
+          requestAnimationFrame(animate);
+          controls.update();
+          renderer.render(scene, camera);
+        })();
+      })();
+      </script>
+      {% endif %}
+
+    </div><!-- /gallery-col -->
 
     <!-- INFO -->
     <div class="info-col">
 
       <div>
-        <p class="product-meta">{{ producto.diseno }} · Colección {% if producto.categoria == 'ropa' %}Mesozoica{% elif
-          producto.categoria == 'tazas' %}Cenozoica{% else %}Paleozoica{% endif %}</p>
+        <p class="product-meta">{{ producto.diseno }} · Colección
+          {% if producto.categoria == 'ropa' %}Mesozoica
+          {% elif producto.categoria == 'tazas' %}Cenozoica
+          {% else %}Paleozoica{% endif %}
+        </p>
         <h1 class="product-title">{{ producto.nombre }}</h1>
       </div>
 
       <p class="product-precio">
         <span class="currency">$</span>{{ "%.2f"|format(producto.precio) }}
-        <span
-          style="font-family:'Nunito',sans-serif;font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-left:0.4rem;">USD</span>
+        <span style="font-family:'Nunito',sans-serif;font-size:0.75rem;font-weight:700;
+                     color:var(--text-muted);margin-left:0.4rem;">USD</span>
       </p>
 
       <div class="info-divider"></div>
@@ -88,8 +245,8 @@
         <div class="selector-label">Cantidad</div>
         <div class="qty-wrap">
           <button class="qty-btn" onclick="changeQty(-1)">−</button>
-          <input class="qty-val" id="qty-val" type="number" value="1" min="1" max="{{ producto.cantidad_disponible }}"
-            readonly>
+          <input class="qty-val" id="qty-val" type="number" value="1" min="1"
+                 max="{{ producto.cantidad_disponible }}" readonly>
           <button class="qty-btn" onclick="changeQty(1)">+</button>
         </div>
       </div>
@@ -97,9 +254,7 @@
       <!-- Stock -->
       {% if producto.cantidad_disponible > 5 %}
       <p class="stock-line ok">
-        <svg viewBox="0 0 24 24">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
         En stock ({{ producto.cantidad_disponible }} disponibles)
       </p>
       {% elif producto.cantidad_disponible > 0 %}
@@ -119,11 +274,11 @@
       <div class="cta-group">
         {% if session.get('logged_in') %}
         <button class="btn-cart-main"
-       onclick="agregarAlCarrito()"
-       data-producto-id="{{ producto.producto_id }}"
-       data-categoria="{{ producto.categoria }}"
-       data-precio="{{ producto.precio }}"
-       data-nombre="{{ producto.nombre }}">
+                onclick="agregarAlCarrito()"
+                data-producto-id="{{ producto.producto_id }}"
+                data-categoria="{{ producto.categoria }}"
+                data-precio="{{ producto.precio }}"
+                data-nombre="{{ producto.nombre }}">
           <svg viewBox="0 0 24 24">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -132,7 +287,8 @@
           Agregar al carrito
         </button>
         {% else %}
-        <a href="{{ url_for('login') }}" class="btn-cart-main" style="text-decoration: none; text-align: center;">
+        <a href="{{ url_for('login') }}" class="btn-cart-main"
+           style="text-decoration:none;text-align:center;">
           <svg viewBox="0 0 24 24">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -165,11 +321,12 @@
             </svg>
           </button>
           <div class="accordion-content open">
-            Las ilustraciones fueron hechas a mano por artistas, y los diseños fueron creados sin el uso de inteligencia
-            artificial generativa. Cada prenda celebra la historia natural con precisión científica y pasión
-            paleontológica.
+            Las ilustraciones fueron hechas a mano por artistas, y los diseños fueron creados sin el uso de
+            inteligencia artificial generativa. Cada prenda celebra la historia natural con precisión científica
+            y pasión paleontológica.
           </div>
         </div>
+
         <div class="accordion-item">
           <button class="accordion-btn" aria-expanded="false" onclick="toggleAcc(this)">
             Detalles del producto
@@ -189,6 +346,7 @@
             <strong>Cuidado:</strong> Lavar a máquina en frío, no usar blanqueador
           </div>
         </div>
+
         <div class="accordion-item">
           <button class="accordion-btn" aria-expanded="false" onclick="toggleAcc(this)">
             Envío y devoluciones
@@ -198,14 +356,14 @@
             </svg>
           </button>
           <div class="accordion-content">
-            Envío a todo México y América Latina. Los pedidos se procesan en 1–3 días hábiles. Devoluciones aceptadas en
-            los primeros 30 días si el producto llega defectuoso.
+            Envío a todo México y América Latina. Los pedidos se procesan en 1–3 días hábiles. Devoluciones
+            aceptadas en los primeros 30 días si el producto llega defectuoso.
           </div>
         </div>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /info-col -->
+  </div><!-- /detail-layout -->
 
   <!-- PRODUCTOS RELACIONADOS -->
   <div class="related-section">
@@ -215,15 +373,17 @@
         {% for p in relacionados %}
         <a class="mini-card" href="{{ url_for('producto_detalle', producto_id=p.producto_id) }}">
           <div class="mini-img">
-            <img src="{{ url_for('static', filename=p.imagen_ruta) if p.imagen_ruta else '' }}" alt="{{ p.nombre }}"
-              onerror="this.src=''">
+            <img src="{{ url_for('static', filename=p.imagen_ruta) if p.imagen_ruta else '' }}"
+                 alt="{{ p.nombre }}" onerror="this.src=''">
           </div>
           <div class="mini-info">
             <p class="mini-name">{{ p.nombre }}</p>
             <p class="mini-type">{{ p.diseno }}</p>
-            <p class="mini-price"><span
-                style="font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;color:var(--text-muted);vertical-align:super;">$</span>{{
-              "%.2f"|format(p.precio) }}</p>
+            <p class="mini-price">
+              <span style="font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;
+                           color:var(--text-muted);vertical-align:super;">$</span>
+              {{ "%.2f"|format(p.precio) }}
+            </p>
           </div>
         </a>
         {% endfor %}
@@ -231,26 +391,20 @@
     </div>
   </div>
 
-</div>
+</div><!-- /page-wrapper -->
 
 <script>
-  /* Configurar opciones de talla/tamaño según categoría */
+  /* ── Opciones de talla/tamaño según categoría ── */
   function setupSizeOptions() {
-    const categoria = "{{ producto.categoria }}";
+    const categoria    = "{{ producto.categoria }}";
     const medidaActual = "{{ producto.medida }}";
-    const grid = document.getElementById('size-grid');
-
+    const grid         = document.getElementById('size-grid');
     if (!grid) return;
 
     let opciones = [];
-
-    if (categoria === 'ropa') {
-      opciones = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    } else if (categoria === 'tazas') {
-      opciones = ['11 OZ', '15 OZ'];
-    } else {
-      opciones = ['5cm', '10cm', '15cm'];
-    }
+    if (categoria === 'ropa')         opciones = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    else if (categoria === 'tazas')   opciones = ['11 OZ', '15 OZ'];
+    else                              opciones = ['5cm', '10cm', '15cm'];
 
     grid.innerHTML = '';
     opciones.forEach(op => {
@@ -262,31 +416,27 @@
     });
   }
 
-  /* Selector de medida */
   function selectMedida(btn, medida) {
     document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('medida-selected').textContent = medida;
   }
 
-  /* Cambiar cantidad */
   function changeQty(delta) {
     const input = document.getElementById('qty-val');
-    const max = parseInt(input.max) || 99;
-    let val = parseInt(input.value) + delta;
+    const max   = parseInt(input.max) || 99;
+    let val     = parseInt(input.value) + delta;
     val = Math.max(1, Math.min(val, max));
     input.value = val;
   }
 
-  /* Acordeón */
   function toggleAcc(btn) {
-    const content = btn.nextElementSibling;
+    const content  = btn.nextElementSibling;
     const expanded = btn.getAttribute('aria-expanded') === 'true';
     btn.setAttribute('aria-expanded', !expanded);
     content.classList.toggle('open', !expanded);
   }
 
-  /* Thumbnail switcher */
   document.querySelectorAll('.thumb').forEach(thumb => {
     thumb.addEventListener('click', () => {
       document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
@@ -295,62 +445,42 @@
     });
   });
 
-/* Agregar al carrito */
-function agregarAlCarrito() {
-   const btn = document.querySelector('.btn-cart-main');
-   const cantidad = document.getElementById('qty-val').value;
-   const medidaSeleccionada = document.getElementById('medida-selected').textContent;
-   
-   const productoId = btn ? btn.getAttribute('data-producto-id') : null;
-   const categoria = btn ? btn.getAttribute('data-categoria') : null;
-   const precio = btn ? btn.getAttribute('data-precio') : null;
-   const nombre = btn ? btn.getAttribute('data-nombre') : null;
-   
-   console.log('Producto ID:', productoId);
-   console.log('Categoria:', categoria);
-   console.log('Precio:', precio);
-   console.log('Nombre:', nombre);
-   console.log('Cantidad:', cantidad);
-   console.log('Talla:', medidaSeleccionada);
-   if (!productoId) {
-       alert('Error: No se pudo identificar el producto');
-       return;
-   }
-   fetch('/api/carrito/agregar', {
-       method: 'POST',
-       headers: {
-           'Content-Type': 'application/json',
-       },
-       body: JSON.stringify({
-           producto_id: parseInt(productoId),
-           categoria: categoria,
-           cantidad: parseInt(cantidad),
-           talla: medidaSeleccionada,
-           precio: parseFloat(precio),
-           nombre: nombre
-       })
-   })
-   .then(response => response.json())
-   .then(data => {
-       if (data.status === 'success') {
-           alert('✓ Producto agregado al carrito');
-       } else {
-           alert('Error: ' + (data.message || 'No se pudo agregar'));
-       }
-   })
-   .catch(error => {
-       console.error('Error:', error);
-       alert('Error al agregar al carrito');
-   });
-}
+  function agregarAlCarrito() {
+    const btn      = document.querySelector('.btn-cart-main');
+    const cantidad = document.getElementById('qty-val').value;
+    const medidaSeleccionada = document.getElementById('medida-selected').textContent;
 
-  /* Favoritos */
-  function agregarAFavoritos() {
-    alert("Producto guardado en favoritos");
-    // Aquí puedes implementar la lógica real de favoritos
+    const productoId = btn ? btn.getAttribute('data-producto-id') : null;
+    const categoria  = btn ? btn.getAttribute('data-categoria')   : null;
+    const precio     = btn ? btn.getAttribute('data-precio')      : null;
+    const nombre     = btn ? btn.getAttribute('data-nombre')      : null;
+
+    if (!productoId) { alert('Error: No se pudo identificar el producto'); return; }
+
+    fetch('/api/carrito/agregar', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        producto_id: parseInt(productoId),
+        categoria:   categoria,
+        cantidad:    parseInt(cantidad),
+        talla:       medidaSeleccionada,
+        precio:      parseFloat(precio),
+        nombre:      nombre
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') alert('✓ Producto agregado al carrito');
+      else alert('Error: ' + (data.message || 'No se pudo agregar'));
+    })
+    .catch(err => { console.error(err); alert('Error al agregar al carrito'); });
   }
 
-  // Inicializar
+  function agregarAFavoritos() {
+    alert("Producto guardado en favoritos");
+  }
+
   setupSizeOptions();
 </script>
 {% endblock %}
