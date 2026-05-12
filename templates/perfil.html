@@ -108,19 +108,18 @@
     {% for orden in ordenes %}
     <div class="pp-order-card">
       <div class="pp-order-header">
-        <span>OrdenNo.{{ "%02d"|format(orden.id) }}</span>
-        <span>Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') }}</span>
-        <span>Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') if orden.fecha_envio else '—' }}</span>
-        <span>{{ 'Recibido' if orden.recibido else 'En camino' }}</span>
+        <span>Orden #{{ orden.id }}</span>
+        <span>Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') if orden.fecha_compra else '—' }}</span>
+        <span>Enviado {{ orden.fecha_de_envio.strftime('%d/%m/%Y') if orden.fecha_de_envio else '—' }}</span>
+        <span>{{ 'Completada' if orden.estatus == 'completada' else 'Pendiente' }}</span>
       </div>
       <div class="pp-order-body">
         <ul>
-          {% for item in orden.items %}
-          <li>{{ item.nombre }} {{ item.estilo }} x{{ item.cantidad }}</li>
-          {% endfor %}
+          <li><strong>Productos IDs:</strong> {{ orden.productos_id }}</li>
+          <li><strong>Cantidades:</strong> {{ orden.cantidad_por_producto }}</li>
         </ul>
       </div>
-      <div class="pp-order-footer">Total: ${{ "%.0f"|format(orden.total) }}</div>
+      <div class="pp-order-footer">Total: ${{ "%.2f"|format(orden.pago_total) }}</div>
     </div>
     {% endfor %}
   {% else %}

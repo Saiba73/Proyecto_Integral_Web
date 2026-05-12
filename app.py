@@ -282,12 +282,15 @@ def api_crear_orden():
 @app.route('/perfil')
 @login_required
 def perfil():
+    from Server.server import obtener_ordenes_usuario
+    
     # Si es admin, redirigir a su panel
     if session.get('user_role') == 'admin':
         return redirect(url_for('perfil_admin'))
     
     u_id = session.get('user_id')
     usuario, direcciones, pagos = obtener_perfil_completo(u_id)
+    ordenes = obtener_ordenes_usuario(u_id)
     
     if not usuario:
         return redirect(url_for('home'))
@@ -296,7 +299,7 @@ def perfil():
                            usuario=usuario, 
                            direcciones=direcciones, 
                            metodos_pago=pagos,
-                           ordenes=[])
+                           ordenes=ordenes)
 
 @app.route('/perfil/pago/nuevo', methods=['POST'])
 @login_required
