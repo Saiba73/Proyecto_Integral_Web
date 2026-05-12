@@ -8,7 +8,7 @@
   :root {
     --jungle:    #1B4332; --jungle-md: #2D6A4F; --jungle-lt: #52B788;
     --gold:      #C9A84C; --gold-lt:   #F0C040;
-    --navy:      #1A3560; --navy-md: #1a4b9b; 
+    --navy:      #1A3560;
     --earth:     #7A3B1E; --earth-lt:  #C4693A;
     --cream:     #F5EDD6; --offwhite:  #FAF6EC;
     --text-dark: #1C1A14; --text-muted:#7A6A55;
@@ -35,14 +35,16 @@
     padding: 6rem 1.5rem 7rem;
   }
 
-  /* Imagen de fond */
+  /* Imagen de fondo — edita la ruta cuando tengas la foto */
   .hero-bg {
-    position: absolute; inset: 0;
+    position: absolute;
+    /* Sobredimensionada para que el parallax no muestre bordes */
+    top: -20%; bottom: -20%; left: -3%; right: -3%;
     background-image: url("{{ url_for('static', filename='imagenes/Nosotros.jpeg') }}");
     background-size: cover;
-    background-position: center 40%; 
+    background-position: center 40%;
     filter: blur(3px);
-    transform: scale(1.05); 
+    will-change: transform;
   }
 
   /* Overlay negro con opacidad */
@@ -577,8 +579,8 @@
 
         <div class="science-quote">
           <p class="science-quote-text">
-            "La paleontología no es solo excavar huesos. Es reconstruir mundos e hisotrias
-            enteras que existieron hace millones de años. Cada fósil es una carta, una historia
+            "La paleontología no es solo excavar huesos. Es reconstruir mundos
+            enteros e historias que existieron hace millones de años. Cada fósil es una carta
             del pasado distante esperando ser leída."
           </p>
           <p class="science-quote-author">— Equipo Paleo Prints</p>
@@ -601,5 +603,33 @@
   </section>
 
 </div>
+
+<script>
+/* ── Parallax del hero ── */
+(function () {
+  const bg   = document.querySelector('.hero-bg');
+  const hero = document.querySelector('.about-hero');
+  if (!bg || !hero) return;
+
+  const SPEED = 0.35; /* 0 = sin movimiento · 0.5 = mitad del scroll */
+
+  function onScroll() {
+    const rect  = hero.getBoundingClientRect();
+    const inView = rect.bottom > 0 && rect.top < window.innerHeight;
+    if (!inView) return;
+    bg.style.transform = `translateY(${rect.top * SPEED}px)`;
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => { onScroll(); ticking = false; });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  onScroll();
+})();
+</script>
 
 {% endblock %}
