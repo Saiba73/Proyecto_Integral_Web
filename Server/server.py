@@ -36,6 +36,32 @@ def crear_base_datos_si_no_existe():
         print(f"Error al crear la base de datos: {err}")
         return False
 
+def crear_orden_db(usuario_id, productos_ids, cantidades, pago_total):
+    """Crea una nueva orden en la base de datos"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        
+        from datetime import datetime
+        fecha_actual = datetime.now()
+        
+        query = """INSERT INTO Orden (usuario_id, fecha_creada, productos_id, cantidad_por_producto, pago_total, estatus) 
+                   VALUES (%s, %s, %s, %s, %s, 'pendiente')"""
+        valores = (usuario_id, fecha_actual, productos_ids, cantidades, pago_total)
+        
+        cursor.execute(query, valores)
+        cnx.commit()
+        
+        orden_id = cursor.lastrowid
+        print(f"Orden creada con ID: {orden_id}")
+        
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al crear orden: {err}")
+        return False
+
 # ==================== FUNCIONES DE ADMINISTRADOR ====================
 # Agregar estas funciones al final de tu server.py existente
  
@@ -692,6 +718,111 @@ def obtener_carrito_con_productos(usuario_id):
         return []
 
 def eliminar_item_carrito(usuario_id, carrito_item_id):
+    """Elimina un item específico del carrito"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return False
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor()
+        
+        cursor.execute("""
+            DELETE FROM CarritoItem 
+            WHERE carrito_item_id = %s AND carrito_id = %s
+        """, (carrito_item_id, carrito_id))
+        
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al eliminar item: {err}")
+        return False
+
+def obtener_carrito_con_detalles(usuario_id):
+    """Obtiene todos los items del carrito del usuario con detalles del producto"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return [], 0
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT ci.*, 
+                   CASE 
+                       WHEN ci.categoria = 'ropa' THEN r.nombre
+                       WHEN ci.categoria = 'tazas' THEN t.nombre
+                       WHEN ci.categoria = 'impresiones' THEN i.nombre
+                   END as nombre_producto,
+                   CASE 
+                       WHEN ci.categoria = 'ropa' THEN r.imagen_ruta
+                       WHEN ci.categoria = 'tazas' THEN t.imagen_ruta
+                       WHEN ci.categoria = 'impresiones' THEN i.imagen_ruta
+                   END as imagen_ruta
+            FROM CarritoItem ci
+            LEFT JOIN Ropa r ON ci.categoria = 'ropa' AND ci.producto_id = r.producto_id
+            LEFT JOIN Tazas t ON ci.categoria = 'tazas' AND ci.producto_id = t.producto_id
+            LEFT JOIN Impresiones3D i ON ci.categoria = 'impresiones' AND ci.producto_id = i.producto_id
+            WHERE ci.carrito_id = %s
+        """, (carrito_id,))
+        
+        items = cursor.fetchall()
+        
+        # Calcular total
+        total = sum(item['precio_unitario'] * item['cantidad'] for item in items)
+        
+        cursor.close()
+        cnx.close()
+        return items, total
+    except mysql.connector.Error as err:
+        print(f"Error al obtener carrito: {err}")
+        return [], 0
+
+
+def actualizar_cantidad_item_db(usuario_id, carrito_item_id, delta):
+    """Actualiza la cantidad de un item en el carrito sumando delta"""
+    try:
+        carrito_id = obtener_carrito_activo(usuario_id)
+        if not carrito_id:
+            return False
+        
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        # Obtener cantidad actual
+        cursor.execute("SELECT cantidad FROM CarritoItem WHERE carrito_item_id = %s AND carrito_id = %s", 
+                      (carrito_item_id, carrito_id))
+        item = cursor.fetchone()
+        
+        if not item:
+            cursor.close()
+            cnx.close()
+            return False
+        
+        nueva_cantidad = item['cantidad'] + delta
+        
+        if nueva_cantidad <= 0:
+            # Eliminar si la cantidad es 0 o menor
+            cursor.execute("DELETE FROM CarritoItem WHERE carrito_item_id = %s AND carrito_id = %s",
+                          (carrito_item_id, carrito_id))
+        else:
+            # Actualizar cantidad
+            cursor.execute("UPDATE CarritoItem SET cantidad = %s WHERE carrito_item_id = %s AND carrito_id = %s",
+                          (nueva_cantidad, carrito_item_id, carrito_id))
+        
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error al actualizar cantidad: {err}")
+        return False
+
+
+def eliminar_item_carrito_db(usuario_id, carrito_item_id):
     """Elimina un item específico del carrito"""
     try:
         carrito_id = obtener_carrito_activo(usuario_id)

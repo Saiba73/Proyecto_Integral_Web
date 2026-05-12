@@ -155,6 +155,64 @@ def api_agregar_carrito():
     else:
         return jsonify({'status': 'error', 'message': 'Error al agregar'}), 500
 
+@app.route('/api/carrito/obtener', methods=['GET'])
+@login_required
+def api_obtener_carrito():
+    from Server.server import obtener_carrito_con_detalles
+    import mysql.connector
+    from Server.server import db_config
+    
+    usuario_id = session.get('user_id')
+    items, total = obtener_carrito_con_detalles(usuario_id)
+    
+    # Agregar color e imagen a cada item
+    for item in items:
+        if 'Negro' in str(item.get('nombre_producto', '')):
+            item['color'] = 'Negro'
+        else:
+            item['color'] = 'Blanco'
+        
+        # Asegurar que la ruta de imagen sea correcta
+        if item.get('imagen_ruta'):
+            # Quitar 'static/' si está al principio
+            img_ruta = item['imagen_ruta']
+            if img_ruta.startswith('static/'):
+                img_ruta = img_ruta[7:]
+            item['imagen_ruta'] = img_ruta
+    
+    return jsonify({'status': 'success', 'items': items, 'total': total})
+
+
+@app.route('/api/carrito/actualizar/<int:item_id>', methods=['PUT'])
+@login_required
+def api_actualizar_item_carrito(item_id):
+    from Server.server import actualizar_cantidad_item_db
+    
+    data = request.get_json()
+    delta = data.get('delta', 0)
+    usuario_id = session.get('user_id')
+    
+    exito = actualizar_cantidad_item_db(usuario_id, item_id, delta)
+    
+    if exito:
+        return jsonify({'status': 'success'}), 200
+    else:
+        return jsonify({'status': 'error'}), 500
+
+
+@app.route('/api/carrito/eliminar/<int:item_id>', methods=['DELETE'])
+@login_required
+def api_eliminar_item_carrito(item_id):
+    from Server.server import eliminar_item_carrito_db
+    
+    usuario_id = session.get('user_id')
+    exito = eliminar_item_carrito_db(usuario_id, item_id)
+    
+    if exito:
+        return jsonify({'status': 'success'}), 200
+    else:
+        return jsonify({'status': 'error'}), 500
+
 @app.route('/producto/<path:producto_id>')
 def producto_detalle(producto_id):
     from Server.server import obtener_producto_por_id_con_prefijo, obtener_productos_relacionados
@@ -174,6 +232,50 @@ def producto_detalle(producto_id):
                            relacionados=relacionados,
                            categoria_producto=producto['categoria'],
                            categoria_activa=categoria_activa) 
+
+@app.route('/api/carrito/vaciar', methods=['DELETE'])
+@login_required
+def api_vaciar_carrito():
+    from Server.server import vaciar_carrito
+    
+    usuario_id = session.get('user_id')
+    exito = vaciar_carrito(usuario_id)
+    
+    if exito:
+        return jsonify({'status': 'success'}), 200
+    else:
+        return jsonify({'status': 'error'}), 500
+
+
+@app.route('/api/orden/crear', methods=['POST'])
+@login_required
+def api_crear_orden():
+    from Server.server import crear_orden_db
+    from Server.server import vaciar_carrito
+    
+    data = request.get_json()
+    usuario_id = session.get('user_id')
+    items = data.get('items', [])
+    pago_total = data.get('total', 0)
+    direccion = data.get('direccion', '')
+    
+    # Crear lista de productos_ids y cantidades
+    productos_ids = [str(item['producto_id']) for item in items]
+    cantidades = [str(item['cantidad']) for item in items]
+    
+    exito = crear_orden_db(
+        usuario_id=usuario_id,
+        productos_ids=','.join(productos_ids),
+        cantidades=','.join(cantidades),
+        pago_total=pago_total
+    )
+    
+    if exito:
+        # Vaciar carrito después de crear la orden
+        vaciar_carrito(usuario_id)
+        return jsonify({'status': 'success'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'No se pudo crear la orden'}), 500
 
 # ==================== RUTAS DE PERFIL (requieren login) ====================
 

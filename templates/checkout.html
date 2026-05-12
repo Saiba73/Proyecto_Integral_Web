@@ -204,9 +204,7 @@
 
   <div class="checkout-layout">
 
-    <!-- ════════════
-         IZQUIERDA
-    ════════════ -->
+    <!-- IZQUIERDA - Formularios -->
     <div>
       <div class="info-cards">
 
@@ -236,7 +234,6 @@
                   <option value="Argentina">Argentina</option>
                   <option value="Chile">Chile</option>
                   <option value="Perú">Perú</option>
-                  <option value="Otro">Otro</option>
                 </select>
               </div>
               <div class="form-group">
@@ -305,7 +302,6 @@
               </label>
             </div>
 
-            <!-- Campos tarjeta -->
             <div class="card-fields visible" id="card-fields">
               <div class="form-row full">
                 <div class="form-group">
@@ -384,30 +380,19 @@
                        value="{{ session.get('user_email', '') }}" readonly style="opacity:0.6;">
               </div>
             </div>
-            <div class="form-row full">
-              <div class="form-group">
-                <label class="form-label">Teléfono (opcional)</label>
-                <input class="form-input" type="tel" placeholder="Ej: +52 614 000 0000">
-              </div>
-            </div>
           </div>
         </div>
 
-      </div><!-- /info-cards -->
+      </div>
     </div>
 
-    <!-- ════════════
-         DERECHA — Resumen
-    ════════════ -->
+    <!-- DERECHA - Resumen del pedido -->
     <aside class="order-summary">
       <p class="order-title">Resumen del pedido</p>
-
       <div id="order-items">
-        <!-- Llenado por JS -->
+        <div class="loading-spinner">Cargando carrito...</div>
       </div>
-
       <div class="order-divider"></div>
-
       <div class="order-row">
         <span class="label">Subtotal</span>
         <span class="value" id="order-subtotal">$0.00</span>
@@ -416,20 +401,16 @@
         <span class="label">Envío</span>
         <span class="value" id="order-envio">$5.00</span>
       </div>
-
       <div class="order-divider"></div>
-
       <div class="order-total">
         <span class="label">Total</span>
         <span class="amount"><span class="currency">$</span><span id="order-total-val">0.00</span></span>
       </div>
     </aside>
 
-  </div><!-- /checkout-layout -->
+  </div>
 
-  <!-- ════════════
-       FOOTER CTA
-  ════════════ -->
+  <!-- FOOTER CTA -->
   <div class="checkout-footer">
     <div class="checkout-footer-inner">
       <div>
@@ -442,8 +423,7 @@
       </button>
     </div>
   </div>
-
-</div><!-- /page-wrapper -->
+</div>
 
 <!-- Modal de éxito -->
 <div id="success-modal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(15,12,8,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;">
@@ -457,57 +437,86 @@
   </div>
 </div>
 
-<style>
-@keyframes qvIn { from{opacity:0;transform:scale(0.9) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
-</style>
-
 <script>
-const CART_KEY = 'pp_carrito';
 const ENVIO_FIJO = 5.00;
 
-function getCart() {
-  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
-  catch { return []; }
+// Obtener carrito desde la base de datos
+async function cargarCarrito() {
+  try {
+    const response = await fetch('/api/carrito/obtener');
+    const data = await response.json();
+    
+    if (data.status === 'success' && data.items && data.items.length > 0) {
+      renderOrderSummary(data.items, data.total);
+    } else {
+      mostrarVacio();
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarVacio();
+  }
 }
 
-/* ── Render resumen ── */
-function renderOrderSummary() {
-  const cart = getCart();
+function mostrarVacio() {
   const itemsEl = document.getElementById('order-items');
-  const subtotal = cart.reduce((s, i) => s + i.precio * i.qty, 0);
-  const total    = subtotal + ENVIO_FIJO;
+  itemsEl.innerHTML = `
+    <div style="text-align:center;padding:2rem;">
+      <p style="color:var(--text-muted);font-weight:700;">Tu carrito está vacío</p>
+      <a href="{{ url_for('ropa') }}" style="display:inline-block;margin-top:1rem;color:var(--jungle);">Ir a la tienda</a>
+    </div>
+  `;
+  document.getElementById('order-subtotal').textContent = '$0.00';
+  document.getElementById('order-total-val').textContent = '0.00';
+  document.getElementById('footer-total').textContent = '0.00';
+  
+  const btn = document.getElementById('btn-confirm');
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.style.cursor = 'not-allowed';
+}
 
-  itemsEl.innerHTML = cart.map(item => `
+function renderOrderSummary(items, subtotal) {
+  const itemsEl = document.getElementById('order-items');
+  const total = subtotal + ENVIO_FIJO;
+  
+  itemsEl.innerHTML = items.map(item => `
     <div class="order-item">
       <div class="order-item-img">
-        <img src="${item.imagen||''}" alt="${item.nombre}" onerror="this.style.opacity='0.2'">
+        <img src="/static/${item.imagen_ruta || ''}" alt="${escapeHtml(item.nombre_producto)}" onerror="this.style.display='none'">
       </div>
       <div class="order-item-info">
-        <p class="order-item-name">${item.qty}× ${item.nombre}</p>
+        <p class="order-item-name">${item.cantidad}× ${escapeHtml(item.nombre_producto)}</p>
         <p class="order-item-meta">
-          ${item.tipo ? item.tipo + ' &nbsp;·&nbsp; ' : ''}
-          ${item.talla ? 'Talla: ' + item.talla : ''}
-          ${item.color ? '&nbsp;·&nbsp; Color: ' + item.color : ''}
+          ${item.categoria === 'ropa' ? (item.talla_tamano ? 'Talla: ' + item.talla_tamano : '') : (item.talla_tamano ? 'Tamaño: ' + item.talla_tamano : '')}
         </p>
       </div>
-      <p class="order-item-price">$${(item.precio * item.qty).toFixed(2)}</p>
+      <p class="order-item-price">$${(item.precio_unitario * item.cantidad).toFixed(2)}</p>
     </div>
   `).join('');
-
-  document.getElementById('order-subtotal').textContent  = '$' + subtotal.toFixed(2);
-  document.getElementById('order-envio').textContent     = '$' + ENVIO_FIJO.toFixed(2);
+  
+  document.getElementById('order-subtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('order-envio').textContent = '$' + ENVIO_FIJO.toFixed(2);
   document.getElementById('order-total-val').textContent = total.toFixed(2);
-  document.getElementById('footer-total').textContent    = total.toFixed(2);
+  document.getElementById('footer-total').textContent = total.toFixed(2);
 }
 
-/* ── Acordeón ── */
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+// Funciones auxiliares
 function toggleCard(btn) {
   const body = btn.closest('.card').querySelector('.card-body');
   const open = body.classList.toggle('open');
   btn.classList.toggle('open', open);
 }
 
-/* ── Métodos de pago ── */
 function selectPayment(label, name) {
   document.querySelectorAll('.payment-opt').forEach(o => o.classList.remove('selected'));
   label.classList.add('selected');
@@ -516,55 +525,80 @@ function selectPayment(label, name) {
   document.getElementById('card-fields').classList.toggle('visible', isTarjeta);
 }
 
-/* ── Facturación ── */
 function toggleBillingAddress(cb) {
   document.getElementById('billing-fields').style.display = cb.checked ? 'none' : 'block';
   document.getElementById('sub-factura').textContent = cb.checked ? 'Igual que la de envío' : 'Dirección diferente';
 }
 
-/* ── Subtítulos dinámicos ── */
 function updateSubtitles() {
-  const calle  = document.getElementById('dir-calle').value.trim();
+  const calle = document.getElementById('dir-calle').value.trim();
   const ciudad = document.getElementById('dir-ciudad').value.trim();
-  const cp     = document.getElementById('dir-cp').value.trim();
-  const pais   = document.getElementById('dir-pais').value;
+  const cp = document.getElementById('dir-cp').value.trim();
+  const pais = document.getElementById('dir-pais').value;
   if (calle && ciudad) {
-    document.getElementById('sub-direccion').textContent =
-      `${calle}, ${ciudad}${cp ? ', ' + cp : ''}${pais ? ' · ' + pais : ''}`;
+    document.getElementById('sub-direccion').textContent = `${calle}, ${ciudad}${cp ? ', ' + cp : ''}${pais ? ' · ' + pais : ''}`;
   }
 }
 
-/* ── Formateadores ── */
 function formatCardNum(input) {
   let v = input.value.replace(/\D/g,'').substring(0,16);
   input.value = v.replace(/(\d{4})(?=\d)/g,'$1 ');
 }
+
 function formatExpiry(input) {
   let v = input.value.replace(/\D/g,'').substring(0,4);
   if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
   input.value = v;
 }
 
-/* ── Confirmar ── */
-function confirmarCompra() {
-  const calle  = document.getElementById('dir-calle').value.trim();
+async function confirmarCompra() {
+  const calle = document.getElementById('dir-calle').value.trim();
   const ciudad = document.getElementById('dir-ciudad').value.trim();
+  
   if (!calle || !ciudad) {
     alert('Por favor completa la dirección de envío.');
     return;
   }
-  const cart = getCart();
-  if (cart.length === 0) {
-    alert('Tu carrito está vacío.');
-    return;
+  
+  try {
+    const response = await fetch('/api/carrito/obtener');
+    const data = await response.json();
+    
+    if (data.status !== 'success' || !data.items || data.items.length === 0) {
+      alert('Tu carrito está vacío.');
+      return;
+    }
+    
+    // Crear orden
+    const ordenResponse = await fetch('/api/orden/crear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: data.items,
+        total: data.total + ENVIO_FIJO,
+        direccion: calle + ', ' + ciudad
+      })
+    });
+    
+    const ordenData = await ordenResponse.json();
+    
+    if (ordenData.status === 'success') {
+      // Vaciar carrito
+      await fetch('/api/carrito/vaciar', { method: 'DELETE' });
+      
+      // Mostrar modal
+      const modal = document.getElementById('success-modal');
+      modal.style.display = 'flex';
+    } else {
+      alert('Error al procesar la compra: ' + (ordenData.message || 'Intenta de nuevo'));
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al procesar la compra');
   }
-  // Aquí conectarías con Flask vía fetch al endpoint /checkout POST
-  // Por ahora mostramos el modal de éxito y limpiamos el carrito
-  localStorage.removeItem(CART_KEY);
-  const modal = document.getElementById('success-modal');
-  modal.style.display = 'flex';
 }
 
-renderOrderSummary();
+// Cargar carrito al iniciar
+cargarCarrito();
 </script>
 {% endblock %}

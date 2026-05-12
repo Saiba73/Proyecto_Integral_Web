@@ -118,7 +118,12 @@
       <!-- CTAs -->
       <div class="cta-group">
         {% if session.get('logged_in') %}
-        <button class="btn-cart-main" onclick="agregarAlCarrito()">
+        <button class="btn-cart-main"
+       onclick="agregarAlCarrito()"
+       data-producto-id="{{ producto.producto_id }}"
+       data-categoria="{{ producto.categoria }}"
+       data-precio="{{ producto.precio }}"
+       data-nombre="{{ producto.nombre }}">
           <svg viewBox="0 0 24 24">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -292,16 +297,22 @@
 
 /* Agregar al carrito */
 function agregarAlCarrito() {
+   const btn = document.querySelector('.btn-cart-main');
    const cantidad = document.getElementById('qty-val').value;
    const medidaSeleccionada = document.getElementById('medida-selected').textContent;
-   const productoId = parseInt(document.querySelector('.btn-cart-main').getAttribute('data-producto-id')) ||
-                      parseInt(document.querySelector('.product-card')?.getAttribute('data-id')?.split('-')[1]);
-   const categoria = document.body.getAttribute('data-categoria') || "{{ producto.categoria }}";
-   const precio = parseFloat(document.querySelector('.product-precio .currency').nextSibling?.nodeValue?.trim() ||
-                            document.querySelector('.product-precio').innerText.replace('$', '').replace('USD', '').trim());
-   const nombre = document.querySelector('.product-title').innerText;
+   
+   const productoId = btn ? btn.getAttribute('data-producto-id') : null;
+   const categoria = btn ? btn.getAttribute('data-categoria') : null;
+   const precio = btn ? btn.getAttribute('data-precio') : null;
+   const nombre = btn ? btn.getAttribute('data-nombre') : null;
+   
+   console.log('Producto ID:', productoId);
+   console.log('Categoria:', categoria);
+   console.log('Precio:', precio);
+   console.log('Nombre:', nombre);
+   console.log('Cantidad:', cantidad);
+   console.log('Talla:', medidaSeleccionada);
    if (!productoId) {
-       console.error('No se pudo obtener el ID del producto');
        alert('Error: No se pudo identificar el producto');
        return;
    }
@@ -311,11 +322,11 @@ function agregarAlCarrito() {
            'Content-Type': 'application/json',
        },
        body: JSON.stringify({
-           producto_id: productoId,
+           producto_id: parseInt(productoId),
            categoria: categoria,
            cantidad: parseInt(cantidad),
            talla: medidaSeleccionada,
-           precio: precio,
+           precio: parseFloat(precio),
            nombre: nombre
        })
    })
@@ -323,10 +334,8 @@ function agregarAlCarrito() {
    .then(data => {
        if (data.status === 'success') {
            alert('✓ Producto agregado al carrito');
-           // Actualizar contador del carrito si existe
-           actualizarContadorCarrito();
        } else {
-           alert('Error: ' + data.message);
+           alert('Error: ' + (data.message || 'No se pudo agregar'));
        }
    })
    .catch(error => {
