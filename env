@@ -1,0 +1,8 @@
+DB_USER=root
+
+DB_PASSWORD=root1234
+
+DB=paleoprints
+
+SECRET_KEY=ea87c69dc60736c87ec148d706b72f779e539b134b9ad77cc27d45cf544
+ 

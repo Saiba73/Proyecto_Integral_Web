@@ -1,0 +1,2 @@
+Para el funcionamiento del sitio solo se requiere agregar un punto al archivo llamado "env".
+La base de datos la crea el archivo server, solo requiere tener instalado MySQL
