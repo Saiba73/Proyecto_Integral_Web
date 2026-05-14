@@ -394,12 +394,11 @@ body.era-paleo { --nav-bg: #081a35; } /* Paleozoico — navy  — impresiones / 
   display: flex; align-items: center;
 }
 .pp-navbar .navbar-brand img {
-  height: 38px; /* Tamaño ideal para legibilidad */
+  height: 50px; 
   width: auto;
   background: transparent;
 }
 
-/* Cuando pases el mouse, le damos un "boost" de luz */
 .pp-navbar .navbar-brand:hover img {
   filter: 
     saturate(1.8) 
