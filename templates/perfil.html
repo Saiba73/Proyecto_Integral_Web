@@ -237,14 +237,35 @@
 
 <div class="page-wrapper">
 
-  <!-- HERO -->
-  <div class="profile-hero">
-    <div class="profile-hero-inner">
-      <div class="profile-avatar">
-        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+
+=======
+<!-- ── Pestañas ── -->
+<div class="pp-tabs">
+  <button class="pp-tab-btn active" onclick="mostrarPestana('ordenes', this)">Ordenes</button>
+  <button class="pp-tab-btn"        onclick="mostrarPestana('direcciones', this)">Direcciones</button>
+  <button class="pp-tab-btn"        onclick="mostrarPestana('pagos', this)">Métodos de pago</button>
+</div>
+
+<!-- ════════════════ PESTAÑA: ÓRDENES ════════════════ -->
+<div id="ordenes" class="pp-tab-pane active">
+  {% if ordenes %}
+    {% for orden in ordenes %}
+    <div class="pp-order-card">
+      <div class="pp-order-header">
+        <span>OrdenNo.{{ "%02d"|format(orden.id) }}</span>
+        <span>Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') }}</span>
+        <span>Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') if orden.fecha_envio else '—' }}</span>
+        <span>{{ 'Recibido' if orden.recibido else 'En camino' }}</span>
       </div>
-      <h1>{{ usuario.nombre }}</h1>
-      <p>{{ usuario.correo }}</p>
+      <div class="pp-order-body">
+        <ul>
+          {% for item in orden.items %}
+          <li>{{ item.nombre }} {{ item.estilo }} x{{ item.cantidad }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="pp-order-footer">Total: ${{ "%.0f"|format(orden.total) }}</div>
+>>>>>>> parent of 74f0d9f (Ajustes al perfil de cliente para mostrar las ordenes correctamente)
     </div>
   </div>
 

@@ -864,52 +864,6 @@ def vaciar_carrito(usuario_id):
         print(f"Error al vaciar carrito: {err}")
         return False
 
-def obtener_ordenes_usuario(usuario_id):
-    """Obtiene todas las órdenes de un usuario"""
-    try:
-        cnx = mysql.connector.connect(**db_config)
-        cursor = cnx.cursor(dictionary=True)
-        
-        cursor.execute("""
-            SELECT orden_id, fecha_creada, fecha_de_envio, 
-                   productos_id, cantidad_por_producto, pago_total, estatus
-            FROM Orden 
-            WHERE usuario_id = %s 
-            ORDER BY fecha_creada DESC
-        """, (usuario_id,))
-        
-        ordenes = cursor.fetchall()
-        
-        # Procesar cada orden para que coincida con lo que espera perfil.html
-        for orden in ordenes:
-            orden['id'] = orden['orden_id']
-            orden['fecha_compra'] = orden['fecha_creada']
-            
-            # Parsear productos_ids y cantidades
-            productos_ids = str(orden['productos_id']).split(',') if orden['productos_id'] else []
-            cantidades = str(orden['cantidad_por_producto']).split(',') if orden['cantidad_por_producto'] else []
-            
-            orden['items'] = []
-            for i, prod_id in enumerate(productos_ids):
-                prod_id = prod_id.strip()
-                # Obtener nombre del producto según categoría (desde la tabla Orden no sabemos la categoría)
-                # Por ahora usamos un placeholder
-                orden['items'].append({
-                    'nombre': f'Producto ID {prod_id}',
-                    'estilo': '',
-                    'cantidad': int(cantidades[i]) if i < len(cantidades) else 1
-                })
-            
-            # Limpiar campos innecesarios
-            orden.pop('orden_id', None)
-        
-        cursor.close()
-        cnx.close()
-        return ordenes
-    except mysql.connector.Error as err:
-        print(f"Error al obtener órdenes: {err}")
-        return []
-
 # ==================== FUNCIONES DE DIRECCIONES ====================
 
 def establecer_direccion_predeterminada(usuario_id, direccion_id):
