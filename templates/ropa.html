@@ -1,486 +1,268 @@
-<!-- producto_detalle.html -->
 {% extends "base.html" %}
-{% block title %}{{ producto.nombre }} - Paleo Prints{% endblock %}
+{% block title %}Ropa - Paleo Prints{% endblock %}
 
 {% block content %}
 <div class="page-wrapper">
-
-  <!-- Breadcrumb -->
-  <div class="breadcrumb-bar">
-    <div class="breadcrumb-inner">
-      <a href="{{ url_for('home') }}">Inicio</a>
-      <span class="sep">›</span>
-      {% if producto.categoria == 'ropa' %}
-      <a href="{{ url_for('ropa') }}">Ropa</a>
-      {% elif producto.categoria == 'tazas' %}
-      <a href="{{ url_for('tazas') }}">Tazas</a>
-      {% else %}
-      <a href="{{ url_for('impresiones') }}">Impresiones 3D</a>
-      {% endif %}
-      <span class="sep">›</span>
-      <span class="current">{{ producto.nombre }}</span>
+ <section class="products-hero hero-ropa">
+    <div class="products-hero-inner">
+      <p class="hero-eyebrow">Colección Prehistórica</p>
+      <h1>Ropa <span>Paleo</span></h1>
+      <p>Prendas de calidad inspiradas en millones de años de historia natural</p>
     </div>
-  </div>
+</section>
 
-  <!-- Detalle principal -->
-  <div class="detail-layout">
-
-    <!-- GALERÍA -->
-    <div class="gallery-col">
-      <div class="main-img-wrap" id="main-img-wrap">
-        <img id="main-img"
-          src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}"
-          alt="{{ producto.nombre }}" onerror="this.src=''">
-        <span class="zoom-hint">🔍 Ampliar</span>
-      </div>
-
-      <div class="thumbs" id="thumbs">
-        <div class="thumb active"
-          data-src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}">
-          <img src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}"
-            alt="{{ producto.nombre }}" onerror="this.src=''">
-        </div>
-      </div>
-
-      <!-- Three.js CDN — cargado ANTES del visor para que estén disponibles -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-      {% if producto.categoria == 'impresiones' %}
-      <div id="visor3d-wrap" style="
-        margin-top: 1rem;
-        border: 2px solid var(--pp-red, #7b1c1c);
-        border-radius: 10px;
-        overflow: hidden;
-        position: relative;
-        background: #1a1a1a;
-        height: 320px;
-      ">
-        <canvas id="canvas3d" style="width:100%;height:100%;display:block;"></canvas>
-
-        <div id="visor3d-hint" style="
-          position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
-          background:rgba(0,0,0,0.55); color:#fff; font-size:0.75rem;
-          padding:4px 12px; border-radius:20px; pointer-events:none;
-          font-family: sans-serif;
-        ">🖱 Arrastra para rotar · Scroll para zoom</div>
-
-        <div id="visor3d-loading" style="
-          position:absolute; inset:0; display:flex; align-items:center;
-          justify-content:center; color:#ccc; font-size:0.85rem;
-          font-family: sans-serif; flex-direction:column; gap:0.5rem;
-        ">
-          <div style="
-            width:36px; height:36px; border:3px solid #555;
-            border-top-color:#7b1c1c; border-radius:50%;
-            animation: spin3d 0.8s linear infinite;
-          "></div>
-          Cargando modelo 3D…
-        </div>
-
-        <div id="visor3d-error" style="
-          display:none; position:absolute; inset:0; align-items:center;
-          justify-content:center; color:#c0392b; font-size:0.85rem;
-          font-family:sans-serif; text-align:center; padding:1rem;
-        ">
-          ⚠️ No se encontró el modelo 3D para este producto.
-        </div>
-      </div>
-
-      <style>
-        @keyframes spin3d { to { transform: rotate(360deg); } }
-      </style>
-
-      <script>
-      (function () {
-        const productoId = {{ producto.producto_id }};
-        const modelUrl   = "{{ url_for('static', filename='3d/') }}" + productoId + ".glb";
-
-        const canvas   = document.getElementById('canvas3d');
-        const loading  = document.getElementById('visor3d-loading');
-        const errorDiv = document.getElementById('visor3d-error');
-        const wrap     = document.getElementById('visor3d-wrap');
-
-        // ── Renderer ──
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.shadowMap.enabled = true;
-
-        function resize() {
-          const w = wrap.clientWidth, h = wrap.clientHeight;
-          renderer.setSize(w, h, false);
-          camera.aspect = w / h;
-          camera.updateProjectionMatrix();
-        }
-
-        // ── Scene / Camera / Lights ──
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
-
-        const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
-        camera.position.set(0, 1, 3);
-
-        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambient);
-
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.position.set(5, 10, 7);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        const fillLight = new THREE.DirectionalLight(0xffeedd, 0.4);
-        fillLight.position.set(-5, 2, -5);
-        scene.add(fillLight);
-
-        // ── OrbitControls ──
-        const controls = new THREE.OrbitControls(camera, canvas);
-        controls.enableDamping   = true;
-        controls.dampingFactor   = 0.08;
-        controls.minDistance     = 0.5;
-        controls.maxDistance     = 20;
-        controls.autoRotate      = true;
-        controls.autoRotateSpeed = 1.5;
-
-        // Detener auto-rotate al interactuar
-        canvas.addEventListener('pointerdown', () => { controls.autoRotate = false; });
-
-        // ── Cargar GLB ──
-        const loader = new THREE.GLTFLoader();
-        loader.load(
-          modelUrl,
-          function (gltf) {
-            loading.style.display = 'none';
-
-            const model = gltf.scene;
-
-            // Centrar y escalar para que quepa en pantalla
-            const box    = new THREE.Box3().setFromObject(model);
-            const center = box.getCenter(new THREE.Vector3());
-            const size   = box.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale  = 2 / maxDim;
-
-            model.scale.setScalar(scale);
-            model.position.sub(center.multiplyScalar(scale));
-
-            scene.add(model);
-
-            // Ajustar cámara al modelo
-            camera.position.set(0, size.y * scale * 0.5, maxDim * scale * 2);
-            controls.target.set(0, 0, 0);
-            controls.update();
-          },
-          undefined,
-          function () {
-            loading.style.display = 'none';
-            errorDiv.style.display = 'flex';
-          }
-        );
-
-        // ── Loop de renderizado ──
-        resize();
-        window.addEventListener('resize', resize);
-
-        (function animate() {
-          requestAnimationFrame(animate);
-          controls.update();
-          renderer.render(scene, camera);
-        })();
-      })();
-      </script>
-      {% endif %}
-
-    </div><!-- /gallery-col -->
-
-    <!-- INFO -->
-    <div class="info-col">
-
-      <div>
-        <p class="product-meta">{{ producto.diseno }} · Colección
-          {% if producto.categoria == 'ropa' %}Mesozoica
-          {% elif producto.categoria == 'tazas' %}Cenozoica
-          {% else %}Paleozoica{% endif %}
-        </p>
-        <h1 class="product-title">{{ producto.nombre }}</h1>
-      </div>
-
-      <p class="product-precio">
-        <span class="currency">$</span>{{ "%.2f"|format(producto.precio) }}
-        <span style="font-family:'Nunito',sans-serif;font-size:0.75rem;font-weight:700;
-                     color:var(--text-muted);margin-left:0.4rem;">USD</span>
-      </p>
-
-      <div class="info-divider"></div>
-
-      <!-- Talla o Tamaño -->
-      <div>
-        <div class="selector-label">
-          {% if producto.categoria == 'ropa' %}Talla{% else %}Tamaño{% endif %}
-          <span class="selected-val" id="medida-selected">{{ producto.medida }}</span>
-        </div>
-        <div class="size-grid" id="size-grid"></div>
-      </div>
-
-      <!-- Color -->
-      <div>
-        <div class="selector-label">
-          Color
-          <span class="selected-val" id="color-selected">
-            {% if 'Negro' in producto.nombre %}Negro{% else %}Blanco{% endif %}
-          </span>
-        </div>
-        <div class="color-opts">
-          {% if 'Negro' in producto.nombre %}
-          <div class="color-opt active" style="background:#1C1A18" title="Negro"></div>
-          {% else %}
-          <div class="color-opt active" style="background:#F0EDE0;border:2px solid #ddd;" title="Blanco"></div>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Cantidad -->
-      <div>
-        <div class="selector-label">Cantidad</div>
-        <div class="qty-wrap">
-          <button class="qty-btn" onclick="changeQty(-1)">−</button>
-          <input class="qty-val" id="qty-val" type="number" value="1" min="1"
-                 max="{{ producto.cantidad_disponible }}" readonly>
-          <button class="qty-btn" onclick="changeQty(1)">+</button>
-        </div>
-      </div>
-
-      <!-- Stock -->
-      {% if producto.cantidad_disponible > 5 %}
-      <p class="stock-line ok">
-        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-        En stock ({{ producto.cantidad_disponible }} disponibles)
-      </p>
-      {% elif producto.cantidad_disponible > 0 %}
-      <p class="stock-line low">
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
+  <div class="shop-layout">
+    <aside class="sidebar theme-ropa">
+      <h2 class="sidebar-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round">
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="11" y1="18" x2="13" y2="18" />
         </svg>
-        ¡Últimas {{ producto.cantidad_disponible }} unidades!
-      </p>
-      {% else %}
-      <p class="stock-line low">Agotado temporalmente</p>
-      {% endif %}
+        Filtros
+      </h2>
 
-      <!-- CTAs -->
-      <div class="cta-group">
-        {% if session.get('logged_in') %}
-        <button class="btn-cart-main"
-                onclick="agregarAlCarrito()"
-                data-producto-id="{{ producto.producto_id }}"
-                data-categoria="{{ producto.categoria }}"
-                data-precio="{{ producto.precio }}"
-                data-nombre="{{ producto.nombre }}">
-          <svg viewBox="0 0 24 24">
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 01-8 0" />
-          </svg>
-          Agregar al carrito
-        </button>
-        {% else %}
-        <a href="{{ url_for('login') }}" class="btn-cart-main"
-           style="text-decoration:none;text-align:center;">
-          <svg viewBox="0 0 24 24">
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 01-8 0" />
-          </svg>
-          Iniciar sesión para comprar
-        </a>
-        {% endif %}
-      </div>
-
-      <!-- Garantía -->
-      <div class="guarantee">
-        <svg viewBox="0 0 24 24">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          <polyline points="9 12 11 14 15 10" />
-        </svg>
-        30 días de garantía de satisfacción
-      </div>
-
-      <div class="info-divider"></div>
-
-      <!-- Acordeón -->
-      <div>
-        <div class="accordion-item">
-          <button class="accordion-btn" aria-expanded="true" onclick="toggleAcc(this)">
-            Descripción
-            <svg class="acc-icon" viewBox="0 0 24 24">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
-          <div class="accordion-content open">
-            Las ilustraciones fueron hechas a mano por artistas, y los diseños fueron creados sin el uso de
-            inteligencia artificial generativa. Cada prenda celebra la historia natural con precisión científica
-            y pasión paleontológica.
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <button class="accordion-btn" aria-expanded="false" onclick="toggleAcc(this)">
-            Detalles del producto
-            <svg class="acc-icon" viewBox="0 0 24 24">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
-          <div class="accordion-content">
-            <strong>Diseño:</strong> {{ producto.diseno }}<br>
-            {% if producto.categoria == 'ropa' %}
-            <strong>Talla:</strong> {{ producto.medida }}<br>
-            {% else %}
-            <strong>Tamaño:</strong> {{ producto.medida }}<br>
-            {% endif %}
-            <strong>Material:</strong> 100% algodón de alta calidad<br>
-            <strong>Cuidado:</strong> Lavar a máquina en frío, no usar blanqueador
-          </div>
-        </div>
-
-        <div class="accordion-item">
-          <button class="accordion-btn" aria-expanded="false" onclick="toggleAcc(this)">
-            Envío y devoluciones
-            <svg class="acc-icon" viewBox="0 0 24 24">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
-          <div class="accordion-content">
-            Envío a todo México y América Latina. Los pedidos se procesan en 1–3 días hábiles. Devoluciones
-            aceptadas en los primeros 30 días si el producto llega defectuoso.
-          </div>
+      <div class="filter-section">
+        <p class="filter-label">Talla</p>
+        <div class="chips" id="filter-talla">
+          <button class="chip active" data-value="">Todas</button>
+          <button class="chip" data-value="XS">XS</button>
+          <button class="chip" data-value="S">S</button>
+          <button class="chip" data-value="M">M</button>
+          <button class="chip" data-value="L">L</button>
+          <button class="chip" data-value="XL">XL</button>
+          <button class="chip" data-value="XXL">XXL</button>
         </div>
       </div>
 
-    </div><!-- /info-col -->
-  </div><!-- /detail-layout -->
+      <div class="filter-section">
+        <p class="filter-label">Tipo</p>
+        <div class="chips chips-col" id="filter-tipo">
+          <button class="chip active" data-value="">Todos</button>
+          <button class="chip" data-value="T-shirt">Camiseta</button>
+          <button class="chip" data-value="Sweatshirt">Sudadera</button>
+          <button class="chip" data-value="Hoodie">Hoodie</button>
+        </div>
+      </div>
 
-  <!-- PRODUCTOS RELACIONADOS -->
-  <div class="related-section">
-    <div class="related-inner">
-      <h2 class="related-title">Más de esta <span>colección</span></h2>
-      <div class="related-grid">
-        {% for p in relacionados %}
-        <a class="mini-card" href="{{ url_for('producto_detalle', producto_id=p.producto_id) }}">
-          <div class="mini-img">
-            <img src="{{ url_for('static', filename=p.imagen_ruta) if p.imagen_ruta else '' }}"
-                 alt="{{ p.nombre }}" onerror="this.src=''">
+      <div class="filter-section">
+        <p class="filter-label">Color</p>
+        <div class="chips" id="filter-color">
+          <button class="chip active" data-value="">Todos</button>
+          <button class="chip" data-value="Blanco"><span
+              style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#F5EDD6;border:1px solid #ccc;margin-right:4px;"></span>Blanco</button>
+          <button class="chip" data-value="Negro"><span
+              style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#1C1A18;margin-right:4px;"></span>Negro</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <p class="filter-label">Precio (USD)</p>
+        <div class="price-row">
+          <input class="price-input" id="price-min" type="number" placeholder="Min" value="0">
+          <span>—</span>
+          <input class="price-input" id="price-max" type="number" placeholder="Max" value="100">
+        </div>
+      </div>
+
+      <button class="btn-apply" id="btn-apply">Aplicar filtros</button>
+      <button class="btn-clear" id="btn-clear">Limpiar filtros</button>
+    </aside>
+
+    <section class="products-area">
+      <div class="products-topbar">
+        <p class="products-count">Mostrando <strong id="count-visible">0</strong> de <strong id="count-total">0</strong>
+          productos</p>
+        <select class="sort-select" id="sort-select">
+          <option value="default">Ordenar por</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name-asc">Nombre: A–Z</option>
+        </select>
+      </div>
+
+      <div class="products-grid" id="products-grid">
+        {% for producto in productos %}
+        <div class="product-card" data-categoria="ropa" data-id="ropa-{{ producto.producto_id }}"
+          data-talla="{{ producto.talla }}" data-tipo="{{ producto.diseno }}"
+          data-color="{{ 'Blanco' if 'Blanco' in producto.nombre else 'Negro' }}" data-precio="{{ producto.precio }}"
+          data-nombre="{{ producto.nombre }}"
+          data-img="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}">
+          <div class="product-img-wrap">
+            <img src="{{ url_for('static', filename=producto.imagen_ruta) if producto.imagen_ruta else '' }}"
+              alt="{{ producto.nombre }}" onerror="this.style.display='none'">
+            <span class="product-badge">Nuevo</span>
+            <button class="product-quickview"><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" />
+              </svg></button>
           </div>
-          <div class="mini-info">
-            <p class="mini-name">{{ p.nombre }}</p>
-            <p class="mini-type">{{ p.diseno }}</p>
-            <p class="mini-price">
-              <span style="font-family:'Nunito',sans-serif;font-size:0.7rem;font-weight:800;
-                           color:var(--text-muted);vertical-align:super;">$</span>
-              {{ "%.2f"|format(p.precio) }}
+          <div class="product-info">
+            <p class="product-name">{{ producto.nombre }}</p>
+            <p class="product-type">{{ producto.diseno }} · {{ 'Blanco' if 'Blanco' in producto.nombre else 'Negro' }}
             </p>
+            <span class="product-size-tag">{{ producto.talla }}</span>
+            <div class="product-footer">
+              <p class="product-price"><span class="currency">$</span>{{ producto.precio }}</p>
+            </div>
           </div>
-        </a>
+        </div>
         {% endfor %}
+
+        <div class="no-results" id="no-results">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <p>No se encontraron productos con esos filtros.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="qv-overlay" id="qv-overlay">
+  <div class="qv-modal">
+    <button class="qv-close" id="qv-close"><svg viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg></button>
+    <div class="qv-body">
+      <div class="qv-img-side"><img id="qv-img" src="" alt=""></div>
+      <div class="qv-info-side">
+        <p class="qv-tipo" id="qv-tipo">—</p>
+        <h2 class="qv-nombre" id="qv-nombre">—</h2>
+        <p class="qv-precio"><span class="currency">$</span><span id="qv-precio">—</span></p>
+        <div>
+          <p class="qv-label">Talla</p><span class="qv-talla-chip" id="qv-talla">—</span>
+        </div>
+        <p class="qv-stock ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>En stock</p>
+        <div class="qv-btn-group">
+          <button class="qv-btn-cart"><svg viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>Agregar al carrito</button>
+          <a class="qv-btn-detail" id="qv-btn-detail" href="#">Ver detalle completo →</a>
+        </div>
       </div>
     </div>
   </div>
-
-</div><!-- /page-wrapper -->
+</div>
 
 <script>
-  /* ── Opciones de talla/tamaño según categoría ── */
-  function setupSizeOptions() {
-    const categoria    = "{{ producto.categoria }}";
-    const medidaActual = "{{ producto.medida }}";
-    const grid         = document.getElementById('size-grid');
-    if (!grid) return;
+  (function () {
+    const overlay = document.getElementById('qv-overlay');
+    const qvClose = document.getElementById('qv-close');
 
-    let opciones = [];
-    if (categoria === 'ropa')         opciones = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    else if (categoria === 'tazas')   opciones = ['11 OZ', '15 OZ'];
-    else                              opciones = ['5cm', '10cm', '15cm'];
+    function openModal(card) {
+      const d = card.dataset;
+      document.getElementById('qv-img').src = d.img || '';
+      document.getElementById('qv-nombre').textContent = d.nombre || '—';
+      document.getElementById('qv-tipo').textContent = d.tipo || '—';
+      document.getElementById('qv-precio').textContent = d.precio || '—';
+      document.getElementById('qv-talla').textContent = d.talla || '—';
+      document.getElementById('qv-btn-detail').href = `/producto/${d.id}`;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
 
-    grid.innerHTML = '';
-    opciones.forEach(op => {
-      const btn = document.createElement('button');
-      btn.className = 'size-btn' + (op === medidaActual ? ' active' : '');
-      btn.textContent = op;
-      btn.onclick = function () { selectMedida(this, op); };
-      grid.appendChild(btn);
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    qvClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // Filtros (mismo código JavaScript de antes)
+    const state = { talla: '', tipo: '', color: '', priceMin: 0, priceMax: 9999 };
+    const grid = document.getElementById('products-grid');
+    const noResults = document.getElementById('no-results');
+    const countVis = document.getElementById('count-visible');
+    const countTot = document.getElementById('count-total');
+    const sortSel = document.getElementById('sort-select');
+
+    function getCards() { return Array.from(grid.querySelectorAll('.product-card:not(#no-results)')); }
+
+    function applyFilters() {
+      state.priceMin = parseFloat(document.getElementById('price-min').value) || 0;
+      state.priceMax = parseFloat(document.getElementById('price-max').value) || 9999;
+      const cards = getCards();
+      let visible = 0;
+      cards.forEach(card => {
+        const ok = (!state.talla || card.dataset.talla === state.talla) &&
+          (!state.tipo || card.dataset.tipo === state.tipo) &&
+          (!state.color || card.dataset.color === state.color) &&
+          parseFloat(card.dataset.precio) >= state.priceMin &&
+          parseFloat(card.dataset.precio) <= state.priceMax;
+        card.classList.toggle('hidden', !ok);
+        if (ok) visible++;
+      });
+      countVis.textContent = visible;
+      countTot.textContent = cards.length;
+      noResults.classList.toggle('visible', visible === 0);
+    }
+
+    function setupChipGroup(groupId, stateKey) {
+      const group = document.getElementById(groupId);
+      if (!group) return;
+      group.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          state[stateKey] = chip.dataset.value;
+        });
+      });
+    }
+
+    setupChipGroup('filter-talla', 'talla');
+    setupChipGroup('filter-tipo', 'tipo');
+    setupChipGroup('filter-color', 'color');
+
+    document.getElementById('btn-apply').addEventListener('click', applyFilters);
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      state.talla = '';
+      state.tipo = '';
+      state.color = '';
+      document.getElementById('price-min').value = 0;
+      document.getElementById('price-max').value = 100;
+      ['filter-talla', 'filter-tipo', 'filter-color'].forEach(id => {
+        document.getElementById(id).querySelectorAll('.chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+      });
+      applyFilters();
     });
-  }
 
-  function selectMedida(btn, medida) {
-    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('medida-selected').textContent = medida;
-  }
-
-  function changeQty(delta) {
-    const input = document.getElementById('qty-val');
-    const max   = parseInt(input.max) || 99;
-    let val     = parseInt(input.value) + delta;
-    val = Math.max(1, Math.min(val, max));
-    input.value = val;
-  }
-
-  function toggleAcc(btn) {
-    const content  = btn.nextElementSibling;
-    const expanded = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', !expanded);
-    content.classList.toggle('open', !expanded);
-  }
-
-  document.querySelectorAll('.thumb').forEach(thumb => {
-    thumb.addEventListener('click', () => {
-      document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-      thumb.classList.add('active');
-      document.getElementById('main-img').src = thumb.dataset.src;
+    sortSel.addEventListener('change', () => {
+      const val = sortSel.value;
+      const cards = getCards();
+      cards.sort((a, b) => {
+        if (val === 'price-asc') return parseFloat(a.dataset.precio) - parseFloat(b.dataset.precio);
+        if (val === 'price-desc') return parseFloat(b.dataset.precio) - parseFloat(a.dataset.precio);
+        if (val === 'name-asc') return a.dataset.nombre.localeCompare(b.dataset.nombre, 'es');
+        return 0;
+      });
+      cards.forEach(c => grid.appendChild(c));
     });
-  });
 
-  function agregarAlCarrito() {
-    const btn      = document.querySelector('.btn-cart-main');
-    const cantidad = document.getElementById('qty-val').value;
-    const medidaSeleccionada = document.getElementById('medida-selected').textContent;
+    // Quick view listeners
+    document.querySelectorAll('.product-card').forEach(card => {
+      card.querySelector('.product-quickview')?.addEventListener('click', e => {
+        e.stopPropagation();
+        openModal(card);
+      });
+      card.querySelector('.btn-add-cart')?.addEventListener('click', e => e.stopPropagation());
+      card.addEventListener('click', () => {
+        if (card.dataset.id) window.location.href = `/producto/${card.dataset.id}`;
+      });
+    });
 
-    const productoId = btn ? btn.getAttribute('data-producto-id') : null;
-    const categoria  = btn ? btn.getAttribute('data-categoria')   : null;
-    const precio     = btn ? btn.getAttribute('data-precio')      : null;
-    const nombre     = btn ? btn.getAttribute('data-nombre')      : null;
-
-    if (!productoId) { alert('Error: No se pudo identificar el producto'); return; }
-
-    fetch('/api/carrito/agregar', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        producto_id: parseInt(productoId),
-        categoria:   categoria,
-        cantidad:    parseInt(cantidad),
-        talla:       medidaSeleccionada,
-        precio:      parseFloat(precio),
-        nombre:      nombre
-      })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') alert('✓ Producto agregado al carrito');
-      else alert('Error: ' + (data.message || 'No se pudo agregar'));
-    })
-    .catch(err => { console.error(err); alert('Error al agregar al carrito'); });
-  }
-
-  function agregarAFavoritos() {
-    alert("Producto guardado en favoritos");
-  }
-
-  setupSizeOptions();
+    applyFilters();
+  })();
 </script>
 {% endblock %}
