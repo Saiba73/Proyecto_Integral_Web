@@ -13,8 +13,8 @@ from Server.server import (
     crear_tablas, insertar_productos_iniciales,
     obtener_productos_ropa, obtener_productos_tazas, obtener_productos_impresiones,
     eliminar_metodo_pago_db, establecer_pago_predeterminado, establecer_direccion_predeterminada,
-    obtener_todos_productos,agregar_producto_db,actualizar_producto_db,eliminar_producto_db,obtener_todas_ordenes,crear_admin_si_no_existe
-
+    obtener_todos_productos,agregar_producto_db,actualizar_producto_db,eliminar_producto_db,obtener_todas_ordenes,crear_admin_si_no_existe,
+    obtener_ordenes_usuario
 )
 
 app = Flask(__name__, template_folder='templates')
@@ -282,12 +282,15 @@ def api_crear_orden():
 @app.route('/perfil')
 @login_required
 def perfil():
+    from Server.server import obtener_ordenes_usuario
+    
     # Si es admin, redirigir a su panel
     if session.get('user_role') == 'admin':
         return redirect(url_for('perfil_admin'))
     
     u_id = session.get('user_id')
     usuario, direcciones, pagos = obtener_perfil_completo(u_id)
+    ordenes = obtener_ordenes_usuario(u_id)
     
     if not usuario:
         return redirect(url_for('home'))
@@ -296,7 +299,7 @@ def perfil():
                            usuario=usuario, 
                            direcciones=direcciones, 
                            metodos_pago=pagos,
-                           ordenes=[])
+                           ordenes=ordenes)
 
 @app.route('/perfil/pago/nuevo', methods=['POST'])
 @login_required

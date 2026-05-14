@@ -184,6 +184,45 @@ def obtener_todas_ordenes():
         print(f"Error al obtener órdenes: {err}")
         return []
 
+# ==================== FUNCIONES DE ÓRDENES ====================
+
+def obtener_ordenes_usuario(usuario_id):
+    """Obtiene todas las órdenes de un usuario"""
+    try:
+        cnx = mysql.connector.connect(**db_config)
+        cursor = cnx.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT orden_id, fecha_creada, fecha_de_envio, 
+                   productos_id, cantidad_por_producto, pago_total, estatus
+            FROM Orden 
+            WHERE usuario_id = %s 
+            ORDER BY fecha_creada DESC
+        """, (usuario_id,))
+        
+        ordenes = cursor.fetchall()
+        
+        # Transformar los datos
+        ordenes_formateadas = []
+        for orden in ordenes:
+            ordenes_formateadas.append({
+                'id': orden['orden_id'],
+                'fecha_compra': orden['fecha_creada'],
+                'fecha_envio': orden['fecha_de_envio'],
+                'productos_id': orden['productos_id'],
+                'cantidad_por_producto': orden['cantidad_por_producto'],
+                'recibido': orden['estatus'] == 'completada',
+                'estatus': orden['estatus'],
+                'total': orden['pago_total']
+            })
+        
+        cursor.close()
+        cnx.close()
+        return ordenes_formateadas
+    except mysql.connector.Error as err:
+        print(f"Error al obtener órdenes: {err}")
+        return []
+
 
 # ==================== FUNCIONES DE TABLAS ====================
 
