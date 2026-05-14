@@ -3,13 +3,13 @@
 
 {% block content %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@1,400&display=swap');
 
   :root {
-    --jungle:    #1B4332; --jungle-md: #2D6A4F;
+    --jungle:    #1B4332; --jungle-md: #2D6A4F; --jungle-lt: #52B788;
     --gold:      #C9A84C; --gold-lt:   #F0C040;
     --navy:      #1A3560; --navy-md:   #243F72;
-    --earth:     #7A3B1E;
+    --earth:     #7A3B1E; --earth-lt:  #C4693A;
     --offwhite:  #FAF6EC; --cream:     #F5EDD6;
     --text-dark: #1C1A14; --text-muted:#7A6A55;
     --border:    rgba(26,53,96,0.10);
@@ -25,267 +25,361 @@
     width: 100vw; overflow-x: hidden;
   }
 
-  /* ── Hero ── */
+  /* ══════════════════════════
+     HERO
+  ══════════════════════════ */
   .profile-hero {
     background: var(--jungle);
-    padding: 2.5rem 0 3.5rem;
+    padding: 3rem 0 5rem;
     position: relative; overflow: hidden;
     text-align: center;
   }
   .profile-hero::before {
     content:''; position:absolute; inset:0;
     background:
-      radial-gradient(ellipse 60% 80% at 10% 110%, rgba(82,183,136,0.18) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 60% at 90% -10%, rgba(201,168,76,0.10) 0%, transparent 50%);
+      radial-gradient(ellipse 70% 80% at 5%  110%, rgba(82,183,136,0.20) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 70% at 95% -10%, rgba(201,168,76,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 50% at 50% 100%, rgba(27,67,50,0.5) 0%, transparent 60%);
     pointer-events:none;
   }
+  /* Líneas decorativas de fondo */
   .profile-hero::after {
-    content:''; position:absolute; bottom:-1px; left:0; right:0; height:40px;
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:52px;
     background:var(--offwhite);
-    clip-path:polygon(0 100%,100% 100%,100% 20%,0 100%);
+    clip-path:polygon(0 100%,100% 100%,100% 10%,0 100%);
+    z-index:2;
   }
-  .profile-hero-inner { position:relative; z-index:1; }
+  /* Patrón punteado sutil */
+  .hero-pattern {
+    position:absolute; inset:0; z-index:0;
+    background-image: radial-gradient(circle, rgba(240,192,64,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events:none;
+  }
+  .profile-hero-inner { position:relative; z-index:1; padding:0 1.5rem; }
 
-  /* Avatar circular */
+  /* Avatar */
   .profile-avatar {
-    width:80px; height:80px; border-radius:50%;
-    background:rgba(240,192,64,0.15);
-    border:3px solid rgba(240,192,64,0.35);
+    width:88px; height:88px; border-radius:50%;
+    background:rgba(240,192,64,0.12);
+    border:2.5px solid rgba(240,192,64,0.30);
     display:flex; align-items:center; justify-content:center;
-    margin:0 auto 1rem;
+    margin:0 auto 1.25rem;
+    box-shadow: 0 0 0 8px rgba(240,192,64,0.06), 0 12px 32px rgba(0,0,0,0.25);
   }
-  .profile-avatar svg { width:38px;height:38px;stroke:var(--gold-lt);fill:none;stroke-width:1.5;stroke-linecap:round; }
+  .profile-avatar svg { width:40px;height:40px;stroke:var(--gold-lt);fill:none;stroke-width:1.4;stroke-linecap:round; }
+
+  .hero-pretitle {
+    font-size:0.68rem; font-weight:800; letter-spacing:0.22em;
+    text-transform:uppercase; color:var(--gold-lt); margin-bottom:0.6rem;
+    display:flex; align-items:center; justify-content:center; gap:0.6rem;
+    opacity:0; animation: revealUp 0.6s ease 0.05s forwards;
+  }
+  .hero-pretitle::before, .hero-pretitle::after {
+    content:''; width:40px; height:1px; background:rgba(240,192,64,0.35);
+  }
 
   .profile-hero h1 {
     font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(1.8rem,4vw,2.6rem); color:#fff;
-    letter-spacing:0.05em; line-height:1; margin-bottom:0.25rem;
+    font-size:clamp(2.2rem,5vw,3.4rem); color:#fff;
+    letter-spacing:0.05em; line-height:0.95; margin-bottom:0.35rem;
+    opacity:0; animation: revealUp 0.6s ease 0.15s forwards;
   }
-  .profile-hero p { font-size:0.85rem; font-weight:600; color:rgba(255,255,255,0.5); margin:0; }
+  .profile-hero h1 span { color:var(--gold-lt); }
+  .profile-hero p.hero-email {
+    font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.45); margin:0;
+    opacity:0; animation: revealUp 0.6s ease 0.25s forwards;
+  }
 
-  /* ── Layout ── */
+  /* ══════════════════════════
+     LAYOUT
+  ══════════════════════════ */
   .profile-layout {
-    max-width:860px; margin:0 auto;
-    padding:2rem 1.5rem 4rem;
+    max-width:880px; margin:0 auto;
+    padding:2.5rem 1.5rem 5rem;
   }
 
-  /* ── Tabs ── */
+  /* ══════════════════════════
+     TABS
+  ══════════════════════════ */
   .profile-tabs {
     display:flex; background:#fff;
-    border-radius:16px; border:1px solid var(--border);
-    box-shadow:0 2px 12px rgba(26,53,96,0.05);
-    padding:5px; gap:4px; margin-bottom:1.5rem;
+    border-radius:18px; border:1px solid var(--border);
+    box-shadow:0 2px 16px rgba(26,53,96,0.06);
+    padding:5px; gap:4px; margin-bottom:2rem;
+    opacity:0; animation: revealUp 0.55s ease 0.3s forwards;
   }
   .profile-tab {
-    flex:1; border:none; background:transparent; border-radius:12px;
-    padding:0.6rem 0.5rem;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.82rem;
-    letter-spacing:0.04em; text-transform:uppercase;
-    color:var(--text-muted); cursor:pointer; transition:all 0.2s;
-    display:flex; align-items:center; justify-content:center; gap:0.35rem;
+    flex:1; border:none; background:transparent; border-radius:13px;
+    padding:0.7rem 0.5rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.8rem;
+    letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--text-muted); cursor:pointer; transition:all 0.22s;
+    display:flex; align-items:center; justify-content:center; gap:0.4rem;
+    position:relative;
   }
-  .profile-tab svg { width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round; }
-  .profile-tab.active { background:var(--jungle); color:#fff; box-shadow:0 2px 10px rgba(27,67,50,0.2); }
+  .profile-tab svg { width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round; transition:stroke 0.22s; }
+  .profile-tab.active {
+    background:var(--jungle); color:#fff;
+    box-shadow:0 3px 14px rgba(27,67,50,0.25);
+  }
   .profile-tab:not(.active):hover { background:rgba(26,53,96,0.06); color:var(--navy); }
 
-  /* ── Paneles ── */
-  .profile-pane { display:none; }
-  .profile-pane.active { display:block; }
-
-  /* ── Tarjeta genérica ── */
-  .pp-card {
-    background:#fff; border-radius:18px;
-    border:1px solid var(--border);
-    box-shadow:0 2px 12px rgba(26,53,96,0.05);
-    overflow:hidden; margin-bottom:0.85rem;
+  /* Indicador puntito en tab activo */
+  .profile-tab.active::after {
+    content:'';
+    position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+    width:4px; height:4px; border-radius:50%;
+    background:rgba(240,192,64,0.7);
   }
+
+  /* ══════════════════════════
+     PANELES
+  ══════════════════════════ */
+  .profile-pane { display:none; }
+  .profile-pane.active { display:block; animation: revealUp 0.4s ease forwards; }
+
+  /* ══════════════════════════
+     CARDS GENÉRICAS
+  ══════════════════════════ */
+  .pp-card {
+    background:#fff; border-radius:20px;
+    border:1px solid var(--border);
+    box-shadow:0 2px 16px rgba(26,53,96,0.05);
+    overflow:hidden; margin-bottom:0.85rem;
+    transition:box-shadow 0.25s, transform 0.25s;
+  }
+  .pp-card:hover { box-shadow:0 8px 32px rgba(26,53,96,0.10); transform:translateY(-2px); }
+
   .pp-card-header {
-    padding:0.9rem 1.2rem;
-    display:flex; align-items:center; gap:0.75rem;
+    padding:1rem 1.3rem;
+    display:flex; align-items:center; gap:0.85rem;
     border-bottom:1px solid var(--border);
+    background:rgba(26,53,96,0.015);
   }
   .pp-card-icon {
-    width:38px; height:38px; border-radius:10px;
+    width:42px; height:42px; border-radius:12px;
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
   .pp-card-icon svg { width:20px;height:20px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
-  .pp-card-icon.green { background:rgba(27,67,50,0.10); }
+  .pp-card-icon.green { background:rgba(27,67,50,0.10); box-shadow:0 0 0 4px rgba(27,67,50,0.05); }
   .pp-card-icon.green svg { stroke:var(--jungle); }
-  .pp-card-icon.navy  { background:rgba(26,53,96,0.10); }
+  .pp-card-icon.navy  { background:rgba(26,53,96,0.10); box-shadow:0 0 0 4px rgba(26,53,96,0.05); }
   .pp-card-icon.navy  svg { stroke:var(--navy); }
-  .pp-card-icon.earth { background:rgba(122,59,30,0.10); }
+  .pp-card-icon.earth { background:rgba(122,59,30,0.10); box-shadow:0 0 0 4px rgba(122,59,30,0.05); }
   .pp-card-icon.earth svg { stroke:var(--earth); }
 
-  .pp-card-title { font-weight:800; font-size:0.9rem; color:var(--text-dark); line-height:1.2; }
-  .pp-card-sub   { font-size:0.74rem; font-weight:600; color:var(--text-muted); }
-  .pp-card-body  { padding:1rem 1.2rem; }
+  .pp-card-title { font-weight:800; font-size:0.92rem; color:var(--text-dark); line-height:1.2; }
+  .pp-card-sub   { font-size:0.74rem; font-weight:600; color:var(--text-muted); margin-top:0.1rem; }
+  .pp-card-body  { padding:1rem 1.3rem; }
 
-  /* ── Etiqueta predeterminado ── */
+  /* Badge predeterminado */
   .default-tag {
-    display:inline-block; padding:0.1rem 0.5rem;
-    background:rgba(27,67,50,0.1); color:var(--jungle);
-    border-radius:100px; font-size:0.65rem; font-weight:800;
-    letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.35rem;
+    display:inline-flex; align-items:center; gap:0.3rem;
+    padding:0.18rem 0.6rem;
+    background:linear-gradient(135deg, rgba(27,67,50,0.12), rgba(82,183,136,0.12));
+    color:var(--jungle);
+    border:1px solid rgba(27,67,50,0.15);
+    border-radius:100px; font-size:0.64rem; font-weight:800;
+    letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.4rem;
   }
+  .default-tag::before { content:'✦'; font-size:0.55rem; }
 
-  /* ── Acciones de tarjeta ── */
-  .card-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.75rem; }
+  /* Acciones */
+  .card-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.5rem; }
   .btn-card {
     border:1.5px solid var(--border); background:transparent;
-    border-radius:9px; padding:0.35rem 0.85rem;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.76rem;
-    letter-spacing:0.04em; text-transform:uppercase;
+    border-radius:9px; padding:0.35rem 0.9rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.74rem;
+    letter-spacing:0.05em; text-transform:uppercase;
     color:var(--text-muted); cursor:pointer; transition:all 0.18s;
   }
   .btn-card:hover             { border-color:var(--navy); color:var(--navy); background:rgba(26,53,96,0.04); }
   .btn-card.btn-default:hover { border-color:var(--jungle); color:var(--jungle); background:rgba(27,67,50,0.05); }
-  .btn-card.btn-danger        { border-color:rgba(192,57,43,0.25); color:var(--danger); }
+  .btn-card.btn-danger        { border-color:rgba(192,57,43,0.22); color:var(--danger); }
   .btn-card.btn-danger:hover  { border-color:var(--danger); background:rgba(192,57,43,0.06); }
 
-  /* ── Añadir nuevo ── */
+  /* ══════════════════════════
+     BOTÓN AÑADIR
+  ══════════════════════════ */
   .btn-add-new {
-    width:100%; border:2px dashed rgba(26,53,96,0.2);
-    background:transparent; border-radius:14px; padding:0.85rem;
+    width:100%; border:2px dashed rgba(26,53,96,0.18);
+    background:transparent; border-radius:16px; padding:1rem;
     font-family:'Nunito',sans-serif; font-weight:800; font-size:0.82rem;
-    letter-spacing:0.05em; text-transform:uppercase;
+    letter-spacing:0.06em; text-transform:uppercase;
     color:var(--text-muted); cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:0.4rem;
-    transition:all 0.2s; margin-top:0.5rem;
+    display:flex; align-items:center; justify-content:center; gap:0.45rem;
+    transition:all 0.22s; margin-top:0.5rem;
   }
   .btn-add-new svg { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round; }
-  .btn-add-new:hover { border-color:var(--navy); color:var(--navy); background:rgba(26,53,96,0.03); }
+  .btn-add-new:hover { border-color:var(--jungle); color:var(--jungle); background:rgba(27,67,50,0.03); }
 
-  /* ── Órdenes ── */
+  /* ══════════════════════════
+     ÓRDENES
+  ══════════════════════════ */
   .order-card {
-    background:#fff; border-radius:18px;
+    background:#fff; border-radius:20px;
     border:1px solid var(--border);
-    box-shadow:0 2px 12px rgba(26,53,96,0.05);
-    overflow:hidden; margin-bottom:0.85rem;
+    box-shadow:0 2px 16px rgba(26,53,96,0.05);
+    overflow:hidden; margin-bottom:1rem;
+    transition:box-shadow 0.25s, transform 0.25s;
   }
+  .order-card:hover { box-shadow:0 8px 32px rgba(26,53,96,0.10); transform:translateY(-2px); }
+
   .order-head {
-    background:rgba(26,53,96,0.03);
-    padding:0.75rem 1.2rem;
+    background:linear-gradient(135deg, rgba(26,53,96,0.04), rgba(26,53,96,0.01));
+    padding:0.85rem 1.3rem;
     border-bottom:1px solid var(--border);
     display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem;
   }
-  .order-id { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.06em; color:var(--navy); }
-  .order-date { font-size:0.76rem; font-weight:700; color:var(--text-muted); }
+  .order-id {
+    font-family:'Bebas Neue',sans-serif; font-size:1.05rem;
+    letter-spacing:0.08em; color:var(--navy);
+  }
+  .order-date { font-size:0.75rem; font-weight:700; color:var(--text-muted); }
+
   .order-status {
     margin-left:auto;
-    display:inline-block; padding:0.18rem 0.65rem;
-    border-radius:100px; font-size:0.7rem; font-weight:800;
+    display:inline-flex; align-items:center; gap:0.3rem;
+    padding:0.2rem 0.7rem;
+    border-radius:100px; font-size:0.68rem; font-weight:800; letter-spacing:0.06em;
   }
+  .order-status::before { content:''; width:6px; height:6px; border-radius:50%; }
   .order-status.camino   { background:#d1ecf1; color:#0c5460; }
+  .order-status.camino::before   { background:#0c5460; }
   .order-status.recibido { background:#d4edda; color:#155724; }
+  .order-status.recibido::before { background:#155724; }
 
-  .order-body { padding:0.85rem 1.2rem; }
-  .order-item { font-size:0.85rem; padding:0.25rem 0; border-bottom:1px solid rgba(26,53,96,0.05); color:var(--text-muted); }
+  .order-body { padding:0.9rem 1.3rem; }
+  .order-item {
+    font-size:0.85rem; padding:0.3rem 0;
+    border-bottom:1px solid rgba(26,53,96,0.05);
+    color:var(--text-muted);
+    display:flex; align-items:center; gap:0.5rem;
+  }
   .order-item:last-child { border-bottom:none; }
   .order-item strong { color:var(--text-dark); }
+  .order-item-qty {
+    margin-left:auto; font-size:0.72rem; font-weight:800;
+    color:var(--navy); background:rgba(26,53,96,0.07);
+    border-radius:6px; padding:0.1rem 0.45rem;
+  }
 
   .order-foot {
-    padding:0.6rem 1.2rem;
+    padding:0.7rem 1.3rem;
     border-top:1px solid var(--border);
     display:flex; justify-content:space-between; align-items:center;
     background:rgba(26,53,96,0.02);
   }
-  .order-foot-label { font-size:0.72rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
-  .order-foot-total { font-family:'Bebas Neue',sans-serif; font-size:1.15rem; color:var(--navy); letter-spacing:0.04em; }
+  .order-foot-label { font-size:0.7rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); }
+  .order-foot-total {
+    font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--jungle);
+    letter-spacing:0.04em;
+  }
 
-  /* ── Empty state ── */
+  /* ══════════════════════════
+     EMPTY STATE
+  ══════════════════════════ */
   .pp-empty {
-    text-align:center; padding:3rem 1rem;
+    text-align:center; padding:3.5rem 1rem;
     color:var(--text-muted); font-weight:700; font-size:0.88rem;
   }
-  .pp-empty svg { width:48px;height:48px;stroke:rgba(26,53,96,0.18);fill:none;stroke-width:1.5;margin-bottom:0.75rem;display:block;margin-left:auto;margin-right:auto; }
-
-  /* ── Modales ── */
-  .pp-modal .modal-content { border:none; border-radius:20px; box-shadow:0 24px 64px rgba(0,0,0,0.18); overflow:hidden; }
-  .pp-modal .modal-header  { background:var(--jungle); color:#fff; border-bottom:none; padding:1.1rem 1.4rem; }
-  .pp-modal .modal-title   { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.06em; }
-  .pp-modal .modal-body    { padding:1.4rem; }
-  .pp-modal .modal-footer  { border-top:1px solid var(--border); padding:1rem 1.4rem; }
-
-  .pp-form-label { font-size:0.72rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.3rem; display:block; }
-  .pp-form-input {
-    width:100%; padding:0.55rem 0.75rem;
-    border:1.5px solid var(--border); border-radius:10px;
-    font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700;
-    color:var(--text-dark); outline:none; transition:border-color 0.2s, box-shadow 0.2s; background:#fff;
+  .pp-empty-icon {
+    width:64px; height:64px; border-radius:50%;
+    background:rgba(26,53,96,0.05);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 1rem;
   }
-  .pp-form-input:focus { border-color:var(--jungle); box-shadow:0 0 0 3px rgba(27,67,50,0.08); }
+  .pp-empty-icon svg { width:30px;height:30px;stroke:rgba(26,53,96,0.22);fill:none;stroke-width:1.5;stroke-linecap:round; }
+  .pp-empty p { margin:0.25rem 0 0; font-size:0.78rem; font-weight:600; color:rgba(122,106,85,0.6); }
+
+  /* ══════════════════════════
+     MODALES
+  ══════════════════════════ */
+  .pp-modal .modal-content {
+    border:none; border-radius:22px;
+    box-shadow:0 32px 80px rgba(0,0,0,0.20); overflow:hidden;
+  }
+  .pp-modal .modal-header {
+    background:var(--jungle); color:#fff; border-bottom:none;
+    padding:1.2rem 1.5rem;
+    position:relative; overflow:hidden;
+  }
+  .pp-modal .modal-header::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 80% 100% at 100% 100%, rgba(82,183,136,0.15) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .pp-modal .modal-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1.25rem;
+    letter-spacing:0.08em; position:relative; z-index:1;
+  }
+  .pp-modal .modal-body    { padding:1.5rem; }
+  .pp-modal .modal-footer  { border-top:1px solid var(--border); padding:1.1rem 1.5rem; }
+
+  .pp-form-label {
+    font-size:0.68rem; font-weight:800; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--text-muted);
+    margin-bottom:0.3rem; display:block;
+  }
+  .pp-form-input {
+    width:100%; padding:0.6rem 0.85rem;
+    border:1.5px solid var(--border); border-radius:11px;
+    font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700;
+    color:var(--text-dark); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s; background:#fff;
+  }
+  .pp-form-input:focus { border-color:var(--jungle); box-shadow:0 0 0 3px rgba(27,67,50,0.09); }
   .pp-check { accent-color:var(--jungle); }
 
-  .pp-modal-error { color:var(--danger); font-size:0.8rem; font-weight:700; margin-top:0.5rem; display:none; }
+  .pp-modal-error { color:var(--danger); font-size:0.78rem; font-weight:700; margin-top:0.5rem; display:none; }
 
   .btn-modal-cancel {
     background:transparent; color:var(--text-muted); border:1.5px solid var(--border);
-    border-radius:10px; padding:0.55rem 1.2rem;
+    border-radius:11px; padding:0.58rem 1.3rem;
     font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem; cursor:pointer; transition:all 0.18s;
   }
   .btn-modal-cancel:hover { border-color:var(--jungle); color:var(--jungle); }
   .btn-modal-save {
-    background:var(--jungle); color:#fff; border:none; border-radius:10px; padding:0.55rem 1.4rem;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem; cursor:pointer; transition:background 0.18s;
+    background:var(--jungle); color:#fff; border:none; border-radius:11px; padding:0.58rem 1.5rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem; cursor:pointer;
+    transition:background 0.18s, transform 0.18s;
+    box-shadow:0 3px 12px rgba(27,67,50,0.25);
   }
-  .btn-modal-save:hover { background:var(--jungle-md); }
+  .btn-modal-save:hover { background:var(--jungle-md); transform:translateY(-1px); }
+
+  /* ══════════════════════════
+     ANIMACIONES
+  ══════════════════════════ */
+  @keyframes revealUp {
+    from { opacity:0; transform:translateY(22px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
 
   @media (max-width:560px) {
     .profile-tabs { flex-direction:column; }
+    .profile-tab.active::after { display:none; }
   }
 </style>
 
 <div class="page-wrapper">
 
-
-=======
-<!-- ── Pestañas ── -->
-<div class="pp-tabs">
-  <button class="pp-tab-btn active" onclick="mostrarPestana('ordenes', this)">Ordenes</button>
-  <button class="pp-tab-btn"        onclick="mostrarPestana('direcciones', this)">Direcciones</button>
-  <button class="pp-tab-btn"        onclick="mostrarPestana('pagos', this)">Métodos de pago</button>
-</div>
-
-<!-- ════════════════ PESTAÑA: ÓRDENES ════════════════ -->
-<div id="ordenes" class="pp-tab-pane active">
-  {% if ordenes %}
-    {% for orden in ordenes %}
-    <div class="pp-order-card">
-      <div class="pp-order-header">
-        <span>OrdenNo.{{ "%02d"|format(orden.id) }}</span>
-        <span>Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') }}</span>
-        <span>Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') if orden.fecha_envio else '—' }}</span>
-        <span>{{ 'Recibido' if orden.recibido else 'En camino' }}</span>
-        <span>OrdenNo.{{ "%02d"|format(orden.id) }}</span>
-        <span>Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') }}</span>
-        <span>Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') if orden.fecha_envio else '—' }}</span>
-        <span>{{ 'Recibido' if orden.recibido else 'En camino' }}</span>
+  <!-- ════════ HERO ════════ -->
+  <div class="profile-hero">
+    <div class="hero-pattern"></div>
+    <div class="profile-hero-inner">
+      <div class="profile-avatar">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <div class="pp-order-body">
-        <ul>
-          {% for item in orden.items %}
-          <li>{{ item.nombre }} {{ item.estilo }} x{{ item.cantidad }}</li>
-          {% endfor %}
-          {% for item in orden.items %}
-          <li>{{ item.nombre }} {{ item.estilo }} x{{ item.cantidad }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="pp-order-footer">Total: ${{ "%.0f"|format(orden.total) }}</div>
-    </div>
-    {% endfor %}
-  {% else %}
-    <p class="text-center text-muted">No tienes órdenes aún.</p>
-  {% endif %}
-</div>
-      <div class="pp-order-footer">Total: ${{ "%.0f"|format(orden.total) }}</div>
->>>>>>> parent of 74f0d9f (Ajustes al perfil de cliente para mostrar las ordenes correctamente)
+      <p class="hero-pretitle">Mi cuenta</p>
+      <h1>{{ usuario.nombre | default('Mi') }} <span>Perfil</span></h1>
+      <p class="hero-email">{{ usuario.correo | default('') }}</p>
     </div>
   </div>
 
   <div class="profile-layout">
 
-    <!-- TABS -->
+    <!-- ════════ TABS ════════ -->
     <div class="profile-tabs">
       <button class="profile-tab active" onclick="mostrarPestana('ordenes', this)">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
@@ -301,7 +395,7 @@
       </button>
     </div>
 
-    <!-- ══════ ÓRDENES ══════ -->
+    <!-- ════════ ÓRDENES ════════ -->
     <div id="ordenes" class="profile-pane active">
       {% if ordenes %}
         {% for orden in ordenes %}
@@ -310,7 +404,7 @@
             <span class="order-id">Orden #{{ "%04d"|format(orden.id) }}</span>
             <span class="order-date">
               Comprado {{ orden.fecha_compra.strftime('%d/%m/%Y') }}
-              {% if orden.fecha_envio %} · Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') }}{% endif %}
+              {% if orden.fecha_envio %}&nbsp;·&nbsp;Enviado {{ orden.fecha_envio.strftime('%d/%m/%Y') }}{% endif %}
             </span>
             <span class="order-status {{ 'recibido' if orden.recibido else 'camino' }}">
               {{ 'Recibido' if orden.recibido else 'En camino' }}
@@ -318,7 +412,11 @@
           </div>
           <div class="order-body">
             {% for item in orden.items %}
-            <div class="order-item"><strong>{{ item.nombre }}</strong> {{ item.estilo }} × {{ item.cantidad }}</div>
+            <div class="order-item">
+              <strong>{{ item.nombre }}</strong>
+              <span>{{ item.estilo }}</span>
+              <span class="order-item-qty">×{{ item.cantidad }}</span>
+            </div>
             {% endfor %}
           </div>
           <div class="order-foot">
@@ -329,13 +427,16 @@
         {% endfor %}
       {% else %}
         <div class="pp-empty">
-          <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.63l1.63-9.37H6"/></svg>
+          <div class="pp-empty-icon">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.63l1.63-9.37H6"/></svg>
+          </div>
           Aún no tienes órdenes registradas.
+          <p>¡Explora nuestra tienda y encuentra tu primer fósil favorito!</p>
         </div>
       {% endif %}
     </div>
 
-    <!-- ══════ DIRECCIONES ══════ -->
+    <!-- ════════ DIRECCIONES ════════ -->
     <div id="direcciones" class="profile-pane">
       {% if direcciones %}
         {% for dir in direcciones %}
@@ -369,8 +470,11 @@
         {% endfor %}
       {% else %}
         <div class="pp-empty">
-          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div class="pp-empty-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
           No tienes direcciones guardadas.
+          <p>Agrega una para agilizar tus próximas compras.</p>
         </div>
       {% endif %}
       <button class="btn-add-new" onclick="abrirNuevaDireccion()">
@@ -379,7 +483,7 @@
       </button>
     </div>
 
-    <!-- ══════ PAGOS ══════ -->
+    <!-- ════════ PAGOS ════════ -->
     <div id="pagos" class="profile-pane">
       {% if metodos_pago %}
         {% for m in metodos_pago %}
@@ -413,8 +517,11 @@
         {% endfor %}
       {% else %}
         <div class="pp-empty">
-          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <div class="pp-empty-icon">
+            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
           No tienes métodos de pago guardados.
+          <p>Agrega uno para comprar de forma más rápida.</p>
         </div>
       {% endif %}
       <button class="btn-add-new" onclick="abrirNuevoPago()">
@@ -426,7 +533,7 @@
   </div><!-- /profile-layout -->
 </div><!-- /page-wrapper -->
 
-<!-- ══════ MODAL: DIRECCIÓN ══════ -->
+<!-- ════════ MODAL: DIRECCIÓN ════════ -->
 <div class="modal fade" id="modalDireccion" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content pp-modal">
@@ -472,7 +579,7 @@
   </div>
 </div>
 
-<!-- ══════ MODAL: MÉTODO DE PAGO ══════ -->
+<!-- ════════ MODAL: MÉTODO DE PAGO ════════ -->
 <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content pp-modal">
@@ -557,12 +664,21 @@
 
   async function guardarDireccion() {
     const campos = ['dirCalle','dirColonia','dirAlcaldia','dirCp','dirCiudad'];
-    if (campos.some(id => !document.getElementById(id).value.trim())) { document.getElementById('dirError').style.display = 'block'; return; }
+    if (campos.some(id => !document.getElementById(id).value.trim())) {
+      document.getElementById('dirError').style.display = 'block'; return;
+    }
     document.getElementById('dirError').style.display = 'none';
     const id = document.getElementById('dirId').value;
     const res = await fetch(id ? `/perfil/direccion/${id}` : '/perfil/direccion/nueva', {
       method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ calle: document.getElementById('dirCalle').value.trim(), colonia: document.getElementById('dirColonia').value.trim(), alcaldia: document.getElementById('dirAlcaldia').value.trim(), cp: document.getElementById('dirCp').value.trim(), ciudad: document.getElementById('dirCiudad').value.trim(), predeterminada: document.getElementById('dirPredeterminada').checked }),
+      body: JSON.stringify({
+        calle: document.getElementById('dirCalle').value.trim(),
+        colonia: document.getElementById('dirColonia').value.trim(),
+        alcaldia: document.getElementById('dirAlcaldia').value.trim(),
+        cp: document.getElementById('dirCp').value.trim(),
+        ciudad: document.getElementById('dirCiudad').value.trim(),
+        predeterminada: document.getElementById('dirPredeterminada').checked
+      }),
     });
     if (res.ok) location.reload(); else alert('Error al guardar la dirección.');
   }
@@ -581,31 +697,39 @@
 
   async function abrirEditarPago(id) {
     document.getElementById('modalPagoLabel').textContent = 'Editar Método de Pago';
+    document.getElementById('pagoError').style.display = 'none';
     try {
       const data = await (await fetch(`/perfil/pago/${id}`)).json();
-      document.getElementById('pagoId').value           = id;
-      document.getElementById('pagoTipo').value         = data.tipo        || '';
-      document.getElementById('pagoTitular').value      = data.titular     || '';
-      document.getElementById('pagoVencimiento').value  = data.vencimiento || '';
-      document.getElementById('pagoNumero').value       = `•••• •••• •••• ${data.ultimos4}`;
-      document.getElementById('pagoNumero').disabled    = true;
-      document.getElementById('pagoCvv').value          = '';
-      document.getElementById('pagoCvvLabel').textContent = 'CVV (reingresa)';
+      document.getElementById('pagoId').value = id;
+      document.getElementById('pagoTipo').value      = data.tipo     || '';
+      document.getElementById('pagoTitular').value   = data.titular  || '';
+      document.getElementById('pagoNumero').value    = '•••• •••• •••• ' + (data.ultimos4 || '');
+      document.getElementById('pagoNumero').disabled = true;
+      document.getElementById('pagoVencimiento').value = data.vencimiento || '';
+      document.getElementById('pagoCvv').value = '';
       document.getElementById('pagoPredeterminado').checked = !!data.predeterminado;
     } catch { alert('No se pudo cargar el método.'); return; }
     new bootstrap.Modal(document.getElementById('modalPago')).show();
   }
 
   async function guardarPago() {
-    const id = document.getElementById('pagoId').value;
     const campos = ['pagoTipo','pagoTitular','pagoVencimiento','pagoCvv'];
-    if (!id) campos.push('pagoNumero');
-    if (campos.some(f => !document.getElementById(f).value.trim())) { document.getElementById('pagoError').style.display = 'block'; return; }
+    if (campos.some(id => !document.getElementById(id).value.trim())) {
+      document.getElementById('pagoError').style.display = 'block'; return;
+    }
     document.getElementById('pagoError').style.display = 'none';
-    const payload = { tipo: document.getElementById('pagoTipo').value.trim(), titular: document.getElementById('pagoTitular').value.trim(), vencimiento: document.getElementById('pagoVencimiento').value.trim(), cvv: document.getElementById('pagoCvv').value.trim(), predeterminado: document.getElementById('pagoPredeterminado').checked };
-    if (!id) payload.numero = document.getElementById('pagoNumero').value.trim();
+    const id = document.getElementById('pagoId').value;
+    const numero = document.getElementById('pagoNumero');
     const res = await fetch(id ? `/perfil/pago/${id}` : '/perfil/pago/nuevo', {
-      method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload),
+      method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        tipo: document.getElementById('pagoTipo').value,
+        titular: document.getElementById('pagoTitular').value.trim(),
+        numero: numero.disabled ? null : numero.value.replace(/\s/g,''),
+        vencimiento: document.getElementById('pagoVencimiento').value.trim(),
+        cvv: document.getElementById('pagoCvv').value.trim(),
+        predeterminado: document.getElementById('pagoPredeterminado').checked
+      }),
     });
     if (res.ok) location.reload(); else alert('Error al guardar el método de pago.');
   }

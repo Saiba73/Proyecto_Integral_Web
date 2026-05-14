@@ -3,13 +3,13 @@
 
 {% block content %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@1,400&display=swap');
 
   :root {
     --jungle:    #1B4332; --jungle-md: #2D6A4F; --jungle-lt: #52B788;
     --gold:      #C9A84C; --gold-lt:   #F0C040;
-    --navy:      #1A3560; --navy-md:   #243F72;
-    --earth:     #7A3B1E; --earth-md:  #9C4A28;
+    --navy:      #1A3560; --navy-md:   #243F72; --navy-lt:   #3A5FA0;
+    --earth:     #7A3B1E; --earth-md:  #9C4A28; --earth-lt:  #C4693A;
     --offwhite:  #FAF6EC; --cream:     #F5EDD6;
     --text-dark: #1C1A14; --text-muted:#7A6A55;
     --border:    rgba(26,53,96,0.10);
@@ -25,223 +25,304 @@
     width: 100vw; overflow-x: hidden;
   }
 
-  /* ── Hero strip ── */
+  /* ══════════════════════════
+     HERO
+  ══════════════════════════ */
   .admin-hero {
     background: var(--navy);
-    padding: 2rem 0 2.8rem;
+    padding: 2.5rem 0 4rem;
     position: relative; overflow: hidden;
   }
+  /* Patrón de fondo */
   .admin-hero::before {
     content:''; position:absolute; inset:0;
     background:
-      radial-gradient(ellipse 50% 100% at 0% 100%, rgba(58,95,160,0.4) 0%, transparent 55%),
-      radial-gradient(ellipse 40% 80% at 100% 0%,  rgba(201,168,76,0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 55% 100% at 0%   100%, rgba(58,95,160,0.45) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 80%  at 100% 0%,   rgba(201,168,76,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 30% 60%  at 50%  50%,  rgba(26,53,96,0.3)   0%, transparent 60%);
+    pointer-events:none;
+  }
+  .admin-hero-dots {
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle, rgba(240,192,64,0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
     pointer-events:none;
   }
   .admin-hero::after {
-    content:''; position:absolute; bottom:-1px; left:0; right:0; height:36px;
+    content:''; position:absolute; bottom:-1px; left:0; right:0; height:44px;
     background:var(--offwhite);
-    clip-path:polygon(0 100%,100% 100%,100% 20%,0 100%);
+    clip-path:polygon(0 100%,100% 100%,100% 15%,0 100%);
+    z-index:2;
   }
   .admin-hero-inner {
     position:relative; z-index:1;
-    max-width:1200px; margin:0 auto; padding:0 1.5rem;
+    max-width:1240px; margin:0 auto; padding:0 1.5rem;
     display:flex; align-items:center; gap:1.5rem;
   }
   .admin-avatar {
-    width:60px; height:60px; border-radius:16px;
-    background:rgba(240,192,64,0.15);
-    border:2px solid rgba(240,192,64,0.3);
+    width:64px; height:64px; border-radius:18px;
+    background:rgba(240,192,64,0.12);
+    border:2px solid rgba(240,192,64,0.28);
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 0 0 6px rgba(240,192,64,0.06), 0 8px 24px rgba(0,0,0,0.2);
   }
   .admin-avatar svg { width:30px;height:30px;stroke:var(--gold-lt);fill:none;stroke-width:1.6;stroke-linecap:round; }
+
+  .hero-pretitle {
+    font-size:0.65rem; font-weight:800; letter-spacing:0.22em;
+    text-transform:uppercase; color:var(--gold-lt);
+    display:flex; align-items:center; gap:0.5rem; margin-bottom:0.3rem;
+    opacity:0; animation: revealUp 0.55s ease 0.05s forwards;
+  }
+  .hero-pretitle::before { content:''; width:24px; height:1px; background:rgba(240,192,64,0.35); }
+
   .admin-hero h1 {
     font-family:'Bebas Neue',sans-serif;
-    font-size:clamp(1.6rem,4vw,2.4rem); color:#fff;
-    letter-spacing:0.05em; line-height:1; margin-bottom:0.15rem;
+    font-size:clamp(1.8rem,4vw,2.8rem); color:#fff;
+    letter-spacing:0.05em; line-height:0.95; margin-bottom:0.2rem;
+    opacity:0; animation: revealUp 0.55s ease 0.15s forwards;
   }
   .admin-hero h1 span { color:var(--gold-lt); }
-  .admin-hero p { font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.5); margin:0; }
-
-  /* ── Layout ── */
-  .admin-layout {
-    max-width:1200px; margin:0 auto;
-    padding:2rem 1.5rem 4rem;
+  .admin-hero p.hero-sub {
+    font-size:0.8rem; font-weight:600; color:rgba(255,255,255,0.42); margin:0;
+    opacity:0; animation: revealUp 0.55s ease 0.25s forwards;
   }
 
-  /* ── Barra de controles ── */
+  /* ══════════════════════════
+     LAYOUT
+  ══════════════════════════ */
+  .admin-layout {
+    max-width:1240px; margin:0 auto;
+    padding:2.5rem 1.5rem 5rem;
+  }
+
+  /* ══════════════════════════
+     BARRA DE CONTROLES
+  ══════════════════════════ */
   .admin-controls {
     display:flex; flex-wrap:wrap; align-items:center;
-    gap:0.6rem; margin-bottom:1.5rem;
-    background:#fff; border-radius:16px;
+    gap:0.6rem; margin-bottom:1.75rem;
+    background:#fff; border-radius:18px;
     border:1px solid var(--border);
-    box-shadow:0 2px 12px rgba(26,53,96,0.05);
-    padding:0.9rem 1.2rem;
+    box-shadow:0 2px 16px rgba(26,53,96,0.05);
+    padding:1rem 1.3rem;
+    opacity:0; animation: revealUp 0.55s ease 0.3s forwards;
   }
-
   .ctrl-label {
-    font-size:0.72rem; font-weight:800; letter-spacing:0.12em;
+    font-size:0.68rem; font-weight:800; letter-spacing:0.14em;
     text-transform:uppercase; color:var(--text-muted);
   }
-
   .ctrl-select {
-    border:1.5px solid var(--border); border-radius:9px;
-    padding:0.38rem 0.75rem; font-family:'Nunito',sans-serif;
+    border:1.5px solid var(--border); border-radius:10px;
+    padding:0.4rem 0.85rem; font-family:'Nunito',sans-serif;
     font-size:0.82rem; font-weight:700; color:var(--text-dark);
-    background:#fff; cursor:pointer; outline:none;
-    transition:border-color 0.2s;
+    background:#fff; cursor:pointer; outline:none; transition:border-color 0.2s;
   }
   .ctrl-select:focus { border-color:var(--navy); }
-
   .ctrl-spacer { flex:1; }
 
   /* Vista toggle */
   .view-toggle {
     display:flex; background:rgba(26,53,96,0.07);
-    border-radius:10px; padding:3px; gap:0;
+    border-radius:11px; padding:3px; gap:0;
   }
   .view-btn {
-    border:none; background:transparent;
-    border-radius:8px; padding:0.38rem 1rem;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.8rem;
-    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    border:none; background:transparent; border-radius:9px;
+    padding:0.4rem 1.1rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.78rem;
+    letter-spacing:0.05em; text-transform:uppercase; cursor:pointer;
     color:var(--text-muted); transition:all 0.2s;
   }
-  .view-btn.active { background:#fff; color:var(--navy); box-shadow:0 1px 6px rgba(26,53,96,0.12); }
+  .view-btn.active {
+    background:#fff; color:var(--navy);
+    box-shadow:0 2px 8px rgba(26,53,96,0.12);
+  }
 
   /* Botón agregar */
   .btn-admin-add {
     background:var(--jungle); color:#fff; border:none;
-    border-radius:9px; padding:0.42rem 1rem;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.82rem;
-    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
+    border-radius:10px; padding:0.48rem 1.1rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.8rem;
+    letter-spacing:0.05em; text-transform:uppercase; cursor:pointer;
     display:flex; align-items:center; gap:0.35rem;
-    transition:background 0.2s, transform 0.18s;
+    box-shadow:0 3px 14px rgba(27,67,50,0.22);
+    transition:background 0.2s, transform 0.18s, box-shadow 0.2s;
   }
-  .btn-admin-add:hover { background:var(--jungle-md); transform:translateY(-1px); }
-  .btn-admin-add svg { width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round; }
+  .btn-admin-add:hover { background:var(--jungle-md); transform:translateY(-2px); box-shadow:0 6px 20px rgba(27,67,50,0.3); }
+  .btn-admin-add svg { width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.8;stroke-linecap:round; }
 
-  /* ── Vistas ── */
+  /* ══════════════════════════
+     VISTAS
+  ══════════════════════════ */
   .admin-view { display:none; }
-  .admin-view.active { display:block; }
+  .admin-view.active { display:block; animation: revealUp 0.4s ease forwards; }
 
-  /* ── Tabla ── */
+  /* ══════════════════════════
+     TABLA CARD
+  ══════════════════════════ */
   .table-card {
-    background:#fff; border-radius:18px;
+    background:#fff; border-radius:20px;
     border:1px solid var(--border);
-    box-shadow:0 2px 16px rgba(26,53,96,0.05);
+    box-shadow:0 2px 20px rgba(26,53,96,0.06);
     overflow:hidden; margin-bottom:1rem;
   }
-
   .table-card-header {
-    padding:1rem 1.3rem;
+    padding:1.1rem 1.4rem;
     border-bottom:1px solid var(--border);
-    display:flex; align-items:center; gap:0.5rem;
+    display:flex; align-items:center; gap:0.6rem;
+    background:rgba(26,53,96,0.015);
   }
-  .table-card-header svg { width:18px;height:18px;stroke:var(--navy);fill:none;stroke-width:1.8;stroke-linecap:round; }
+  .table-card-header-icon {
+    width:36px; height:36px; border-radius:10px;
+    background:rgba(26,53,96,0.08);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .table-card-header-icon svg { width:17px;height:17px;stroke:var(--navy);fill:none;stroke-width:2;stroke-linecap:round; }
   .table-card-title {
-    font-family:'Bebas Neue',sans-serif; font-size:1rem;
-    letter-spacing:0.08em; color:var(--navy);
+    font-family:'Bebas Neue',sans-serif; font-size:1.05rem;
+    letter-spacing:0.09em; color:var(--navy);
   }
   .table-card-count {
-    margin-left:auto; font-size:0.72rem; font-weight:800;
-    letter-spacing:0.1em; text-transform:uppercase;
+    margin-left:auto; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.12em; text-transform:uppercase;
     color:var(--text-muted);
+    background:rgba(26,53,96,0.06); border-radius:100px;
+    padding:0.18rem 0.6rem;
   }
 
+  /* Tabla */
   .pp-table { width:100%; border-collapse:collapse; font-size:0.84rem; }
-  .pp-table thead tr { border-bottom:1px solid var(--border); }
+  .pp-table thead tr { border-bottom:1.5px solid var(--border); }
   .pp-table thead th {
-    padding:0.6rem 0.85rem; font-weight:800;
-    color:var(--text-muted); font-size:0.72rem;
-    letter-spacing:0.1em; text-transform:uppercase;
+    padding:0.65rem 1rem; font-weight:800;
+    color:var(--text-muted); font-size:0.68rem;
+    letter-spacing:0.12em; text-transform:uppercase;
     white-space:nowrap; text-align:left;
+    background:rgba(26,53,96,0.01);
   }
   .pp-table tbody tr { border-bottom:1px solid rgba(26,53,96,0.05); transition:background 0.15s; }
   .pp-table tbody tr:last-child { border-bottom:none; }
-  .pp-table tbody tr:hover { background:rgba(26,53,96,0.03); }
-  .pp-table td {
-    padding:0.55rem 0.85rem; vertical-align:middle; color:var(--text-dark);
-  }
+  .pp-table tbody tr:hover { background:rgba(26,53,96,0.025); }
+  .pp-table td { padding:0.6rem 1rem; vertical-align:middle; color:var(--text-dark); }
 
-  /* ── Badges ── */
+  /* ── Badges de categoría ── */
   .badge-cat {
-    display:inline-block; padding:0.18rem 0.6rem;
-    border-radius:100px; font-size:0.68rem; font-weight:800;
-    letter-spacing:0.08em; text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:0.25rem;
+    padding:0.2rem 0.65rem; border-radius:100px;
+    font-size:0.66rem; font-weight:800; letter-spacing:0.09em; text-transform:uppercase;
   }
-  .badge-cat.ropa        { background:rgba(27,67,50,0.12);  color:var(--jungle); }
-  .badge-cat.tazas       { background:rgba(122,59,30,0.12); color:var(--earth); }
-  .badge-cat.impresiones { background:rgba(26,53,96,0.12);  color:var(--navy); }
+  .badge-cat::before { content:''; width:5px; height:5px; border-radius:50%; }
+  .badge-cat.ropa        { background:rgba(27,67,50,0.10);  color:var(--jungle); }
+  .badge-cat.ropa::before        { background:var(--jungle); }
+  .badge-cat.tazas       { background:rgba(122,59,30,0.10); color:var(--earth); }
+  .badge-cat.tazas::before       { background:var(--earth); }
+  .badge-cat.impresiones { background:rgba(26,53,96,0.10);  color:var(--navy); }
+  .badge-cat.impresiones::before { background:var(--navy); }
 
+  /* ── Badges de estatus ── */
   .badge-status {
-    display:inline-block; padding:0.18rem 0.6rem;
-    border-radius:100px; font-size:0.7rem; font-weight:800;
+    display:inline-flex; align-items:center; gap:0.28rem;
+    padding:0.2rem 0.65rem; border-radius:100px;
+    font-size:0.68rem; font-weight:800; letter-spacing:0.04em;
   }
+  .badge-status::before { content:''; width:5px; height:5px; border-radius:50%; }
   .badge-status.pendiente  { background:#fef3cd; color:#856404; }
+  .badge-status.pendiente::before  { background:#856404; }
   .badge-status.enviado    { background:#d1ecf1; color:#0c5460; }
+  .badge-status.enviado::before    { background:#0c5460; }
   .badge-status.entregado  { background:#d4edda; color:#155724; }
+  .badge-status.entregado::before  { background:#155724; }
   .badge-status.cancelado  { background:#f8d7da; color:#721c24; }
+  .badge-status.cancelado::before  { background:#721c24; }
 
-  /* ── Acciones en tabla ── */
-  .tbl-actions { display:flex; gap:0.35rem; }
+  /* ── Cantidad con mini-barra visual ── */
+  .qty-cell { display:flex; align-items:center; gap:0.5rem; min-width:64px; }
+  .qty-val  { font-weight:800; min-width:24px; }
+  .qty-bar  { flex:1; height:4px; background:rgba(26,53,96,0.08); border-radius:2px; overflow:hidden; }
+  .qty-fill { height:100%; border-radius:2px; background:var(--jungle-lt); transition:width 0.4s; }
+  .qty-fill.low  { background:var(--earth-lt); }
+  .qty-fill.zero { background:var(--danger); }
+
+  /* ── Precio ── */
+  .price-cell { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:0.04em; color:var(--jungle); }
+
+  /* ── Acciones ── */
+  .tbl-actions { display:flex; gap:0.3rem; }
   .btn-tbl {
-    border:none; border-radius:7px; padding:0.3rem 0.65rem;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.72rem;
-    letter-spacing:0.04em; text-transform:uppercase; cursor:pointer;
-    transition:all 0.18s;
+    border:none; border-radius:8px; padding:0.28rem 0.7rem;
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.7rem;
+    letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; transition:all 0.18s;
   }
   .btn-tbl-edit   { background:rgba(26,53,96,0.08); color:var(--navy); }
   .btn-tbl-edit:hover   { background:var(--navy); color:#fff; }
-  .btn-tbl-delete { background:rgba(192,57,43,0.09); color:var(--danger); }
+  .btn-tbl-delete { background:rgba(192,57,43,0.08); color:var(--danger); }
   .btn-tbl-delete:hover { background:var(--danger); color:#fff; }
 
   /* ── Pie de tabla ── */
   .table-footer {
-    padding:0.7rem 1.2rem;
+    padding:0.8rem 1.4rem;
     border-top:1px solid var(--border);
     display:flex; justify-content:space-between; align-items:center;
     background:rgba(26,53,96,0.02);
   }
-  .table-footer-label { font-size:0.75rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
-  .table-footer-value { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; color:var(--navy); letter-spacing:0.04em; }
+  .table-footer-label {
+    font-size:0.68rem; font-weight:800; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--text-muted);
+  }
+  .table-footer-value {
+    font-family:'Bebas Neue',sans-serif; font-size:1.35rem;
+    color:var(--jungle); letter-spacing:0.04em;
+  }
 
   /* ── Empty ── */
-  .tbl-empty { text-align:center; padding:2.5rem 1rem; color:var(--text-muted); font-size:0.88rem; font-weight:700; }
+  .tbl-empty {
+    text-align:center; padding:3rem 1rem;
+    color:var(--text-muted); font-size:0.88rem; font-weight:700;
+  }
 
-  /* ── Modales ── */
+  /* ══════════════════════════
+     MODALES
+  ══════════════════════════ */
   .pp-modal .modal-content {
-    border:none; border-radius:20px;
-    box-shadow:0 24px 64px rgba(0,0,0,0.18); overflow:hidden;
+    border:none; border-radius:22px;
+    box-shadow:0 32px 80px rgba(0,0,0,0.18); overflow:hidden;
   }
   .pp-modal .modal-header {
-    background: var(--navy); color:#fff; border-bottom:none;
-    padding:1.1rem 1.4rem;
+    background:var(--navy); color:#fff; border-bottom:none;
+    padding:1.2rem 1.5rem; position:relative; overflow:hidden;
   }
-  .pp-modal .modal-title { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:0.06em; }
+  .pp-modal .modal-header::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 80% 100% at 100% 100%, rgba(58,95,160,0.3) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .pp-modal .modal-title {
+    font-family:'Bebas Neue',sans-serif; font-size:1.25rem;
+    letter-spacing:0.08em; position:relative; z-index:1;
+  }
   .pp-modal .btn-close-white { filter:invert(1) brightness(2); }
-  .pp-modal .modal-body { padding:1.4rem; }
-  .pp-modal .modal-footer { border-top:1px solid var(--border); padding:1rem 1.4rem; }
+  .pp-modal .modal-body { padding:1.5rem; }
+  .pp-modal .modal-footer { border-top:1px solid var(--border); padding:1.1rem 1.5rem; }
 
   .pp-form-label {
-    font-size:0.72rem; font-weight:800; letter-spacing:0.1em;
+    font-size:0.68rem; font-weight:800; letter-spacing:0.12em;
     text-transform:uppercase; color:var(--text-muted); margin-bottom:0.3rem; display:block;
   }
   .pp-form-input {
-    width:100%; padding:0.55rem 0.75rem;
-    border:1.5px solid var(--border); border-radius:10px;
+    width:100%; padding:0.6rem 0.85rem;
+    border:1.5px solid var(--border); border-radius:11px;
     font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700;
-    color:var(--text-dark); outline:none; transition:border-color 0.2s, box-shadow 0.2s;
-    background:#fff;
+    color:var(--text-dark); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s; background:#fff;
   }
-  .pp-form-input:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,53,96,0.08); }
+  .pp-form-input:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,53,96,0.09); }
   .pp-form-select { appearance:auto; cursor:pointer; }
 
-  .pp-modal-error { color:var(--danger); font-size:0.8rem; font-weight:700; margin-top:0.5rem; display:none; }
+  .pp-modal-error { color:var(--danger); font-size:0.78rem; font-weight:700; margin-top:0.5rem; display:none; }
 
   .btn-modal-cancel {
     background:transparent; color:var(--text-muted);
-    border:1.5px solid var(--border); border-radius:10px; padding:0.55rem 1.2rem;
+    border:1.5px solid var(--border); border-radius:11px; padding:0.58rem 1.3rem;
     font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem;
     cursor:pointer; transition:all 0.18s;
   }
@@ -249,52 +330,65 @@
 
   .btn-modal-save {
     background:var(--jungle); color:#fff; border:none;
-    border-radius:10px; padding:0.55rem 1.4rem;
+    border-radius:11px; padding:0.58rem 1.5rem;
     font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem;
-    cursor:pointer; transition:background 0.18s;
+    cursor:pointer; box-shadow:0 3px 12px rgba(27,67,50,0.25);
+    transition:background 0.18s, transform 0.18s;
   }
-  .btn-modal-save:hover { background:var(--jungle-md); }
+  .btn-modal-save:hover { background:var(--jungle-md); transform:translateY(-1px); }
 
   .btn-modal-delete {
     background:var(--danger); color:#fff; border:none;
-    border-radius:10px; padding:0.55rem 1.4rem;
+    border-radius:11px; padding:0.58rem 1.5rem;
     font-family:'Nunito',sans-serif; font-weight:800; font-size:0.84rem;
-    cursor:pointer; transition:background 0.18s;
+    cursor:pointer; transition:background 0.18s, transform 0.18s;
+    box-shadow:0 3px 12px rgba(192,57,43,0.25);
   }
-  .btn-modal-delete:hover { background:#a93226; }
+  .btn-modal-delete:hover { background:#a93226; transform:translateY(-1px); }
 
-  /* Campo oculto por categoría */
+  /* Filas dinámicas */
   #rowTalla, #rowTamano { display:none; }
+
+  /* ══════════════════════════
+     ANIMACIONES
+  ══════════════════════════ */
+  @keyframes revealUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
 
   @media (max-width:768px) {
     .admin-controls { flex-direction:column; align-items:flex-start; }
     .ctrl-spacer { display:none; }
     .pp-table { font-size:0.78rem; }
+    .pp-table th, .pp-table td { padding:0.5rem 0.65rem; }
   }
 </style>
 
 <div class="page-wrapper">
 
-  <!-- HERO -->
+  <!-- ════════ HERO ════════ -->
   <div class="admin-hero">
+    <div class="admin-hero-dots"></div>
     <div class="admin-hero-inner">
       <div class="admin-avatar">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
       </div>
       <div>
-        <h1>Panel <span>Admin</span></h1>
-        <p>{{ usuario.nombre }} · {{ usuario.correo }}</p>
+        <p class="hero-pretitle">Panel de control</p>
+        <h1>Admin <span>Paleo Prints</span></h1>
+        <p class="hero-sub">{{ usuario.nombre }} · {{ usuario.correo }}</p>
       </div>
     </div>
   </div>
 
   <div class="admin-layout">
 
-    <!-- CONTROLES -->
+    <!-- ════════ CONTROLES ════════ -->
     <div class="admin-controls">
       <span class="ctrl-label">Filtrar:</span>
       <select class="ctrl-select" id="filtroCategoria" onchange="aplicarFiltro()">
-        <option value="todo">Todo</option>
+        <option value="todo">Todas las categorías</option>
         <option value="Ropa">Ropa</option>
         <option value="Tazas">Tazas</option>
         <option value="Impresiones3D">Impresiones 3D</option>
@@ -313,11 +407,13 @@
       </div>
     </div>
 
-    <!-- ══════ INVENTARIO ══════ -->
+    <!-- ════════ INVENTARIO ════════ -->
     <div id="inventario" class="admin-view active">
       <div class="table-card">
         <div class="table-card-header">
-          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <div class="table-card-header-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
           <span class="table-card-title">Inventario de productos</span>
           <span class="table-card-count" id="inv-count">— productos</span>
         </div>
@@ -330,7 +426,7 @@
                 <th>Nombre</th>
                 <th>Diseño</th>
                 <th>Talla / Tam.</th>
-                <th>Cant.</th>
+                <th>Cantidad</th>
                 <th>Precio</th>
                 <th>Categoría</th>
                 <th>Opciones</th>
@@ -349,18 +445,23 @@
               {% endfor %}
 
               {% if todos %}
+                {% set max_qty = todos | map(attribute='cantidad') | max %}
                 {% for p in todos %}
                 <tr data-cat="{{ p.cat }}">
-                  <td style="color:var(--text-muted);font-weight:800;">#{{ p.id }}</td>
-                  <td style="font-weight:800;" title="{{ p.nombre }}">{{ p.nombre[:22] }}{% if p.nombre|length > 22 %}…{% endif %}</td>
-                  <td style="color:var(--text-muted);">{{ p.diseno or '—' }}</td>
-                  <td>{{ p.tam or '—' }}</td>
+                  <td style="color:var(--text-muted);font-weight:800;font-size:0.78rem;">#{{ p.id }}</td>
+                  <td style="font-weight:800;" title="{{ p.nombre }}">{{ p.nombre[:24] }}{% if p.nombre|length > 24 %}…{% endif %}</td>
+                  <td style="color:var(--text-muted);font-size:0.82rem;">{{ p.diseno or '—' }}</td>
+                  <td style="font-size:0.82rem;">{{ p.tam or '—' }}</td>
                   <td>
-                    <span>
-                      {{ p.cantidad }}
-                    </span>
+                    <div class="qty-cell">
+                      <span class="qty-val">{{ p.cantidad }}</span>
+                      <div class="qty-bar">
+                        <div class="qty-fill {% if p.cantidad == 0 %}zero{% elif p.cantidad < 5 %}low{% endif %}"
+                             style="width:{{ [((p.cantidad / max_qty) * 100)|int, 100]|min if max_qty > 0 else 0 }}%"></div>
+                      </div>
+                    </div>
                   </td>
-                  <td style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.04em;">${{ "%.2f"|format(p.precio) }}</td>
+                  <td><span class="price-cell">${{ "%.2f"|format(p.precio) }}</span></td>
                   <td>
                     <span class="badge-cat {% if p.cat=='Ropa' %}ropa{% elif p.cat=='Tazas' %}tazas{% else %}impresiones{% endif %}">
                       {{ p.cat }}
@@ -395,13 +496,19 @@
       </div>
     </div>
 
-    <!-- ══════ VENTAS ══════ -->
+    <!-- ════════ VENTAS ════════ -->
     <div id="ventas" class="admin-view">
       <div class="table-card">
         <div class="table-card-header">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          <div class="table-card-header-icon">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
           <span class="table-card-title">Órdenes y ventas</span>
+          {% if ordenes %}
+          <span class="table-card-count">{{ ordenes|length }} orden{{ 'es' if ordenes|length != 1 else '' }}</span>
+          {% endif %}
         </div>
+
         <div style="overflow-x:auto;">
           <table class="pp-table">
             <thead>
@@ -421,12 +528,12 @@
                 {% for o in ordenes %}
                 <tr>
                   <td style="font-weight:800;color:var(--navy);">#{{ o.orden_id }}</td>
-                  <td style="color:var(--text-muted);">{{ o.usuario_id }}</td>
-                  <td>{{ o.fecha_creada.strftime('%d/%m/%y') if o.fecha_creada else '—' }}</td>
-                  <td>{{ o.fecha_de_envio.strftime('%d/%m/%y') if o.fecha_de_envio else '—' }}</td>
-                  <td title="{{ o.productos_id }}" style="color:var(--text-muted);">{{ o.productos_id or '—' }}</td>
-                  <td>{{ o.cantidad_por_producto or '—' }}</td>
-                  <td style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.04em;">${{ "%.2f"|format(o.pago_total) }}</td>
+                  <td style="color:var(--text-muted);font-size:0.82rem;">{{ o.usuario_id }}</td>
+                  <td style="font-size:0.82rem;">{{ o.fecha_creada.strftime('%d/%m/%y') if o.fecha_creada else '—' }}</td>
+                  <td style="font-size:0.82rem;">{{ o.fecha_de_envio.strftime('%d/%m/%y') if o.fecha_de_envio else '—' }}</td>
+                  <td title="{{ o.productos_id }}" style="color:var(--text-muted);font-size:0.82rem;">{{ o.productos_id or '—' }}</td>
+                  <td style="font-size:0.82rem;">{{ o.cantidad_por_producto or '—' }}</td>
+                  <td><span class="price-cell">${{ "%.2f"|format(o.pago_total) }}</span></td>
                   <td><span class="badge-status {{ o.estatus }}">{{ o.estatus|capitalize }}</span></td>
                 </tr>
                 {% endfor %}
@@ -436,6 +543,7 @@
             </tbody>
           </table>
         </div>
+
         {% if ordenes %}
         <div class="table-footer">
           <span class="table-footer-label">Total recaudado</span>
@@ -448,7 +556,7 @@
   </div><!-- /admin-layout -->
 </div><!-- /page-wrapper -->
 
-<!-- ══════ MODAL: PRODUCTO ══════ -->
+<!-- ════════ MODAL: PRODUCTO ════════ -->
 <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content pp-modal">
@@ -513,7 +621,7 @@
   </div>
 </div>
 
-<!-- ══════ MODAL: CONFIRMAR BORRAR ══════ -->
+<!-- ════════ MODAL: CONFIRMAR BORRAR ════════ -->
 <div class="modal fade" id="modalBorrar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content pp-modal">
@@ -521,7 +629,7 @@
         <h5 class="modal-title">Confirmar eliminación</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" style="font-size:0.88rem;line-height:1.6;color:var(--text-muted);">
+      <div class="modal-body" style="font-size:0.88rem;line-height:1.65;color:var(--text-muted);">
         ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
       </div>
       <div class="modal-footer">
@@ -533,13 +641,11 @@
 </div>
 
 <script>
-  /* ── Contador de filas visibles ── */
   function actualizarContador() {
     const total = document.querySelectorAll('#tbodyInventario tr[data-cat]:not([style*="none"])').length;
     document.getElementById('inv-count').textContent = `${total} producto${total !== 1 ? 's' : ''}`;
   }
 
-  /* ── Vista ── */
   function mostrarVista(id) {
     document.querySelectorAll('.admin-view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -547,7 +653,6 @@
     document.getElementById(id === 'inventario' ? 'btnInventario' : 'btnVentas').classList.add('active');
   }
 
-  /* ── Filtro ── */
   function aplicarFiltro() {
     const cat = document.getElementById('filtroCategoria').value;
     document.querySelectorAll('#tbodyInventario tr[data-cat]').forEach(tr => {
@@ -556,14 +661,12 @@
     actualizarContador();
   }
 
-  /* ── Campos dinámicos ── */
   function actualizarCamposTam() {
     const cat = document.getElementById('prodCategoria').value;
     document.getElementById('rowTalla').style.display  = cat === 'Ropa' ? 'block' : 'none';
     document.getElementById('rowTamano').style.display = (cat === 'Tazas' || cat === 'Impresiones3D') ? 'block' : 'none';
   }
 
-  /* ── Nuevo producto ── */
   function abrirNuevoProducto() {
     document.getElementById('modalProductoLabel').textContent = 'Nuevo Producto';
     ['prodId','prodCatOriginal','prodNombre','prodDiseno','prodTalla','prodTamano','prodCantidad','prodPrecio','prodImagenRuta'].forEach(id => { document.getElementById(id).value = ''; });
@@ -575,7 +678,6 @@
     new bootstrap.Modal(document.getElementById('modalProducto')).show();
   }
 
-  /* ── Editar producto ── */
   function abrirEditarProducto(btn) {
     const d = btn.dataset;
     document.getElementById('modalProductoLabel').textContent = 'Editar Producto';
@@ -594,7 +696,6 @@
     new bootstrap.Modal(document.getElementById('modalProducto')).show();
   }
 
-  /* ── Guardar ── */
   async function guardarProducto() {
     const id  = document.getElementById('prodId').value;
     const cat = document.getElementById('prodCatOriginal').value || document.getElementById('prodCategoria').value;
@@ -614,7 +715,6 @@
     if (res.ok) location.reload(); else alert('Error al guardar el producto.');
   }
 
-  /* ── Borrar ── */
   let _borrarCat = '', _borrarId = 0;
   function borrarProducto(btn) { _borrarCat = btn.dataset.cat; _borrarId = btn.dataset.id; new bootstrap.Modal(document.getElementById('modalBorrar')).show(); }
   async function confirmarBorrar() {
